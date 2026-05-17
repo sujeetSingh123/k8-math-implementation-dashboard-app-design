@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
-import { AlertTriangle, Upload, Save } from 'lucide-react'
+import { AlertTriangle, Upload, Save, Paperclip } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { ChipSelector } from '../../components/ui/ChipSelector'
+import { toast } from '../../store/useToastStore'
 import type { ImplementationLog, Adaptation } from '../../types'
 
 const roleColor = '#10B981'
@@ -73,11 +74,17 @@ function AdaptationSubForm({
 
 export function DailyLog() {
   const { currentUser, implementationLogs, addLog, addAdaptation } = useAppStore()
-  const [saved, setSaved] = useState(false)
   const [tierChips, setTierChips] = useState<string[]>([])
   const [whatModified, setWhatModified] = useState<string[]>([])
   const [reasons, setReasons] = useState<string[]>([])
   const [adaptationOccurred, setAdaptationOccurred] = useState(false)
+  const [artifactFile, setArtifactFile] = useState<string | null>(null)
+  const [dataFile, setDataFile] = useState<string | null>(null)
+  const [dataScore, setDataScore] = useState('')
+  const [dataType, setDataType] = useState('Class Average')
+  const [dataDate, setDataDate] = useState(new Date().toISOString().split('T')[0])
+  const artifactRef = useRef<HTMLInputElement>(null)
+  const csvRef = useRef<HTMLInputElement>(null)
 
   const myLogs = implementationLogs.filter(l => l.teacherId === currentUser.id).sort((a,b) => b.date.localeCompare(a.date))
   const lastLog = myLogs[0]
@@ -115,14 +122,39 @@ export function DailyLog() {
         date: new Date().toISOString().split('T')[0],
       }
       addAdaptation(adaptation)
+      toast.success('Log and adaptation saved!')
+    } else {
+      toast.success('Implementation log saved successfully!')
     }
-    setSaved(true)
     reset()
     setTierChips([])
     setWhatModified([])
     setReasons([])
     setAdaptationOccurred(false)
-    setTimeout(() => setSaved(false), 3000)
+    setArtifactFile(null)
+  }
+
+  const handleArtifact = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setArtifactFile(file.name)
+      toast.success(`Artifact attached: ${file.name}`)
+    }
+  }
+
+  const handleCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setDataFile(file.name)
+      toast.info(`Parsing ${file.name}…`)
+      setTimeout(() => toast.success('Student data uploaded successfully!'), 1000)
+    }
+  }
+
+  const handleManualUpload = () => {
+    if (!dataScore) { toast.warning('Enter a score value before uploading.'); return }
+    toast.success(`${dataType} score of ${dataScore} recorded for ${dataDate}`)
+    setDataScore('')
   }
 
   return (
@@ -131,11 +163,6 @@ export function DailyLog() {
         <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-amber-800">
           <AlertTriangle size={18} className="flex-shrink-0 mt-0.5" />
           <p className="text-sm font-medium">Implementation log missing for {daysSinceLog} days</p>
-        </div>
-      )}
-      {saved && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-emerald-800 text-sm font-medium">
-          Log saved successfully!
         </div>
       )}
       {lastLog && <p className="text-xs text-gray-400">Pre-filled from your last entry on {lastLog.date}</p>}
@@ -174,8 +201,7 @@ export function DailyLog() {
             <div className="flex flex-wrap gap-3 sm:gap-4">
               {[{v:'fully',l:'Fully completed'},{v:'partially',l:'Partially completed'},{v:'not_completed',l:'Not completed'}].map(({v,l})=>(
                 <label key={v} className="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
-                  <input type="radio" value={v} {...register('lessonCompletion')} className="accent-emerald-500" />
-                  {l}
+                  <input type="radio" value={v} {...register('lessonCompletion')} className="accent-emerald-500" />{l}
                 </label>
               ))}
             </div>
@@ -198,22 +224,40 @@ export function DailyLog() {
             <label className="text-xs font-medium text-gray-600 block mb-1.5">Notes (optional)</label>
             <textarea {...register('notes')} rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300" placeholder="Any notes about today's lesson..." />
           </div>
+          {artifactFile && (
+            <div className="flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-lg">
+              <Paperclip size={12} />{artifactFile}
+            </div>
+          )}
           <div className="flex flex-wrap gap-3 pt-2">
             <Button type="submit" roleColor={roleColor}><Save size={15}/>Save Log</Button>
-            <Button type="button" variant="secondary" roleColor={roleColor}><Upload size={15}/>Upload Artifact</Button>
+            <Button type="button" variant="secondary" roleColor={roleColor} onClick={() => artifactRef.current?.click()}>
+              <Upload size={15}/>Upload Artifact
+            </Button>
+            <input ref={artifactRef} type="file" className="hidden" accept=".pdf,.jpg,.png,.doc,.docx" onChange={handleArtifact} />
           </div>
         </form>
       </Card>
+
       <Card>
         <p className="text-sm font-semibold text-gray-800 mb-3">Student Data Upload</p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-          <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+          <select value={dataType} onChange={e => setDataType(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
             <option>Class Average</option><option>Progress Monitoring</option><option>Benchmark Score</option>
           </select>
-          <input type="date" className="border border-gray-300 rounded-lg px-3 py-2 text-sm" defaultValue={new Date().toISOString().split('T')[0]} />
-          <input type="number" placeholder="Score / Value" className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+          <input type="date" value={dataDate} onChange={e => setDataDate(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+          <input type="number" placeholder="Score / Value" value={dataScore} onChange={e => setDataScore(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
         </div>
-        <Button variant="secondary" roleColor={roleColor} size="sm"><Upload size={14}/>Upload CSV</Button>
+        {dataFile && <p className="text-xs text-emerald-600 mb-2">File: {dataFile}</p>}
+        <div className="flex flex-wrap gap-2">
+          <Button variant="primary" roleColor={roleColor} size="sm" onClick={handleManualUpload}>
+            <Save size={14}/>Record Score
+          </Button>
+          <Button variant="secondary" roleColor={roleColor} size="sm" onClick={() => csvRef.current?.click()}>
+            <Upload size={14}/>Upload CSV
+          </Button>
+          <input ref={csvRef} type="file" className="hidden" accept=".csv" onChange={handleCSV} />
+        </div>
       </Card>
     </div>
   )

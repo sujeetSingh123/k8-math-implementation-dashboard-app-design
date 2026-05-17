@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, Send, Inbox } from 'lucide-react'
+import { ChevronDown, ChevronUp, Send, Inbox, Plus } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
+import { Modal } from '../../components/ui/Modal'
+import { toast } from '../../store/useToastStore'
 
 const roleColor = '#3B82F6'
 
@@ -24,16 +26,30 @@ const initialItems: FeedbackItem[] = [
 export function FeedbackQueue() {
   const [items, setItems] = useState<FeedbackItem[]>(initialItems)
   const [showResolved, setShowResolved] = useState(false)
+  const [actionPlanModal, setActionPlanModal] = useState<FeedbackItem | null>(null)
+  const [actionText, setActionText] = useState('')
 
   const pending = items.filter(i => !i.resolved)
   const resolved = items.filter(i => i.resolved)
 
-  const updateReply = (id: string, reply: string) => {
-    setItems(prev => prev.map(i => i.id === id ? { ...i, reply } : i))
+  const updateReply = (id: string, reply: string) => setItems(prev => prev.map(i => i.id === id ? { ...i, reply } : i))
+
+  const sendFeedback = (item: FeedbackItem) => {
+    if (!item.reply.trim()) { toast.warning('Write a reply before sending.'); return }
+    setItems(prev => prev.map(i => i.id === item.id ? { ...i, resolved: true } : i))
+    toast.success(`Feedback sent to ${item.teacherName}!`)
   }
 
-  const sendFeedback = (id: string) => {
-    setItems(prev => prev.map(i => i.id === id ? { ...i, resolved: true } : i))
+  const addToActionPlan = (item: FeedbackItem) => {
+    setActionPlanModal(item)
+    setActionText(`Follow up with ${item.teacherName}: "${item.question.slice(0, 60)}…"`)
+  }
+
+  const confirmActionPlan = () => {
+    if (!actionText.trim()) return
+    toast.success(`Action item added to ${actionPlanModal?.teacherName}'s plan!`)
+    setActionPlanModal(null)
+    setActionText('')
   }
 
   return (
@@ -41,7 +57,8 @@ export function FeedbackQueue() {
       {pending.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12 text-gray-400">
           <Inbox size={28} className="mb-2" />
-          <p className="text-sm">No pending feedback items.</p>
+          <p className="text-sm font-medium">All caught up!</p>
+          <p className="text-xs mt-1">No pending feedback items.</p>
         </div>
       )}
       {pending.map(item => (
@@ -69,36 +86,30 @@ export function FeedbackQueue() {
             />
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button onClick={() => sendFeedback(item.id)} roleColor={roleColor} size="sm">
-              <Send size={13} />Send Feedback
-            </Button>
-            <Button variant="secondary" roleColor={roleColor} size="sm">
-              Add to Action Plan
-            </Button>
+            <Button onClick={() => sendFeedback(item)} roleColor={roleColor} size="sm"><Send size={13}/>Send Feedback</Button>
+            <Button variant="secondary" roleColor={roleColor} size="sm" onClick={() => addToActionPlan(item)}><Plus size={13}/>Add to Action Plan</Button>
           </div>
         </Card>
       ))}
+
       {resolved.length > 0 && (
         <div>
-          <button
-            onClick={() => setShowResolved(!showResolved)}
-            className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-700 cursor-pointer mb-2"
-          >
+          <button onClick={() => setShowResolved(!showResolved)} className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-700 cursor-pointer mb-2">
             {showResolved ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             Resolved ({resolved.length})
           </button>
           {showResolved && (
             <div className="space-y-2">
               {resolved.map(item => (
-                <Card key={item.id} className="opacity-60">
+                <Card key={item.id} className="opacity-70">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full text-white text-xs font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#6B7280' }}>
-                      {item.initials}
-                    </div>
-                    <div className="min-w-0">
+                    <div className="w-7 h-7 rounded-full text-white text-xs font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#6B7280' }}>{item.initials}</div>
+                    <div className="min-w-0 flex-1">
                       <p className="text-xs font-medium text-gray-700">{item.teacherName}</p>
                       <p className="text-xs text-gray-400 truncate">{item.question}</p>
                     </div>
+                    <button onClick={() => { setItems(prev => prev.map(i => i.id === item.id ? { ...i, resolved: false } : i)); toast.info('Feedback item reopened.') }}
+                      className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer flex-shrink-0">Reopen</button>
                   </div>
                   {item.reply && <p className="text-xs text-gray-500 mt-2 pl-9 italic">"{item.reply}"</p>}
                 </Card>
@@ -106,6 +117,19 @@ export function FeedbackQueue() {
             </div>
           )}
         </div>
+      )}
+
+      {actionPlanModal && (
+        <Modal open onClose={() => setActionPlanModal(null)} title="Add to Action Plan">
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">Adding a coaching action for <strong>{actionPlanModal.teacherName}</strong>:</p>
+            <textarea value={actionText} onChange={e => setActionText(e.target.value)} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
+            <div className="flex gap-2">
+              <Button roleColor={roleColor} onClick={confirmActionPlan}><Plus size={14}/>Add Action</Button>
+              <Button variant="ghost" roleColor={roleColor} onClick={() => setActionPlanModal(null)}>Cancel</Button>
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   )

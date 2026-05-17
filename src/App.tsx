@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Layout } from './components/layout/Layout'
+import { ToastContainer } from './components/ui/Toast'
 import { DailyLog } from './pages/teacher/DailyLog'
 import { FidelityCheck } from './pages/teacher/FidelityCheck'
 import { AdaptationForm } from './pages/teacher/AdaptationForm'
@@ -30,6 +31,7 @@ function DefaultRedirect() {
 export default function App() {
   return (
     <BrowserRouter>
+      <ToastContainer />
       <Layout>
         <Routes>
           <Route path="/" element={<DefaultRedirect />} />
