@@ -1,0 +1,123 @@
+import { useState } from 'react'
+import { MessageSquare, Eye, Flag, Users } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { useAppStore } from '../../store/useAppStore'
+import { Card } from '../../components/ui/Card'
+import { Badge } from '../../components/ui/Badge'
+import { users } from '../../data/mockData'
+
+const roleColor = '#3B82F6'
+
+function getStatus(avgFidelity: number): { label: string; color: 'green' | 'amber' | 'red' } {
+  if (avgFidelity >= 4.0) return { label: 'On Track', color: 'green' }
+  if (avgFidelity >= 3.0) return { label: 'Needs Support', color: 'amber' }
+  return { label: 'At Risk', color: 'red' }
+}
+
+export function TeacherCaseload() {
+  const { currentUser, implementationLogs, fidelityChecks, adaptations, coachingCycles } = useAppStore()
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+
+  const myTeachers = users.filter(u => u.role === 'teacher' && u.coachId === currentUser.id)
+
+  const teacherData = myTeachers.map(t => {
+    const logs = implementationLogs.filter(l => l.teacherId === t.id)
+    const checks = fidelityChecks.filter(f => f.teacherId === t.id)
+    const logRate = logs.length > 0 ? Math.round((logs.filter(l => l.lessonCompletion === 'fully').length / logs.length) * 100) : 0
+    const avgFidelity = checks.length > 0
+      ? (checks.reduce((sum, c) => sum + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / checks.length)
+      : 0
+    const adaptCount = adaptations.filter(a => a.teacherId === t.id).length
+    const cycle = coachingCycles.find(c => c.teacherId === t.id)
+    const lastMsg = cycle?.messages.slice(-1)[0]
+    const school = users.find(u => u.schoolId === t.schoolId)
+    const status = getStatus(avgFidelity)
+
+    const miniChart = [
+      { dim: 'Adh', score: checks.reduce((s, c) => s + c.adherence, 0) / Math.max(checks.length, 1) },
+      { dim: 'Dos', score: checks.reduce((s, c) => s + c.dosage, 0) / Math.max(checks.length, 1) },
+      { dim: 'Qual', score: checks.reduce((s, c) => s + c.quality, 0) / Math.max(checks.length, 1) },
+      { dim: 'Resp', score: checks.reduce((s, c) => s + c.responsiveness, 0) / Math.max(checks.length, 1) },
+      { dim: 'Conf', score: checks.reduce((s, c) => s + c.confidence, 0) / Math.max(checks.length, 1) },
+    ]
+
+    return { teacher: t, logRate, avgFidelity: avgFidelity.toFixed(1), adaptCount, lastMsg, school, status, miniChart }
+  })
+
+  const pendingCount = teacherData.filter(d => d.status.label !== 'On Track').length
+
+  return (
+    <div className="space-y-4">
+      {pendingCount > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-amber-800 text-sm font-medium">
+          {pendingCount} teacher{pendingCount > 1 ? 's' : ''} need support or are at risk — review below.
+        </div>
+      )}
+      <Card padding="none">
+        <div className="px-5 py-4 border-b border-gray-100">
+          <h2 className="text-sm font-semibold text-gray-800">Teacher Caseload</h2>
+        </div>
+        {myTeachers.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+            <Users size={24} className="mb-2" />
+            <p className="text-sm">No teachers assigned.</p>
+          </div>
+        ) : (
+          <div>
+            {teacherData.map(d => (
+              <div key={d.teacher.id}>
+                <div
+                  className="flex items-center gap-4 px-5 py-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                  onClick={() => setExpandedId(expandedId === d.teacher.id ? null : d.teacher.id)}
+                >
+                  <div className="w-8 h-8 rounded-full text-white text-sm font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: roleColor }}>
+                    {d.teacher.initials}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-800">{d.teacher.name}</p>
+                    <p className="text-xs text-gray-400">{d.teacher.schoolId}</p>
+                  </div>
+                  <div className="text-center w-16">
+                    <p className="text-sm font-semibold text-gray-700">{d.logRate}%</p>
+                    <p className="text-xs text-gray-400">Log Rate</p>
+                  </div>
+                  <div className="text-center w-16">
+                    <p className="text-sm font-semibold text-gray-700">{d.avgFidelity}</p>
+                    <p className="text-xs text-gray-400">Fidelity</p>
+                  </div>
+                  <div className="text-center w-16">
+                    <p className="text-sm font-semibold text-gray-700">{d.adaptCount}</p>
+                    <p className="text-xs text-gray-400">Adaptations</p>
+                  </div>
+                  <div className="w-24">
+                    <p className="text-xs text-gray-400">{d.lastMsg ? new Date(d.lastMsg.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : 'No contact'}</p>
+                    <p className="text-xs text-gray-400">Last contact</p>
+                  </div>
+                  <Badge color={d.status.color}>{d.status.label}</Badge>
+                  <div className="flex gap-1" onClick={e => e.stopPropagation()}>
+                    <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer"><MessageSquare size={14} /></button>
+                    <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"><Eye size={14} /></button>
+                    <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"><Flag size={14} /></button>
+                  </div>
+                </div>
+                {expandedId === d.teacher.id && (
+                  <div className="px-5 py-4 bg-gray-50 border-b border-gray-100">
+                    <p className="text-xs font-semibold text-gray-500 mb-2">Avg Fidelity by Dimension</p>
+                    <ResponsiveContainer width="100%" height={100}>
+                      <BarChart data={d.miniChart} barSize={20}>
+                        <XAxis dataKey="dim" tick={{ fontSize: 10 }} />
+                        <YAxis domain={[0, 5]} tick={{ fontSize: 10 }} width={20} />
+                        <Tooltip />
+                        <Bar dataKey="score" fill={roleColor} radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+    </div>
+  )
+}
