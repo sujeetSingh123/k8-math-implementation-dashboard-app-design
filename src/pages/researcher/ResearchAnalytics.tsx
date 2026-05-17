@@ -109,7 +109,7 @@ export function ResearchAnalytics() {
         <Card>
           <h3 className="text-sm font-semibold text-gray-800 mb-3">Longitudinal Fidelity Trajectories (Sep–May)</h3>
           <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={trendData} onClick={d => { if (d?.activePayload) toast.info(`${d.activeLabel} — Adherence: ${d.activePayload[0]?.value}`) }}>
+            <LineChart data={trendData} onClick={d => { if (d?.activeLabel) toast.info(`${d.activeLabel} — Adherence: ${trendData.find(t => t.month === d.activeLabel)?.adherence ?? '—'}`) }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
               <XAxis dataKey="month" tick={{ fontSize: 10 }} />
               <YAxis domain={[2, 5]} tick={{ fontSize: 10 }} width={25} />

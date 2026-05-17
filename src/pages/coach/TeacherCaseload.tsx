@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MessageSquare, Eye, Flag, Users, X } from 'lucide-react'
+import { MessageSquare, Eye, Flag, Users } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'

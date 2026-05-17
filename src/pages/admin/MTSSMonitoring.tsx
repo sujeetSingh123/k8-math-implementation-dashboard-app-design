@@ -107,7 +107,7 @@ export function MTSSMonitoring() {
           <Button size="sm" variant="secondary" roleColor={roleColor} onClick={() => toast.info('Generating implementation health trend report PDF…')}>Export</Button>
         </div>
         <ResponsiveContainer width="100%" height={220}>
-          <LineChart data={trendData} onClick={d => { if (d?.activePayload) toast.info(`${d.activeLabel}: Avg Fidelity ${d.activePayload[0]?.value}`) }}>
+          <LineChart data={trendData} onClick={d => { if (d?.activeLabel) toast.info(`${d.activeLabel}: Avg Fidelity ${trendData.find(t => t.month === d.activeLabel)?.['Avg Fidelity'] ?? '—'}`) }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
             <XAxis dataKey="month" tick={{ fontSize: 11 }} />
             <YAxis domain={[2, 5]} tick={{ fontSize: 11 }} />

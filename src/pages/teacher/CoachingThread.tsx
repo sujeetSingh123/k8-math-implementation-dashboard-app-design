@@ -52,7 +52,7 @@ export function CoachingThread() {
           <p className="text-xs text-gray-500 mb-0.5">Current coaching goal</p>
           <p className="text-sm font-medium text-gray-800">{cycle.goal}</p>
         </Card>
-        <Card padding="none" className="flex flex-col overflow-hidden" style={{ minHeight: '320px', height: '420px' }}>
+        <Card padding="none" className="flex flex-col overflow-hidden min-h-80 h-[420px]">
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {cycle.messages.map(msg => {
               const isMe = msg.senderId === currentUser.id

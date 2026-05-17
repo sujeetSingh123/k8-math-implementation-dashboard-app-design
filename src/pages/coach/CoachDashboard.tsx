@@ -71,12 +71,12 @@ export function CoachDashboard() {
             <button onClick={() => navigate('/coach/caseload')} className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer">View caseload →</button>
           </div>
           <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={teacherStats} layout="vertical"
-              onClick={d => { if (d?.activePayload) toast.info(`${d.activePayload[0].payload.fullName}: avg fidelity ${d.activePayload[0].value}`) }}>
+            <BarChart data={teacherStats} layout="vertical">
               <XAxis type="number" domain={[0, 5]} tick={{ fontSize: 10 }} />
               <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={55} />
               <Tooltip formatter={(v) => typeof v === 'number' ? v.toFixed(1) : v} />
-              <Bar dataKey="avgFidelity" radius={[0, 4, 4, 0]} cursor="pointer">
+              <Bar dataKey="avgFidelity" radius={[0, 4, 4, 0]} cursor="pointer"
+                onClick={(data) => toast.info(`${data.payload.fullName}: avg fidelity ${data.payload.avgFidelity}`)}>
                 {teacherStats.map((entry, i) => <Cell key={i} fill={getBarColor(entry.avgFidelity)} />)}
               </Bar>
             </BarChart>
