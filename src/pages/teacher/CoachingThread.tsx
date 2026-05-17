@@ -45,14 +45,14 @@ export function CoachingThread() {
   }
 
   return (
-    <div className="flex gap-4 h-[calc(100vh-160px)]">
-      {/* Left: Thread */}
-      <div className="flex-1 flex flex-col gap-0 min-w-0">
-        <Card className="flex-shrink-0 mb-3">
+    <div className="flex flex-col lg:flex-row gap-4 h-auto lg:h-[calc(100vh-160px)]">
+      {/* Thread */}
+      <div className="flex-1 flex flex-col min-w-0 gap-3">
+        <Card className="flex-shrink-0">
           <p className="text-xs text-gray-500 mb-0.5">Current coaching goal</p>
           <p className="text-sm font-medium text-gray-800">{cycle.goal}</p>
         </Card>
-        <Card padding="none" className="flex-1 flex flex-col overflow-hidden">
+        <Card padding="none" className="flex flex-col overflow-hidden" style={{ minHeight: '320px', height: '420px' }}>
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {cycle.messages.map(msg => {
               const isMe = msg.senderId === currentUser.id
@@ -64,8 +64,10 @@ export function CoachingThread() {
                       {sender?.initials ?? '?'}
                     </div>
                   )}
-                  <div className={`max-w-[70%] rounded-2xl px-4 py-2.5 text-sm ${isMe ? 'text-white rounded-tr-sm' : 'bg-gray-100 text-gray-800 rounded-tl-sm'}`}
-                    style={isMe ? { backgroundColor: roleColor } : {}}>
+                  <div
+                    className={`max-w-[78%] rounded-2xl px-3 py-2 text-sm ${isMe ? 'text-white rounded-tr-sm' : 'bg-gray-100 text-gray-800 rounded-tl-sm'}`}
+                    style={isMe ? { backgroundColor: roleColor } : {}}
+                  >
                     {!isMe && <p className="text-xs font-semibold mb-0.5 text-blue-700">{sender?.name}</p>}
                     <p>{msg.body}</p>
                     <p className={`text-xs mt-1 ${isMe ? 'text-emerald-100' : 'text-gray-400'}`}>
@@ -83,15 +85,15 @@ export function CoachingThread() {
               onChange={e => setText(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
               placeholder={`Message ${coach?.name ?? 'coach'}...`}
-              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
+              className="flex-1 min-w-0 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
             />
             <Button onClick={handleSend} roleColor={roleColor} size="sm"><Send size={14}/></Button>
           </div>
         </Card>
       </div>
 
-      {/* Right: Action plan + sessions */}
-      <div className="w-64 flex-shrink-0 space-y-3">
+      {/* Sidebar panels */}
+      <div className="lg:w-64 flex-shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
         <Card>
           <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Action Plan</h3>
           <ul className="space-y-2">

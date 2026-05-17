@@ -39,10 +39,10 @@ function AdaptationSubForm({
         <label className="text-xs font-medium text-gray-600 block mb-1.5">Reason(s)</label>
         <ChipSelector options={['Time constraints','Student responsiveness','Scheduling issues','Resource limitations','Behavior concerns','Language needs']} value={reasons} onChange={setReasons} roleColor={roleColor} />
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="text-xs font-medium text-gray-600 block mb-1.5">Planned or Reactive</label>
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             {(['planned','reactive'] as const).map(v => (
               <label key={v} className="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
                 <input type="radio" value={v} {...register('plannedVsReactive')} className="accent-emerald-500" />
@@ -53,7 +53,7 @@ function AdaptationSubForm({
         </div>
         <div>
           <label className="text-xs font-medium text-gray-600 block mb-1.5">Fidelity Type</label>
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             {(['consistent','inconsistent'] as const).map(v => (
               <label key={v} className="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
                 <input type="radio" value={v} {...register('fidelityType')} className="accent-emerald-500" />
@@ -126,10 +126,10 @@ export function DailyLog() {
   }
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="w-full max-w-2xl space-y-4">
       {daysSinceLog >= 2 && (
-        <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-amber-800">
-          <AlertTriangle size={18} className="flex-shrink-0" />
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-amber-800">
+          <AlertTriangle size={18} className="flex-shrink-0 mt-0.5" />
           <p className="text-sm font-medium">Implementation log missing for {daysSinceLog} days</p>
         </div>
       )}
@@ -141,7 +141,7 @@ export function DailyLog() {
       {lastLog && <p className="text-xs text-gray-400">Pre-filled from your last entry on {lastLog.date}</p>}
       <Card>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-medium text-gray-600 block mb-1.5">Instructional Routine</label>
               <select {...register('instructionalRoutine',{required:true})} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300">
@@ -171,7 +171,7 @@ export function DailyLog() {
           </div>
           <div>
             <label className="text-xs font-medium text-gray-600 block mb-1.5">Lesson Completion</label>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-3 sm:gap-4">
               {[{v:'fully',l:'Fully completed'},{v:'partially',l:'Partially completed'},{v:'not_completed',l:'Not completed'}].map(({v,l})=>(
                 <label key={v} className="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
                   <input type="radio" value={v} {...register('lessonCompletion')} className="accent-emerald-500" />
@@ -184,12 +184,10 @@ export function DailyLog() {
             <label className="text-xs font-medium text-gray-600 block mb-1.5">Adaptation Occurred?</label>
             <div className="flex gap-4">
               <label className="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
-                <input type="radio" checked={adaptationOccurred} onChange={() => setAdaptationOccurred(true)} className="accent-emerald-500" name="adaptToggle" />
-                Yes
+                <input type="radio" checked={adaptationOccurred} onChange={() => setAdaptationOccurred(true)} className="accent-emerald-500" name="adaptToggle" />Yes
               </label>
               <label className="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
-                <input type="radio" checked={!adaptationOccurred} onChange={() => setAdaptationOccurred(false)} className="accent-emerald-500" name="adaptToggle" />
-                No
+                <input type="radio" checked={!adaptationOccurred} onChange={() => setAdaptationOccurred(false)} className="accent-emerald-500" name="adaptToggle" />No
               </label>
             </div>
             {adaptationOccurred && (
@@ -200,7 +198,7 @@ export function DailyLog() {
             <label className="text-xs font-medium text-gray-600 block mb-1.5">Notes (optional)</label>
             <textarea {...register('notes')} rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300" placeholder="Any notes about today's lesson..." />
           </div>
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-wrap gap-3 pt-2">
             <Button type="submit" roleColor={roleColor}><Save size={15}/>Save Log</Button>
             <Button type="button" variant="secondary" roleColor={roleColor}><Upload size={15}/>Upload Artifact</Button>
           </div>
@@ -208,7 +206,7 @@ export function DailyLog() {
       </Card>
       <Card>
         <p className="text-sm font-semibold text-gray-800 mb-3">Student Data Upload</p>
-        <div className="grid grid-cols-3 gap-3 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
           <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
             <option>Class Average</option><option>Progress Monitoring</option><option>Benchmark Score</option>
           </select>

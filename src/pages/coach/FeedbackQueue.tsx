@@ -37,7 +37,7 @@ export function FeedbackQueue() {
   }
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="w-full max-w-2xl space-y-4">
       {pending.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12 text-gray-400">
           <Inbox size={28} className="mb-2" />
@@ -51,7 +51,7 @@ export function FeedbackQueue() {
               {item.initials}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
                 <p className="text-sm font-semibold text-gray-800">{item.teacherName}</p>
                 <p className="text-xs text-gray-400">{item.date}</p>
               </div>
@@ -68,7 +68,7 @@ export function FeedbackQueue() {
               placeholder="Write your coaching response..."
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button onClick={() => sendFeedback(item.id)} roleColor={roleColor} size="sm">
               <Send size={13} />Send Feedback
             </Button>
@@ -92,12 +92,12 @@ export function FeedbackQueue() {
               {resolved.map(item => (
                 <Card key={item.id} className="opacity-60">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full text-white text-xs font-bold flex items-center justify-center" style={{ backgroundColor: '#6B7280' }}>
+                    <div className="w-7 h-7 rounded-full text-white text-xs font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#6B7280' }}>
                       {item.initials}
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-xs font-medium text-gray-700">{item.teacherName}</p>
-                      <p className="text-xs text-gray-400 line-clamp-1">{item.question}</p>
+                      <p className="text-xs text-gray-400 truncate">{item.question}</p>
                     </div>
                   </div>
                   {item.reply && <p className="text-xs text-gray-500 mt-2 pl-9 italic">"{item.reply}"</p>}

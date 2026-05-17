@@ -29,15 +29,8 @@ export function AdaptationForm() {
     e.preventDefault()
     if (whatModified.length === 0) return
     const adaptation: Adaptation = {
-      id: `adp-new-${Date.now()}`,
-      logId: '',
-      teacherId: currentUser.id,
-      whatModified,
-      reasons,
-      plannedVsReactive,
-      fidelityType,
-      description,
-      date,
+      id: `adp-new-${Date.now()}`, logId: '', teacherId: currentUser.id,
+      whatModified, reasons, plannedVsReactive, fidelityType, description, date,
     }
     addAdaptation(adaptation)
     setWhatModified([])
@@ -53,40 +46,34 @@ export function AdaptationForm() {
     { key: 'date', header: 'Date' },
     {
       key: 'whatModified',
-      header: 'What Modified',
-      render: (row: Adaptation) => (
-        <span className="text-xs text-gray-600">{row.whatModified.join(', ')}</span>
-      ),
+      header: 'Modified',
+      render: (row: Adaptation) => <span className="text-xs text-gray-600">{row.whatModified.join(', ')}</span>,
     },
     {
       key: 'reasons',
       header: 'Reason(s)',
-      render: (row: Adaptation) => (
-        <span className="text-xs text-gray-600">{row.reasons.join(', ')}</span>
-      ),
+      className: 'hidden sm:table-cell',
+      render: (row: Adaptation) => <span className="text-xs text-gray-600">{row.reasons.join(', ')}</span>,
     },
     {
       key: 'fidelityType',
       header: 'Type',
       render: (row: Adaptation) => (
-        <Badge color={row.fidelityType === 'consistent' ? 'green' : 'amber'}>
-          {row.fidelityType}
-        </Badge>
+        <Badge color={row.fidelityType === 'consistent' ? 'green' : 'amber'}>{row.fidelityType}</Badge>
       ),
     },
     {
       key: 'plannedVsReactive',
-      header: 'Planned / Reactive',
+      header: 'Timing',
+      className: 'hidden md:table-cell',
       render: (row: Adaptation) => (
-        <Badge color={row.plannedVsReactive === 'planned' ? 'blue' : 'gray'}>
-          {row.plannedVsReactive}
-        </Badge>
+        <Badge color={row.plannedVsReactive === 'planned' ? 'blue' : 'gray'}>{row.plannedVsReactive}</Badge>
       ),
     },
   ]
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="w-full max-w-2xl space-y-4">
       {saved && (
         <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-emerald-800 text-sm font-medium">
           Adaptation saved!
@@ -95,11 +82,9 @@ export function AdaptationForm() {
       <Card>
         <h2 className="text-sm font-semibold text-gray-800 mb-4">Document an Adaptation (FRAME-IS)</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1.5">Date</label>
-              <input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
-            </div>
+          <div>
+            <label className="text-xs font-medium text-gray-600 block mb-1.5">Date</label>
+            <input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full sm:w-48 border border-gray-300 rounded-lg px-3 py-2 text-sm" />
           </div>
           <div>
             <label className="text-xs font-medium text-gray-600 block mb-1.5">What was modified</label>
@@ -109,10 +94,10 @@ export function AdaptationForm() {
             <label className="text-xs font-medium text-gray-600 block mb-1.5">Reason(s) for adaptation</label>
             <ChipSelector options={['Time constraints','Student responsiveness','Scheduling issues','Resource limitations','Behavior concerns','Language needs']} value={reasons} onChange={setReasons} roleColor={roleColor} />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-medium text-gray-600 block mb-1.5">Planned or Reactive</label>
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
                 {(['planned','reactive'] as const).map(v => (
                   <label key={v} className="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
                     <input type="radio" checked={plannedVsReactive === v} onChange={() => setPlannedVsReactive(v)} className="accent-emerald-500" />
@@ -123,7 +108,7 @@ export function AdaptationForm() {
             </div>
             <div>
               <label className="text-xs font-medium text-gray-600 block mb-1.5">Fidelity Type</label>
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
                 {(['consistent','inconsistent'] as const).map(v => (
                   <label key={v} className="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
                     <input type="radio" checked={fidelityType === v} onChange={() => setFidelityType(v)} className="accent-emerald-500" />

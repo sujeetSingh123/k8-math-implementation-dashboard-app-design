@@ -16,9 +16,9 @@ interface ProgressBarProps {
 function ProgressBar({ label, value }: ProgressBarProps) {
   return (
     <div className="space-y-1">
-      <div className="flex justify-between items-center">
-        <span className="text-sm text-gray-700">{label}</span>
-        <span className="text-sm font-semibold text-gray-800">{value}%</span>
+      <div className="flex justify-between items-center gap-2">
+        <span className="text-sm text-gray-700 text-xs sm:text-sm truncate">{label}</span>
+        <span className="text-sm font-semibold text-gray-800 flex-shrink-0">{value}%</span>
       </div>
       <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
         <div className="h-full rounded-full" style={{ width: `${value}%`, backgroundColor: roleColor }} />
@@ -53,12 +53,12 @@ const siteData: SiteRow[] = [
 const siteColumns = [
   { key: 'site', header: 'Site', render: (row: SiteRow) => <span className="font-medium text-gray-800">{row.site}</span> },
   { key: 'logRate', header: 'Log Rate' },
-  { key: 'avgFidelity', header: 'Avg Fidelity' },
-  { key: 'adaptations', header: 'Adaptations', render: (row: SiteRow) => String(row.adaptations) },
-  { key: 'pctConsistent', header: '% Consistent' },
+  { key: 'avgFidelity', header: 'Fidelity' },
+  { key: 'adaptations', header: 'Adapt.', render: (row: SiteRow) => String(row.adaptations) },
+  { key: 'pctConsistent', header: '% Consistent', className: 'hidden sm:table-cell' },
   {
     key: 'dataCompleteness',
-    header: 'Data Completeness',
+    header: 'Completeness',
     render: (row: SiteRow) => {
       const val = parseInt(row.dataCompleteness)
       return <Badge color={val >= 90 ? 'green' : val >= 80 ? 'amber' : 'red'}>{row.dataCompleteness}</Badge>
@@ -74,26 +74,26 @@ export function ResearchAnalytics() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-blue-800">
-        <Shield size={16} className="flex-shrink-0" />
-        <p className="text-sm">All data on this view is de-identified. No individual teachers or students are identifiable.</p>
+      <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-blue-800">
+        <Shield size={16} className="flex-shrink-0 mt-0.5" />
+        <p className="text-xs sm:text-sm">All data on this view is de-identified. No individual teachers or students are identifiable.</p>
       </div>
-      <div className="grid grid-cols-4 gap-4">
-        <StatCard label="Sites in Study" value="3" sub="Active research sites" icon={<Database size={18} />} iconColor={roleColor} />
-        <StatCard label="Total Log Entries" value="60" sub="Across all sites" icon={<BookOpen size={18} />} iconColor={roleColor} />
-        <StatCard label="Adaptations Documented" value="25" sub="FRAME-IS records" icon={<BookOpen size={18} />} iconColor={roleColor} />
-        <StatCard label="Data Completeness" value="82%" sub="Across all measures" icon={<CheckCircle size={18} />} iconColor={roleColor} />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+        <StatCard label="Sites in Study" value="3" sub="Active sites" icon={<Database size={18} />} iconColor={roleColor} />
+        <StatCard label="Log Entries" value="60" sub="All sites" icon={<BookOpen size={18} />} iconColor={roleColor} />
+        <StatCard label="Adaptations" value="25" sub="FRAME-IS records" icon={<BookOpen size={18} />} iconColor={roleColor} />
+        <StatCard label="Completeness" value="82%" sub="All measures" icon={<CheckCircle size={18} />} iconColor={roleColor} />
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <h3 className="text-sm font-semibold text-gray-800 mb-3">Longitudinal Fidelity Trajectories (Sep–May)</h3>
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveContainer width="100%" height={200}>
             <LineChart data={trendData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
-              <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-              <YAxis domain={[2, 5]} tick={{ fontSize: 11 }} />
+              <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+              <YAxis domain={[2, 5]} tick={{ fontSize: 10 }} width={25} />
               <Tooltip />
-              <Line type="monotone" dataKey="adherence" name="Avg Adherence" stroke={roleColor} strokeWidth={2.5} dot={{ r: 4, fill: roleColor }} />
+              <Line type="monotone" dataKey="adherence" name="Avg Adherence" stroke={roleColor} strokeWidth={2.5} dot={{ r: 3, fill: roleColor }} />
             </LineChart>
           </ResponsiveContainer>
         </Card>
@@ -105,7 +105,7 @@ export function ResearchAnalytics() {
         </Card>
       </div>
       <Card padding="none">
-        <div className="px-5 py-4 border-b border-gray-100">
+        <div className="px-4 sm:px-5 py-4 border-b border-gray-100">
           <h2 className="text-sm font-semibold text-gray-800">Cross-Site Comparison (Anonymized)</h2>
         </div>
         <Table

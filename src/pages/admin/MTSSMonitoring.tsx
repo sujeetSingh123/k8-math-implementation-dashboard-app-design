@@ -13,9 +13,9 @@ interface ProgressBarProps {
 function ProgressBar({ label, value, color = roleColor }: ProgressBarProps) {
   return (
     <div className="space-y-1">
-      <div className="flex justify-between items-center">
-        <span className="text-sm text-gray-700">{label}</span>
-        <span className="text-sm font-semibold text-gray-800">{value}%</span>
+      <div className="flex justify-between items-center gap-2">
+        <span className="text-sm text-gray-700 truncate">{label}</span>
+        <span className="text-sm font-semibold text-gray-800 flex-shrink-0">{value}%</span>
       </div>
       <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
         <div
@@ -50,7 +50,7 @@ export function MTSSMonitoring() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card>
           <h2 className="text-sm font-semibold text-gray-800 mb-4">Capacity Indicators</h2>
           <div className="space-y-4">
@@ -70,7 +70,7 @@ export function MTSSMonitoring() {
       </div>
       <Card>
         <h2 className="text-sm font-semibold text-gray-800 mb-4">District-Wide Implementation Health (Sep–May)</h2>
-        <ResponsiveContainer width="100%" height={240}>
+        <ResponsiveContainer width="100%" height={220}>
           <LineChart data={trendData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
             <XAxis dataKey="month" tick={{ fontSize: 11 }} />

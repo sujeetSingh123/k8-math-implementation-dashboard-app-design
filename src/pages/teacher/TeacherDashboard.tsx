@@ -29,7 +29,6 @@ export function TeacherDashboard() {
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
   }).length
 
-  // Last 4 fidelity checks for trend chart
   const trendData = myChecks
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 4)
@@ -43,34 +42,33 @@ export function TeacherDashboard() {
       Confidence: c.confidence,
     }))
 
-  // Adaptation reasons breakdown
   const reasonCounts: Record<string, number> = {}
   myAdaptations.forEach(a => a.reasons.forEach(r => { reasonCounts[r] = (reasonCounts[r] ?? 0) + 1 }))
   const reasonData = Object.entries(reasonCounts)
     .sort((a, b) => b[1] - a[1])
-    .map(([name, count]) => ({ name: name.length > 20 ? name.slice(0, 20) + '…' : name, count }))
+    .map(([name, count]) => ({ name: name.length > 18 ? name.slice(0, 18) + '…' : name, count }))
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-4 gap-4">
-        <StatCard label="Log Completion" value={`${logCompletionRate}%`} sub={`${myLogs.length} logs total`} icon={<ClipboardList size={18} />} iconColor={roleColor} />
-        <StatCard label="Avg Fidelity Score" value={avgFidelity} sub="Across all dimensions" icon={<CheckSquare size={18} />} iconColor={roleColor} />
-        <StatCard label="Adaptations This Month" value={thisMonthAdaptations} sub="Documented adaptations" icon={<BookOpen size={18} />} iconColor={roleColor} />
-        <StatCard label="Coaching Messages" value={myCycle?.messages.length ?? 0} sub={unreadMessages > 0 ? `${unreadMessages} unread` : 'All read'} icon={<MessageSquare size={18} />} iconColor={roleColor} />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+        <StatCard label="Log Completion" value={`${logCompletionRate}%`} sub={`${myLogs.length} total`} icon={<ClipboardList size={18} />} iconColor={roleColor} />
+        <StatCard label="Avg Fidelity" value={avgFidelity} sub="All dimensions" icon={<CheckSquare size={18} />} iconColor={roleColor} />
+        <StatCard label="Adaptations" value={thisMonthAdaptations} sub="This month" icon={<BookOpen size={18} />} iconColor={roleColor} />
+        <StatCard label="Messages" value={myCycle?.messages.length ?? 0} sub={unreadMessages > 0 ? `${unreadMessages} unread` : 'All read'} icon={<MessageSquare size={18} />} iconColor={roleColor} />
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <h3 className="text-sm font-semibold text-gray-800 mb-3">Fidelity Trend (Last 4 Weeks)</h3>
           {trendData.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-8">No fidelity data available.</p>
           ) : (
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={200}>
               <LineChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
-                <XAxis dataKey="week" tick={{ fontSize: 11 }} />
-                <YAxis domain={[1, 5]} tick={{ fontSize: 11 }} />
+                <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+                <YAxis domain={[1, 5]} tick={{ fontSize: 10 }} width={20} />
                 <Tooltip />
-                <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+                <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
                 <Line type="monotone" dataKey="Adherence" stroke="#10B981" strokeWidth={2} dot={false} />
                 <Line type="monotone" dataKey="Dosage" stroke="#3B82F6" strokeWidth={2} dot={false} />
                 <Line type="monotone" dataKey="Quality" stroke="#F59E0B" strokeWidth={2} dot={false} />
@@ -85,10 +83,10 @@ export function TeacherDashboard() {
           {reasonData.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-8">No adaptations documented yet.</p>
           ) : (
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={200}>
               <BarChart data={reasonData} layout="vertical">
-                <XAxis type="number" tick={{ fontSize: 11 }} />
-                <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} width={100} />
+                <XAxis type="number" tick={{ fontSize: 10 }} />
+                <YAxis dataKey="name" type="category" tick={{ fontSize: 9 }} width={90} />
                 <Tooltip />
                 <Bar dataKey="count" fill={roleColor} radius={[0, 4, 4, 0]} />
               </BarChart>

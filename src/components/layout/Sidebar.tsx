@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom'
 import {
   BookOpen, CheckSquare, ClipboardList, MessageSquare, Library, GraduationCap,
   LayoutDashboard, Users, Inbox, TrendingUp, Building2, Activity, BarChart2,
-  Download, ChevronDown,
+  Download, ChevronDown, X,
 } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import type { Role } from '../../types'
@@ -96,7 +96,11 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
   ]
 }
 
-export function Sidebar() {
+interface SidebarProps {
+  onNavigate?: () => void
+}
+
+export function Sidebar({ onNavigate }: SidebarProps) {
   const { currentRole, currentUser, setRole, notifications } = useAppStore()
   const roleColor = roleColors[currentRole]
   const unreadCount = notifications.filter((n) => n.userId === currentUser.id && !n.readAt).length
@@ -108,11 +112,11 @@ export function Sidebar() {
   const nav = getNav(currentRole, { coaching: coachingUnread })
 
   return (
-    <aside className="w-56 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col h-screen sticky top-0">
-      {/* Logo */}
-      <div className="px-5 py-4 border-b border-gray-200">
+    <aside className="w-56 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col h-screen">
+      {/* Logo + close button (close only visible on mobile) */}
+      <div className="px-4 py-4 border-b border-gray-200 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style={{ backgroundColor: roleColor }}>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style={{ backgroundColor: roleColor }}>
             M
           </div>
           <div>
@@ -120,6 +124,11 @@ export function Sidebar() {
             <p className="text-xs text-gray-400 leading-tight">K–8 Research Dashboard</p>
           </div>
         </div>
+        {onNavigate && (
+          <button onClick={onNavigate} className="lg:hidden p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer">
+            <X size={16} />
+          </button>
+        )}
       </div>
 
       {/* Role Switcher */}
@@ -129,7 +138,7 @@ export function Sidebar() {
           <select
             value={currentRole}
             onChange={(e) => setRole(e.target.value as Role)}
-            className="w-full appearance-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 cursor-pointer pr-8"
+            className="w-full appearance-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium cursor-pointer pr-8"
             style={{ color: roleColor }}
           >
             <option value="teacher">Teacher</option>
@@ -166,10 +175,11 @@ export function Sidebar() {
               <NavLink
                 key={item.path + item.label}
                 to={item.path}
+                onClick={onNavigate}
                 className={({ isActive }) =>
                   `flex items-center justify-between px-2 py-2 rounded-lg text-sm transition-all duration-150 mb-0.5 ${
                     isActive
-                      ? 'bg-opacity-10 font-medium'
+                      ? 'font-medium'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`
                 }

@@ -10,10 +10,10 @@ const roleColor = '#10B981'
 type ResourceType = 'all' | 'video' | 'pdf' | 'checklist' | 'rubric'
 
 const typeIcons: Record<string, React.ReactNode> = {
-  video: <Play size={22} className="text-blue-500" />,
-  pdf: <FileText size={22} className="text-red-500" />,
-  checklist: <CheckSquare size={22} className="text-emerald-500" />,
-  rubric: <Clipboard size={22} className="text-purple-500" />,
+  video: <Play size={20} className="text-blue-500" />,
+  pdf: <FileText size={20} className="text-red-500" />,
+  checklist: <CheckSquare size={20} className="text-emerald-500" />,
+  rubric: <Clipboard size={20} className="text-purple-500" />,
 }
 
 const typeBadgeColors: Record<string, 'blue' | 'red' | 'green' | 'purple'> = {
@@ -43,14 +43,14 @@ export function ResourceLibrary() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search resources..."
-          className="flex-1 max-w-sm border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
+          className="w-full sm:w-64 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
         />
-        <div className="flex gap-1">
+        <div className="flex gap-1 flex-wrap">
           {filters.map(f => (
             <button
               key={f.key}
@@ -72,13 +72,13 @@ export function ResourceLibrary() {
           <p className="text-sm">No resources match your search.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {filtered.map(res => (
             <Card key={res.id} className="flex flex-col gap-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">
-                    {typeIcons[res.type] ?? <FileText size={22} className="text-gray-400" />}
+                  <div className="w-9 h-9 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">
+                    {typeIcons[res.type] ?? <FileText size={20} className="text-gray-400" />}
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-gray-800 leading-tight">{res.title}</p>

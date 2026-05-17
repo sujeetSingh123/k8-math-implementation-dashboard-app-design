@@ -28,11 +28,11 @@ const statusColors: Record<string, 'green' | 'blue' | 'amber'> = {
 }
 
 const columns = [
-  { key: 'school', header: 'School Name' },
-  { key: 'teachers', header: 'Teachers', render: (row: SchoolRow) => String(row.teachers) },
-  { key: 'logRate', header: 'Log Rate' },
-  { key: 'avgFidelity', header: 'Avg Fidelity' },
-  { key: 'adaptations', header: 'Adaptations', render: (row: SchoolRow) => String(row.adaptations) },
+  { key: 'school', header: 'School' },
+  { key: 'teachers', header: 'Teachers', className: 'hidden sm:table-cell', render: (row: SchoolRow) => String(row.teachers) },
+  { key: 'logRate', header: 'Log Rate', className: 'hidden sm:table-cell' },
+  { key: 'avgFidelity', header: 'Fidelity' },
+  { key: 'adaptations', header: 'Adaptations', className: 'hidden md:table-cell', render: (row: SchoolRow) => String(row.adaptations) },
   {
     key: 'mtssStatus',
     header: 'MTSS Status',
@@ -45,14 +45,14 @@ const columns = [
 export function SchoolOverview() {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         <StatCard label="Schools" value="3" sub="All in District 1" icon={<Building2 size={18} />} iconColor={roleColor} />
         <StatCard label="District Log Rate" value="74%" sub="+3% from last month" icon={<TrendingUp size={18} />} iconColor={roleColor} />
         <StatCard label="Training Participation" value="87%" sub="Across all schools" icon={<GraduationCap size={18} />} iconColor={roleColor} />
-        <StatCard label="Avg Fidelity" value="3.8" sub="District-wide average" icon={<CheckSquare size={18} />} iconColor={roleColor} />
+        <StatCard label="Avg Fidelity" value="3.8" sub="District-wide" icon={<CheckSquare size={18} />} iconColor={roleColor} />
       </div>
       <Card padding="none">
-        <div className="px-5 py-4 border-b border-gray-100">
+        <div className="px-4 sm:px-5 py-4 border-b border-gray-100">
           <h2 className="text-sm font-semibold text-gray-800">School Summary</h2>
         </div>
         <Table

@@ -10,7 +10,7 @@ import type { FidelityCheck as FidelityCheckType } from '../../types'
 const roleColor = '#10B981'
 
 const dimensions = [
-  { key: 'adherence', label: 'Adherence', low: 'Not following protocol', high: 'Fully following protocol' },
+  { key: 'adherence', label: 'Adherence', low: 'Not following protocol', high: 'Fully following' },
   { key: 'dosage', label: 'Dosage / Exposure', low: 'Far below target', high: 'Meets/exceeds target' },
   { key: 'quality', label: 'Quality of Delivery', low: 'Poor delivery', high: 'Exemplary delivery' },
   { key: 'responsiveness', label: 'Participant Responsiveness', low: 'Low engagement', high: 'High engagement' },
@@ -60,7 +60,7 @@ export function FidelityCheck() {
   }
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="w-full max-w-2xl space-y-4">
       {saved && (
         <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-emerald-800">
           <CheckCircle size={16} />
@@ -101,12 +101,12 @@ export function FidelityCheck() {
         {chartData.length === 0 ? (
           <p className="text-sm text-gray-400 text-center py-8">No fidelity data yet.</p>
         ) : (
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={chartData} barSize={8}>
-              <XAxis dataKey="week" tick={{ fontSize: 11 }} />
-              <YAxis domain={[0, 5]} tick={{ fontSize: 11 }} />
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={chartData} barSize={6}>
+              <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+              <YAxis domain={[0, 5]} tick={{ fontSize: 10 }} width={20} />
               <Tooltip />
-              <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+              <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
               <Bar dataKey="Adherence" fill="#10B981" />
               <Bar dataKey="Dosage" fill="#3B82F6" />
               <Bar dataKey="Quality" fill="#F59E0B" />

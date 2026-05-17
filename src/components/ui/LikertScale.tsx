@@ -9,10 +9,10 @@ interface LikertScaleProps {
 
 export function LikertScale({ label, value, onChange, roleColor, lowLabel = 'Low', highLabel = 'High' }: LikertScaleProps) {
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between">
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <span className="text-sm font-medium text-gray-700">{label}</span>
-        <span className="text-xs text-gray-400">
+        <span className="text-xs text-gray-400 hidden sm:block truncate max-w-[200px]">
           {lowLabel} → {highLabel}
         </span>
       </div>
@@ -22,7 +22,7 @@ export function LikertScale({ label, value, onChange, roleColor, lowLabel = 'Low
             key={n}
             type="button"
             onClick={() => onChange(n)}
-            className="w-10 h-10 rounded-lg text-sm font-semibold border-2 transition-all duration-150 cursor-pointer"
+            className="flex-1 sm:flex-none w-auto sm:w-10 h-10 rounded-lg text-sm font-semibold border-2 transition-all duration-150 cursor-pointer"
             style={{
               borderColor: value === n ? roleColor : '#D1D5DB',
               backgroundColor: value === n ? roleColor : '#FFFFFF',
@@ -32,6 +32,7 @@ export function LikertScale({ label, value, onChange, roleColor, lowLabel = 'Low
             {n}
           </button>
         ))}
+        <span className="text-xs text-gray-400 sm:hidden ml-1 truncate">{value}/5</span>
       </div>
     </div>
   )

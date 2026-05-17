@@ -28,14 +28,13 @@ export function CoachDashboard() {
     const myAdapts = adaptations.filter(a => a.teacherId === t.id)
     const consistent = myAdapts.filter(a => a.fidelityType === 'consistent').length
     const inconsistent = myAdapts.filter(a => a.fidelityType === 'inconsistent').length
-    return { name: t.name.split(' ')[0], fullName: t.name, logRate, avgFidelity: parseFloat(avgFidelity.toFixed(1)), consistent, inconsistent }
+    return { name: t.name.split(' ')[0], logRate, avgFidelity: parseFloat(avgFidelity.toFixed(1)), consistent, inconsistent }
   })
 
   const onTrack = teacherStats.filter(t => t.avgFidelity >= 4.0).length
   const avgLogRate = teacherStats.length > 0 ? Math.round(teacherStats.reduce((s, t) => s + t.logRate, 0) / teacherStats.length) : 0
   const fidelityConcerns = teacherStats.filter(t => t.avgFidelity < 3.0).length
 
-  // Top adaptation reasons across all caseload teachers
   const reasonCounts: Record<string, number> = {}
   myTeachers.forEach(t => {
     adaptations.filter(a => a.teacherId === t.id).forEach(a => {
@@ -46,19 +45,19 @@ export function CoachDashboard() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         <StatCard label="Teachers On Track" value={`${onTrack}/${myTeachers.length}`} sub="Fidelity ≥ 4.0" icon={<Users size={18} />} iconColor={roleColor} />
         <StatCard label="Avg Log Rate" value={`${avgLogRate}%`} sub="Across caseload" icon={<TrendingUp size={18} />} iconColor={roleColor} />
-        <StatCard label="Feedback Response Rate" value="85%" sub="Last 30 days" icon={<MessageSquare size={18} />} iconColor={roleColor} />
-        <StatCard label="Fidelity Concerns" value={fidelityConcerns} sub="Teachers below 3.0" icon={<AlertTriangle size={18} />} iconColor="#EF4444" />
+        <StatCard label="Response Rate" value="85%" sub="Last 30 days" icon={<MessageSquare size={18} />} iconColor={roleColor} />
+        <StatCard label="Fidelity Concerns" value={fidelityConcerns} sub="Below 3.0" icon={<AlertTriangle size={18} />} iconColor="#EF4444" />
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <h3 className="text-sm font-semibold text-gray-800 mb-3">Avg Fidelity by Teacher</h3>
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={180}>
             <BarChart data={teacherStats} layout="vertical">
-              <XAxis type="number" domain={[0, 5]} tick={{ fontSize: 11 }} />
-              <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={60} />
+              <XAxis type="number" domain={[0, 5]} tick={{ fontSize: 10 }} />
+              <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={55} />
               <Tooltip formatter={(v) => typeof v === 'number' ? v.toFixed(1) : v} />
               <Bar dataKey="avgFidelity" radius={[0, 4, 4, 0]}>
                 {teacherStats.map((entry, i) => (
@@ -70,12 +69,12 @@ export function CoachDashboard() {
         </Card>
         <Card>
           <h3 className="text-sm font-semibold text-gray-800 mb-3">Adaptations: Consistent vs Inconsistent</h3>
-          <ResponsiveContainer width="100%" height={160}>
+          <ResponsiveContainer width="100%" height={140}>
             <BarChart data={teacherStats}>
-              <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
+              <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+              <YAxis tick={{ fontSize: 10 }} />
               <Tooltip />
-              <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+              <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
               <Bar dataKey="consistent" name="Consistent" stackId="a" fill="#10B981" />
               <Bar dataKey="inconsistent" name="Inconsistent" stackId="a" fill="#F59E0B" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -84,8 +83,8 @@ export function CoachDashboard() {
             <p className="text-xs font-semibold text-gray-500 mb-2">Top Adaptation Reasons</p>
             {topReasons.map(([reason, count]) => (
               <div key={reason} className="flex justify-between text-xs text-gray-600 mb-1">
-                <span>{reason}</span>
-                <span className="font-medium text-gray-800">{count}</span>
+                <span className="truncate pr-2">{reason}</span>
+                <span className="font-medium text-gray-800 flex-shrink-0">{count}</span>
               </div>
             ))}
           </div>

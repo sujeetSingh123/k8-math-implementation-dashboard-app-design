@@ -25,11 +25,12 @@ export function TrainingHistory() {
     .sort((a, b) => a.date.localeCompare(b.date))[0]
 
   const columns = [
-    { key: 'date', header: 'Date' },
+    { key: 'date', header: 'Date', className: 'whitespace-nowrap' },
     { key: 'title', header: 'Session Name' },
     {
       key: 'type',
       header: 'Type',
+      className: 'hidden sm:table-cell',
       render: (row: TrainingSession) => (
         <Badge color={typeBadgeColors[row.type] ?? 'gray'}>{row.type}</Badge>
       ),
@@ -37,6 +38,7 @@ export function TrainingHistory() {
     {
       key: 'durationHours',
       header: 'Duration',
+      className: 'hidden md:table-cell',
       render: (row: TrainingSession) => `${row.durationHours}h`,
     },
     {
@@ -50,7 +52,7 @@ export function TrainingHistory() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard
           label="Sessions Attended"
           value={`${attended.length}/${sessions.length}`}
@@ -74,7 +76,7 @@ export function TrainingHistory() {
         />
       </div>
       <Card padding="none">
-        <div className="px-5 py-4 border-b border-gray-100">
+        <div className="px-4 sm:px-5 py-4 border-b border-gray-100">
           <h2 className="text-sm font-semibold text-gray-800">Training Sessions</h2>
         </div>
         <Table

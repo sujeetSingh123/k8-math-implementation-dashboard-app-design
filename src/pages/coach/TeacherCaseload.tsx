@@ -25,14 +25,12 @@ export function TeacherCaseload() {
     const checks = fidelityChecks.filter(f => f.teacherId === t.id)
     const logRate = logs.length > 0 ? Math.round((logs.filter(l => l.lessonCompletion === 'fully').length / logs.length) * 100) : 0
     const avgFidelity = checks.length > 0
-      ? (checks.reduce((sum, c) => sum + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / checks.length)
+      ? checks.reduce((sum, c) => sum + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / checks.length
       : 0
     const adaptCount = adaptations.filter(a => a.teacherId === t.id).length
     const cycle = coachingCycles.find(c => c.teacherId === t.id)
     const lastMsg = cycle?.messages.slice(-1)[0]
-    const school = users.find(u => u.schoolId === t.schoolId)
     const status = getStatus(avgFidelity)
-
     const miniChart = [
       { dim: 'Adh', score: checks.reduce((s, c) => s + c.adherence, 0) / Math.max(checks.length, 1) },
       { dim: 'Dos', score: checks.reduce((s, c) => s + c.dosage, 0) / Math.max(checks.length, 1) },
@@ -40,8 +38,7 @@ export function TeacherCaseload() {
       { dim: 'Resp', score: checks.reduce((s, c) => s + c.responsiveness, 0) / Math.max(checks.length, 1) },
       { dim: 'Conf', score: checks.reduce((s, c) => s + c.confidence, 0) / Math.max(checks.length, 1) },
     ]
-
-    return { teacher: t, logRate, avgFidelity: avgFidelity.toFixed(1), adaptCount, lastMsg, school, status, miniChart }
+    return { teacher: t, logRate, avgFidelity: avgFidelity.toFixed(1), adaptCount, lastMsg, status, miniChart }
   })
 
   const pendingCount = teacherData.filter(d => d.status.label !== 'On Track').length
@@ -54,7 +51,7 @@ export function TeacherCaseload() {
         </div>
       )}
       <Card padding="none">
-        <div className="px-5 py-4 border-b border-gray-100">
+        <div className="px-4 sm:px-5 py-4 border-b border-gray-100">
           <h2 className="text-sm font-semibold text-gray-800">Teacher Caseload</h2>
         </div>
         {myTeachers.length === 0 ? (
@@ -67,44 +64,60 @@ export function TeacherCaseload() {
             {teacherData.map(d => (
               <div key={d.teacher.id}>
                 <div
-                  className="flex items-center gap-4 px-5 py-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                  className="px-4 sm:px-5 py-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
                   onClick={() => setExpandedId(expandedId === d.teacher.id ? null : d.teacher.id)}
                 >
-                  <div className="w-8 h-8 rounded-full text-white text-sm font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: roleColor }}>
-                    {d.teacher.initials}
+                  {/* Mobile layout */}
+                  <div className="flex items-center justify-between gap-3 mb-2 sm:hidden">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full text-white text-sm font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: roleColor }}>
+                        {d.teacher.initials}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-800">{d.teacher.name}</p>
+                        <p className="text-xs text-gray-400">{d.teacher.schoolId}</p>
+                      </div>
+                    </div>
+                    <Badge color={d.status.color}>{d.status.label}</Badge>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800">{d.teacher.name}</p>
-                    <p className="text-xs text-gray-400">{d.teacher.schoolId}</p>
+                  <div className="flex gap-3 text-center sm:hidden">
+                    <div className="flex-1"><p className="text-sm font-semibold text-gray-700">{d.logRate}%</p><p className="text-xs text-gray-400">Log Rate</p></div>
+                    <div className="flex-1"><p className="text-sm font-semibold text-gray-700">{d.avgFidelity}</p><p className="text-xs text-gray-400">Fidelity</p></div>
+                    <div className="flex-1"><p className="text-sm font-semibold text-gray-700">{d.adaptCount}</p><p className="text-xs text-gray-400">Adaptations</p></div>
+                    <div className="flex gap-1 items-center" onClick={e => e.stopPropagation()}>
+                      <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 cursor-pointer"><MessageSquare size={14} /></button>
+                      <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 cursor-pointer"><Eye size={14} /></button>
+                      <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 cursor-pointer"><Flag size={14} /></button>
+                    </div>
                   </div>
-                  <div className="text-center w-16">
-                    <p className="text-sm font-semibold text-gray-700">{d.logRate}%</p>
-                    <p className="text-xs text-gray-400">Log Rate</p>
-                  </div>
-                  <div className="text-center w-16">
-                    <p className="text-sm font-semibold text-gray-700">{d.avgFidelity}</p>
-                    <p className="text-xs text-gray-400">Fidelity</p>
-                  </div>
-                  <div className="text-center w-16">
-                    <p className="text-sm font-semibold text-gray-700">{d.adaptCount}</p>
-                    <p className="text-xs text-gray-400">Adaptations</p>
-                  </div>
-                  <div className="w-24">
-                    <p className="text-xs text-gray-400">{d.lastMsg ? new Date(d.lastMsg.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : 'No contact'}</p>
-                    <p className="text-xs text-gray-400">Last contact</p>
-                  </div>
-                  <Badge color={d.status.color}>{d.status.label}</Badge>
-                  <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                    <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer"><MessageSquare size={14} /></button>
-                    <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"><Eye size={14} /></button>
-                    <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"><Flag size={14} /></button>
+                  {/* Desktop layout */}
+                  <div className="hidden sm:flex items-center gap-4">
+                    <div className="w-8 h-8 rounded-full text-white text-sm font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: roleColor }}>
+                      {d.teacher.initials}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-800">{d.teacher.name}</p>
+                      <p className="text-xs text-gray-400">{d.teacher.schoolId}</p>
+                    </div>
+                    <div className="text-center w-16"><p className="text-sm font-semibold text-gray-700">{d.logRate}%</p><p className="text-xs text-gray-400">Log Rate</p></div>
+                    <div className="text-center w-16"><p className="text-sm font-semibold text-gray-700">{d.avgFidelity}</p><p className="text-xs text-gray-400">Fidelity</p></div>
+                    <div className="text-center w-20"><p className="text-sm font-semibold text-gray-700">{d.adaptCount}</p><p className="text-xs text-gray-400">Adaptations</p></div>
+                    <div className="w-24 hidden lg:block">
+                      <p className="text-xs text-gray-500">{d.lastMsg ? new Date(d.lastMsg.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : 'No contact'}</p>
+                    </div>
+                    <Badge color={d.status.color}>{d.status.label}</Badge>
+                    <div className="flex gap-1" onClick={e => e.stopPropagation()}>
+                      <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-500 cursor-pointer"><MessageSquare size={14} /></button>
+                      <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 cursor-pointer"><Eye size={14} /></button>
+                      <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-red-500 cursor-pointer"><Flag size={14} /></button>
+                    </div>
                   </div>
                 </div>
                 {expandedId === d.teacher.id && (
-                  <div className="px-5 py-4 bg-gray-50 border-b border-gray-100">
+                  <div className="px-4 sm:px-5 py-4 bg-gray-50 border-b border-gray-100">
                     <p className="text-xs font-semibold text-gray-500 mb-2">Avg Fidelity by Dimension</p>
                     <ResponsiveContainer width="100%" height={100}>
-                      <BarChart data={d.miniChart} barSize={20}>
+                      <BarChart data={d.miniChart} barSize={18}>
                         <XAxis dataKey="dim" tick={{ fontSize: 10 }} />
                         <YAxis domain={[0, 5]} tick={{ fontSize: 10 }} width={20} />
                         <Tooltip />
