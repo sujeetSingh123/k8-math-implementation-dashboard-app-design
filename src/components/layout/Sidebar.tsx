@@ -91,7 +91,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
       section: 'Analytics',
       items: [
         { label: 'Research Analytics', path: '/researcher/analytics', icon: <BarChart2 size={16} /> },
-        { label: 'Longitudinal View', path: '/researcher/analytics', icon: <TrendingUp size={16} /> },
+        { label: 'Longitudinal View', path: '/researcher/longitudinal', icon: <TrendingUp size={16} /> },
       ],
     },
     {

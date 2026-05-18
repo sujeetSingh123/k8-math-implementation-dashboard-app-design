@@ -19,6 +19,7 @@ const pageTitles: Record<string, string> = {
   '/admin/roles': 'Roles & Permissions',
   '/admin/organization': 'Organization',
   '/researcher/analytics': 'Research Analytics',
+  '/researcher/longitudinal': 'Longitudinal View',
   '/researcher/export': 'Data Export',
 }
 

@@ -17,6 +17,7 @@ import { MTSSMonitoring } from './pages/admin/MTSSMonitoring'
 import { RolesPermissions } from './pages/admin/RolesPermissions'
 import { Organization } from './pages/admin/Organization'
 import { ResearchAnalytics } from './pages/researcher/ResearchAnalytics'
+import { LongitudinalView } from './pages/researcher/LongitudinalView'
 import { DataExport } from './pages/researcher/DataExport'
 import { useAppStore } from './store/useAppStore'
 
@@ -60,6 +61,7 @@ export default function App() {
         <Route path="/admin/roles" element={<ProtectedLayout><RolesPermissions /></ProtectedLayout>} />
         <Route path="/admin/organization" element={<ProtectedLayout><Organization /></ProtectedLayout>} />
         <Route path="/researcher/analytics" element={<ProtectedLayout><ResearchAnalytics /></ProtectedLayout>} />
+        <Route path="/researcher/longitudinal" element={<ProtectedLayout><LongitudinalView /></ProtectedLayout>} />
         <Route path="/researcher/export" element={<ProtectedLayout><DataExport /></ProtectedLayout>} />
         <Route path="*" element={<DefaultRedirect />} />
       </Routes>
