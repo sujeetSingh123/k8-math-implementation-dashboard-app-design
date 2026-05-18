@@ -16,6 +16,8 @@ const pageTitles: Record<string, string> = {
   '/coach/dashboard': 'Coach Dashboard',
   '/admin/overview': 'School Overview',
   '/admin/mtss': 'MTSS Monitoring',
+  '/admin/roles': 'Roles & Permissions',
+  '/admin/organization': 'Organization',
   '/researcher/analytics': 'Research Analytics',
   '/researcher/export': 'Data Export',
 }

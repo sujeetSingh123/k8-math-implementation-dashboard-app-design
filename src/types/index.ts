@@ -110,3 +110,33 @@ export type StudentDataUpload = {
   value: number
   tier: string
 }
+
+export type Permission = {
+  id: string
+  name: string
+  description: string
+  category: 'data' | 'users' | 'coaching' | 'reports' | 'organization'
+}
+
+export type RolePermissions = {
+  role: Role
+  permissionIds: string[]
+}
+
+export type OrgMember = {
+  id: string
+  name: string
+  email: string
+  initials: string
+  role: Role
+  schoolId: string
+  department?: string
+  status: 'active' | 'inactive' | 'pending'
+  joinedAt: string
+}
+
+export type MockCredential = {
+  email: string
+  password: string
+  userId: string
+}

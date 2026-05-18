@@ -7,6 +7,10 @@ import type {
   CoachingCycle,
   TrainingSession,
   Notification,
+  Permission,
+  RolePermissions,
+  OrgMember,
+  MockCredential,
 } from '../types'
 
 // ─── Schools ─────────────────────────────────────────────────────────────────
@@ -331,3 +335,66 @@ export const teacherFidelityTrends: Record<string, typeof monthlyFidelityTrend> 
   t3: monthlyFidelityTrend.map(m => ({ ...m, adherence: m.adherence + 0.4, dosage: m.dosage + 0.3 })),
   t4: monthlyFidelityTrend.map(m => ({ ...m, adherence: m.adherence - 1.0, dosage: m.dosage - 0.8 })),
 }
+
+// ─── Mock Credentials ─────────────────────────────────────────────────────────
+export const mockCredentials: MockCredential[] = [
+  { email: 'teacher@demo.com', password: 'demo1234', userId: 't1' },
+  { email: 'coach@demo.com', password: 'demo1234', userId: 'c1' },
+  { email: 'admin@demo.com', password: 'demo1234', userId: 'a1' },
+  { email: 'researcher@demo.com', password: 'demo1234', userId: 'r1' },
+]
+
+// ─── Permissions ──────────────────────────────────────────────────────────────
+export const permissions: Permission[] = [
+  { id: 'p_view_logs', name: 'View Implementation Logs', description: 'View all teacher implementation logs', category: 'data' },
+  { id: 'p_edit_logs', name: 'Edit Implementation Logs', description: 'Create and edit implementation logs', category: 'data' },
+  { id: 'p_export_data', name: 'Export Data', description: 'Export reports and raw data files', category: 'data' },
+  { id: 'p_view_student_data', name: 'View Student Data', description: 'Access student progress monitoring data', category: 'data' },
+  { id: 'p_view_fidelity', name: 'View Fidelity Data', description: 'View fidelity check results across teachers', category: 'data' },
+  { id: 'p_view_users', name: 'View Members', description: 'View all organization members', category: 'users' },
+  { id: 'p_add_users', name: 'Add Members', description: 'Invite new members to the organization', category: 'users' },
+  { id: 'p_edit_users', name: 'Edit Members', description: 'Edit member profiles and school assignments', category: 'users' },
+  { id: 'p_remove_users', name: 'Remove Members', description: 'Deactivate or remove members', category: 'users' },
+  { id: 'p_assign_roles', name: 'Assign Roles', description: 'Change role assignments for members', category: 'users' },
+  { id: 'p_view_coaching', name: 'View Coaching Cycles', description: 'View coaching threads and cycles', category: 'coaching' },
+  { id: 'p_create_coaching', name: 'Create Coaching Cycles', description: 'Initiate new coaching cycles with teachers', category: 'coaching' },
+  { id: 'p_respond_coaching', name: 'Respond to Coaching', description: 'Reply in coaching threads', category: 'coaching' },
+  { id: 'p_view_reports', name: 'View Reports', description: 'View school and district-level reports', category: 'reports' },
+  { id: 'p_generate_reports', name: 'Generate Reports', description: 'Create and schedule new reports', category: 'reports' },
+  { id: 'p_manage_schools', name: 'Manage Schools', description: 'Add, edit, or remove schools', category: 'organization' },
+  { id: 'p_manage_org', name: 'Manage Organization', description: 'Edit organization settings and structure', category: 'organization' },
+]
+
+export const rolePermissions: RolePermissions[] = [
+  {
+    role: 'teacher',
+    permissionIds: ['p_edit_logs', 'p_view_fidelity', 'p_view_coaching', 'p_respond_coaching', 'p_view_reports'],
+  },
+  {
+    role: 'coach',
+    permissionIds: ['p_view_logs', 'p_view_fidelity', 'p_view_coaching', 'p_create_coaching', 'p_respond_coaching', 'p_view_reports', 'p_view_users'],
+  },
+  {
+    role: 'admin',
+    permissionIds: permissions.map(p => p.id),
+  },
+  {
+    role: 'researcher',
+    permissionIds: ['p_view_logs', 'p_view_fidelity', 'p_export_data', 'p_view_student_data', 'p_view_reports', 'p_generate_reports'],
+  },
+]
+
+// ─── Organization Members ─────────────────────────────────────────────────────
+export const orgMembers: OrgMember[] = [
+  { id: 't1', name: 'Jane Smith', email: 'jane.smith@district1.edu', initials: 'JS', role: 'teacher', schoolId: 'sch1', department: 'Grade 3', status: 'active', joinedAt: '2023-08-15' },
+  { id: 't2', name: 'Kevin Johnson', email: 'kevin.johnson@district1.edu', initials: 'KJ', role: 'teacher', schoolId: 'sch1', department: 'Grade 4', status: 'active', joinedAt: '2022-08-10' },
+  { id: 't3', name: 'Teresa Rivera', email: 'teresa.rivera@district1.edu', initials: 'TR', role: 'teacher', schoolId: 'sch2', department: 'Grade 2', status: 'active', joinedAt: '2021-09-01' },
+  { id: 't4', name: 'Mira Park', email: 'mira.park@district1.edu', initials: 'MP', role: 'teacher', schoolId: 'sch2', department: 'Grade 5', status: 'active', joinedAt: '2024-01-08' },
+  { id: 't5', name: 'Luis Torres', email: 'luis.torres@district1.edu', initials: 'LT', role: 'teacher', schoolId: 'sch3', department: 'Grade 1', status: 'active', joinedAt: '2023-01-15' },
+  { id: 't6', name: 'Priya Nair', email: 'priya.nair@district1.edu', initials: 'PN', role: 'teacher', schoolId: 'sch3', department: 'Grade 3', status: 'pending', joinedAt: '2026-04-20' },
+  { id: 'c1', name: 'Maria Chen', email: 'coach@demo.com', initials: 'MC', role: 'coach', schoolId: 'sch1', status: 'active', joinedAt: '2020-08-01' },
+  { id: 'c2', name: 'David Kim', email: 'david.kim@district1.edu', initials: 'DK', role: 'coach', schoolId: 'sch3', status: 'active', joinedAt: '2021-08-01' },
+  { id: 'a1', name: 'Aisha Patel', email: 'admin@demo.com', initials: 'AP', role: 'admin', schoolId: 'sch1', status: 'active', joinedAt: '2019-07-01' },
+  { id: 'r1', name: 'Robert Liu', email: 'researcher@demo.com', initials: 'RL', role: 'researcher', schoolId: 'sch1', status: 'active', joinedAt: '2022-03-14' },
+  { id: 'r2', name: 'Sandra Okafor', email: 'sandra.okafor@university.edu', initials: 'SO', role: 'researcher', schoolId: 'sch2', status: 'inactive', joinedAt: '2021-09-01' },
+]

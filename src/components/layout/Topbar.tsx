@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Bell, Menu, ChevronDown, LogOut, Settings } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { NotificationPanel } from '../ui/NotificationPanel'
@@ -24,12 +25,18 @@ interface TopbarProps {
 }
 
 export function Topbar({ title, onMenuClick }: TopbarProps) {
-  const { currentRole, currentUser, notifications } = useAppStore()
+  const { currentRole, currentUser, notifications, logout } = useAppStore()
+  const navigate = useNavigate()
   const roleColor = roleColors[currentRole]
   const unreadCount = notifications.filter(n => n.userId === currentUser.id && !n.readAt).length
 
   const [showNotifications, setShowNotifications] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login', { replace: true })
+  }
 
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
@@ -99,7 +106,7 @@ export function Topbar({ title, onMenuClick }: TopbarProps) {
                 <Settings size={14} className="text-gray-400" />Account Settings
               </button>
               <button
-                onClick={() => setShowUserMenu(false)}
+                onClick={handleLogout}
                 className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 cursor-pointer transition-colors"
               >
                 <LogOut size={14} />Sign Out

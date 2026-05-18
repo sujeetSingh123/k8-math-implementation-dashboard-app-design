@@ -9,18 +9,24 @@ import type {
   CoachingMessage,
   TrainingSession,
   Notification,
+  RolePermissions,
+  OrgMember,
 } from '../types'
 import {
-  usersByRole,
+  users,
   implementationLogs,
   adaptations,
   fidelityChecks,
   coachingCycles,
   trainingSessions,
   notifications,
+  mockCredentials,
+  rolePermissions,
+  orgMembers,
 } from '../data/mockData'
 
 interface AppStore {
+  isAuthenticated: boolean
   currentRole: Role
   currentUser: User
   notifications: Notification[]
@@ -29,31 +35,50 @@ interface AppStore {
   fidelityChecks: FidelityCheck[]
   coachingCycles: CoachingCycle[]
   trainingSessions: Record<string, TrainingSession[]>
+  rolePermissions: RolePermissions[]
+  orgMembers: OrgMember[]
 
-  setRole: (role: Role) => void
+  login: (email: string, password: string) => boolean
+  logout: () => void
   addLog: (log: ImplementationLog) => void
   addAdaptation: (adaptation: Adaptation) => void
   addFidelityCheck: (check: FidelityCheck) => void
   sendMessage: (cycleId: string, message: CoachingMessage) => void
   markNotificationRead: (id: string) => void
   completeAction: (cycleId: string, actionId: string) => void
+  togglePermission: (role: Role, permissionId: string) => void
+  addOrgMember: (member: OrgMember) => void
+  updateOrgMember: (id: string, updates: Partial<OrgMember>) => void
 }
 
+const defaultUser = users[0]
+
 export const useAppStore = create<AppStore>((set) => ({
+  isAuthenticated: false,
   currentRole: 'teacher',
-  currentUser: usersByRole['teacher'],
+  currentUser: defaultUser,
   notifications,
   implementationLogs,
   adaptations,
   fidelityChecks,
   coachingCycles,
   trainingSessions,
+  rolePermissions,
+  orgMembers,
 
-  setRole: (role) =>
-    set({
-      currentRole: role,
-      currentUser: usersByRole[role],
-    }),
+  login: (email, password) => {
+    const cred = mockCredentials.find(
+      (c) => c.email.toLowerCase() === email.toLowerCase() && c.password === password,
+    )
+    if (!cred) return false
+    const user = users.find((u) => u.id === cred.userId)
+    if (!user) return false
+    set({ isAuthenticated: true, currentUser: user, currentRole: user.role })
+    return true
+  },
+
+  logout: () =>
+    set({ isAuthenticated: false, currentUser: defaultUser, currentRole: 'teacher' }),
 
   addLog: (log) =>
     set((state) => ({
@@ -98,5 +123,27 @@ export const useAppStore = create<AppStore>((set) => ({
             }
           : cycle,
       ),
+    })),
+
+  togglePermission: (role, permissionId) =>
+    set((state) => ({
+      rolePermissions: state.rolePermissions.map((rp) => {
+        if (rp.role !== role) return rp
+        const has = rp.permissionIds.includes(permissionId)
+        return {
+          ...rp,
+          permissionIds: has
+            ? rp.permissionIds.filter((id) => id !== permissionId)
+            : [...rp.permissionIds, permissionId],
+        }
+      }),
+    })),
+
+  addOrgMember: (member) =>
+    set((state) => ({ orgMembers: [...state.orgMembers, member] })),
+
+  updateOrgMember: (id, updates) =>
+    set((state) => ({
+      orgMembers: state.orgMembers.map((m) => (m.id === id ? { ...m, ...updates } : m)),
     })),
 }))

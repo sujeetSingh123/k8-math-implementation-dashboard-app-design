@@ -1,8 +1,8 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import {
   BookOpen, CheckSquare, ClipboardList, MessageSquare, Library, GraduationCap,
   LayoutDashboard, Users, Inbox, TrendingUp, Building2, Activity, BarChart2,
-  Download, ChevronDown, X,
+  Download, X, Shield, LogOut,
 } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import type { Role } from '../../types'
@@ -17,7 +17,7 @@ const roleColors: Record<Role, string> = {
 const roleLabels: Record<Role, string> = {
   teacher: 'Teacher',
   coach: 'Coach',
-  admin: 'Admin',
+  admin: 'Administrator',
   researcher: 'Researcher',
 }
 
@@ -77,6 +77,13 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
           { label: 'MTSS Monitoring', path: '/admin/mtss', icon: <Activity size={16} /> },
         ],
       },
+      {
+        section: 'Management',
+        items: [
+          { label: 'Organization', path: '/admin/organization', icon: <Users size={16} /> },
+          { label: 'Roles & Permissions', path: '/admin/roles', icon: <Shield size={16} /> },
+        ],
+      },
     ]
   }
   return [
@@ -101,7 +108,8 @@ interface SidebarProps {
 }
 
 export function Sidebar({ onNavigate }: SidebarProps) {
-  const { currentRole, currentUser, setRole, notifications } = useAppStore()
+  const { currentRole, currentUser, logout, notifications } = useAppStore()
+  const navigate = useNavigate()
   const roleColor = roleColors[currentRole]
   const unreadCount = notifications.filter((n) => n.userId === currentUser.id && !n.readAt).length
 
@@ -111,9 +119,14 @@ export function Sidebar({ onNavigate }: SidebarProps) {
 
   const nav = getNav(currentRole, { coaching: coachingUnread })
 
+  const handleLogout = () => {
+    logout()
+    navigate('/login', { replace: true })
+  }
+
   return (
     <aside className="w-56 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col h-screen">
-      {/* Logo + close button (close only visible on mobile) */}
+      {/* Logo */}
       <div className="px-4 py-4 border-b border-gray-200 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style={{ backgroundColor: roleColor }}>
@@ -131,30 +144,15 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         )}
       </div>
 
-      {/* Role Switcher */}
-      <div className="px-3 py-3 border-b border-gray-100">
-        <p className="text-xs text-gray-400 mb-1.5 px-2">Current Role</p>
-        <div className="relative">
-          <select
-            value={currentRole}
-            onChange={(e) => setRole(e.target.value as Role)}
-            className="w-full appearance-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium cursor-pointer pr-8"
-            style={{ color: roleColor }}
-          >
-            <option value="teacher">Teacher</option>
-            <option value="coach">Coach</option>
-            <option value="admin">Admin</option>
-            <option value="researcher">Researcher</option>
-          </select>
-          <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-        </div>
-        <div className="mt-2 px-2 flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full text-white text-xs font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: roleColor }}>
-            {currentUser.initials[0]}
+      {/* Current User */}
+      <div className="px-4 py-3 border-b border-gray-100">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full text-white text-xs font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: roleColor }}>
+            {currentUser.initials}
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-medium text-gray-700 truncate">{currentUser.name}</p>
-            <p className="text-xs text-gray-400">{roleLabels[currentRole]}</p>
+            <p className="text-sm font-semibold text-gray-800 truncate">{currentUser.name}</p>
+            <p className="text-xs" style={{ color: roleColor }}>{roleLabels[currentRole]}</p>
           </div>
           {unreadCount > 0 && (
             <span className="ml-auto flex-shrink-0 w-5 h-5 rounded-full text-white text-xs font-bold flex items-center justify-center" style={{ backgroundColor: roleColor }}>
@@ -203,6 +201,17 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           </div>
         ))}
       </nav>
+
+      {/* Logout */}
+      <div className="px-3 py-3 border-t border-gray-100">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+        >
+          <LogOut size={15} />
+          Sign Out
+        </button>
+      </div>
     </aside>
   )
 }
