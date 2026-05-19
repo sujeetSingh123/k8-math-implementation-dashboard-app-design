@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
-import { Send, CheckCircle, Circle, Calendar, AlertCircle } from 'lucide-react'
+import { Send, CheckCircle, Circle, Calendar, AlertCircle, HelpCircle } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
+import { AskCoachModal } from './AskCoachModal'
 import type { CoachingMessage } from '../../types'
 import { users, trainingSessions } from '../../data/mockData'
 
@@ -29,6 +30,7 @@ function isSameDay(a: string, b: string) {
 export function CoachingThread() {
   const { currentUser, coachingCycles, sendMessage, completeAction } = useAppStore()
   const [text, setText] = useState('')
+  const [askOpen, setAskOpen] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const cycle = coachingCycles.find(c => c.teacherId === currentUser.id)
@@ -65,6 +67,7 @@ export function CoachingThread() {
   const completedCount = cycle.actions.filter(a => a.completedAt).length
 
   return (
+    <>
     <div className="flex flex-col lg:flex-row gap-4 h-auto lg:h-[calc(100vh-160px)]">
       {/* Thread column */}
       <div className="flex-1 flex flex-col min-w-0 gap-3">
@@ -83,11 +86,16 @@ export function CoachingThread() {
                   <p className="text-[11px] text-gray-400 leading-none mb-0.5">Your coach</p>
                   <p className="text-sm font-semibold text-gray-800">{coach?.name ?? 'Unknown'}</p>
                 </div>
-                {cycle.actions.length > 0 && (
-                  <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 flex-shrink-0">
-                    {completedCount}/{cycle.actions.length} actions done
-                  </span>
-                )}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {cycle.actions.length > 0 && (
+                    <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      {completedCount}/{cycle.actions.length} actions done
+                    </span>
+                  )}
+                  <Button size="sm" variant="secondary" roleColor={roleColor} onClick={() => setAskOpen(true)}>
+                    <HelpCircle size={13} />Ask a question
+                  </Button>
+                </div>
               </div>
               <p className="text-xs text-gray-500 mt-2 leading-relaxed">{cycle.goal}</p>
             </div>
@@ -210,5 +218,15 @@ export function CoachingThread() {
         </Card>
       </div>
     </div>
+
+    {askOpen && coach && (
+      <AskCoachModal
+        cycle={cycle}
+        currentUser={currentUser}
+        coachName={coach.name}
+        onClose={() => setAskOpen(false)}
+      />
+    )}
+    </>
   )
 }

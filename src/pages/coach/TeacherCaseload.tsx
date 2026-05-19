@@ -20,11 +20,10 @@ function getStatus(avgFidelity: number): { label: string; color: 'green' | 'ambe
 }
 
 export function TeacherCaseload() {
-  const { currentUser, implementationLogs, fidelityChecks, adaptations, coachingCycles } = useAppStore()
+  const { currentUser, implementationLogs, fidelityChecks, adaptations, coachingCycles, flaggedTeachers, toggleFlag } = useAppStore()
   const navigate = useNavigate()
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [logsModal, setLogsModal] = useState<{ name: string; logs: ImplementationLog[] } | null>(null)
-  const [flagged, setFlagged] = useState<Set<string>>(new Set())
 
   const myTeachers = users.filter(u => u.role === 'teacher' && u.coachId === currentUser.id)
 
@@ -56,12 +55,10 @@ export function TeacherCaseload() {
   }
 
   const handleFlag = (id: string, name: string) => {
-    setFlagged(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) { next.delete(id); toast.info(`Flag removed for ${name}.`) }
-      else { next.add(id); toast.warning(`${name} flagged for follow-up.`) }
-      return next
-    })
+    const wasFlagged = flaggedTeachers.includes(id)
+    toggleFlag(id)
+    if (wasFlagged) toast.info(`Flag removed for ${name}.`)
+    else toast.warning(`${name} flagged for follow-up.`)
   }
 
   const handleViewLogs = (name: string, logs: ImplementationLog[]) => {
@@ -90,7 +87,7 @@ export function TeacherCaseload() {
                   {/* Mobile */}
                   <div className="flex items-center justify-between gap-3 mb-2 sm:hidden">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full text-white text-sm font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: flagged.has(d.teacher.id) ? '#EF4444' : roleColor }}>
+                      <div className="w-8 h-8 rounded-full text-white text-sm font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: flaggedTeachers.includes(d.teacher.id) ? '#EF4444' : roleColor }}>
                         {d.teacher.initials}
                       </div>
                       <div>
@@ -107,16 +104,16 @@ export function TeacherCaseload() {
                     <div className="flex gap-1 items-center" onClick={e => e.stopPropagation()}>
                       <button onClick={() => handleMessage(d.teacher.name)} className="p-1.5 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-500 cursor-pointer"><MessageSquare size={14} /></button>
                       <button onClick={() => handleViewLogs(d.teacher.name, d.logs)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 cursor-pointer"><Eye size={14} /></button>
-                      <button onClick={() => handleFlag(d.teacher.id, d.teacher.name)} className={`p-1.5 rounded-lg cursor-pointer ${flagged.has(d.teacher.id) ? 'text-red-500 bg-red-50' : 'hover:bg-gray-100 text-gray-400 hover:text-red-500'}`}><Flag size={14} /></button>
+                      <button onClick={() => handleFlag(d.teacher.id, d.teacher.name)} className={`p-1.5 rounded-lg cursor-pointer ${flaggedTeachers.includes(d.teacher.id) ? 'text-red-500 bg-red-50' : 'hover:bg-gray-100 text-gray-400 hover:text-red-500'}`}><Flag size={14} /></button>
                     </div>
                   </div>
                   {/* Desktop */}
                   <div className="hidden sm:flex items-center gap-4">
-                    <div className="w-8 h-8 rounded-full text-white text-sm font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: flagged.has(d.teacher.id) ? '#EF4444' : roleColor }}>
+                    <div className="w-8 h-8 rounded-full text-white text-sm font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: flaggedTeachers.includes(d.teacher.id) ? '#EF4444' : roleColor }}>
                       {d.teacher.initials}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-800">{d.teacher.name} {flagged.has(d.teacher.id) && <span className="text-xs text-red-500 ml-1">● Flagged</span>}</p>
+                      <p className="text-sm font-medium text-gray-800">{d.teacher.name} {flaggedTeachers.includes(d.teacher.id) && <span className="text-xs text-red-500 ml-1">● Flagged</span>}</p>
                       <p className="text-xs text-gray-400">{d.teacher.schoolId}</p>
                     </div>
                     <div className="text-center w-16"><p className="text-sm font-semibold text-gray-700">{d.logRate}%</p><p className="text-xs text-gray-400">Log Rate</p></div>
@@ -129,7 +126,7 @@ export function TeacherCaseload() {
                     <div className="flex gap-1" onClick={e => e.stopPropagation()}>
                       <button onClick={() => handleMessage(d.teacher.name)} className="p-1.5 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-500 cursor-pointer transition-colors" title="Message"><MessageSquare size={14} /></button>
                       <button onClick={() => handleViewLogs(d.teacher.name, d.logs)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 cursor-pointer transition-colors" title="View Logs"><Eye size={14} /></button>
-                      <button onClick={() => handleFlag(d.teacher.id, d.teacher.name)} className={`p-1.5 rounded-lg cursor-pointer transition-colors ${flagged.has(d.teacher.id) ? 'text-red-500 bg-red-50' : 'hover:bg-gray-100 text-gray-400 hover:text-red-500'}`} title="Flag"><Flag size={14} /></button>
+                      <button onClick={() => handleFlag(d.teacher.id, d.teacher.name)} className={`p-1.5 rounded-lg cursor-pointer transition-colors ${flaggedTeachers.includes(d.teacher.id) ? 'text-red-500 bg-red-50' : 'hover:bg-gray-100 text-gray-400 hover:text-red-500'}`} title="Flag"><Flag size={14} /></button>
                     </div>
                   </div>
                 </div>

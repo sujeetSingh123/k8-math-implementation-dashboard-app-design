@@ -84,6 +84,19 @@ export type CoachingAction = {
   completedAt?: string
 }
 
+export type FeedbackItem = {
+  id: string
+  teacherId: string
+  coachId: string
+  cycleId: string
+  teacherName: string
+  initials: string
+  date: string
+  question: string
+  reply: string
+  resolved: boolean
+}
+
 export type TrainingSession = {
   id: string
   title: string

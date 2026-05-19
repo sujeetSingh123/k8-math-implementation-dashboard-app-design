@@ -25,6 +25,7 @@ type NavItem = { label: string; path: string; icon: React.ReactNode; badge?: str
 type NavSection = { section: string; items: NavItem[] }
 
 function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] {
+  const feedbackBadge = unreadCounts.feedback > 0 ? String(unreadCounts.feedback) : undefined
   if (role === 'teacher') {
     return [
       {
@@ -57,7 +58,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
         section: 'Caseload',
         items: [
           { label: 'My Teachers', path: '/coach/caseload', icon: <Users size={16} /> },
-          { label: 'Feedback Queue', path: '/coach/feedback', icon: <Inbox size={16} />, badge: '3' },
+          { label: 'Feedback Queue', path: '/coach/feedback', icon: <Inbox size={16} />, badge: feedbackBadge },
         ],
       },
       {
@@ -108,7 +109,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ onNavigate }: SidebarProps) {
-  const { currentRole, currentUser, logout, notifications } = useAppStore()
+  const { currentRole, currentUser, logout, notifications, feedbackItems } = useAppStore()
   const navigate = useNavigate()
   const roleColor = roleColors[currentRole]
   const unreadCount = notifications.filter((n) => n.userId === currentUser.id && !n.readAt).length
@@ -117,7 +118,11 @@ export function Sidebar({ onNavigate }: SidebarProps) {
     (n) => n.userId === currentUser.id && !n.readAt && n.type === 'coaching_followup',
   ).length
 
-  const nav = getNav(currentRole, { coaching: coachingUnread })
+  const pendingFeedback = feedbackItems.filter(
+    (f) => !f.resolved && f.coachId === currentUser.id,
+  ).length
+
+  const nav = getNav(currentRole, { coaching: coachingUnread, feedback: pendingFeedback })
 
   const handleLogout = () => {
     logout()

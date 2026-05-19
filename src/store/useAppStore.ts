@@ -7,6 +7,8 @@ import type {
   FidelityCheck,
   CoachingCycle,
   CoachingMessage,
+  CoachingAction,
+  FeedbackItem,
   TrainingSession,
   Notification,
   RolePermissions,
@@ -18,6 +20,7 @@ import {
   adaptations,
   fidelityChecks,
   coachingCycles,
+  feedbackItems,
   trainingSessions,
   notifications,
   mockCredentials,
@@ -34,6 +37,8 @@ interface AppStore {
   adaptations: Adaptation[]
   fidelityChecks: FidelityCheck[]
   coachingCycles: CoachingCycle[]
+  feedbackItems: FeedbackItem[]
+  flaggedTeachers: string[]
   trainingSessions: Record<string, TrainingSession[]>
   rolePermissions: RolePermissions[]
   orgMembers: OrgMember[]
@@ -49,6 +54,10 @@ interface AppStore {
   togglePermission: (role: Role, permissionId: string) => void
   addOrgMember: (member: OrgMember) => void
   updateOrgMember: (id: string, updates: Partial<OrgMember>) => void
+  addFeedbackItem: (item: FeedbackItem) => void
+  replyToFeedback: (id: string, reply: string, senderId: string) => void
+  addCycleAction: (cycleId: string, action: CoachingAction) => void
+  toggleFlag: (teacherId: string) => void
 }
 
 const defaultUser = users[0]
@@ -62,6 +71,8 @@ export const useAppStore = create<AppStore>((set) => ({
   adaptations,
   fidelityChecks,
   coachingCycles,
+  feedbackItems,
+  flaggedTeachers: [],
   trainingSessions,
   rolePermissions,
   orgMembers,
@@ -81,19 +92,13 @@ export const useAppStore = create<AppStore>((set) => ({
     set({ isAuthenticated: false, currentUser: defaultUser, currentRole: 'teacher' }),
 
   addLog: (log) =>
-    set((state) => ({
-      implementationLogs: [log, ...state.implementationLogs],
-    })),
+    set((state) => ({ implementationLogs: [log, ...state.implementationLogs] })),
 
   addAdaptation: (adaptation) =>
-    set((state) => ({
-      adaptations: [adaptation, ...state.adaptations],
-    })),
+    set((state) => ({ adaptations: [adaptation, ...state.adaptations] })),
 
   addFidelityCheck: (check) =>
-    set((state) => ({
-      fidelityChecks: [check, ...state.fidelityChecks],
-    })),
+    set((state) => ({ fidelityChecks: [check, ...state.fidelityChecks] })),
 
   sendMessage: (cycleId, message) =>
     set((state) => ({
@@ -145,5 +150,63 @@ export const useAppStore = create<AppStore>((set) => ({
   updateOrgMember: (id, updates) =>
     set((state) => ({
       orgMembers: state.orgMembers.map((m) => (m.id === id ? { ...m, ...updates } : m)),
+    })),
+
+  // Teacher submits a question → appears in coach's feedback queue + fires coach notification
+  addFeedbackItem: (item) =>
+    set((state) => ({
+      feedbackItems: [item, ...state.feedbackItems],
+      notifications: [
+        {
+          id: `notif-fq-${Date.now()}`,
+          userId: item.coachId,
+          message: `${item.teacherName} asked a coaching question.`,
+          type: 'coaching_followup' as const,
+          createdAt: new Date().toISOString(),
+        },
+        ...state.notifications,
+      ],
+    })),
+
+  // Coach replies → feedback item resolved + reply appears in teacher's coaching thread
+  replyToFeedback: (id, reply, senderId) =>
+    set((state) => {
+      const item = state.feedbackItems.find((f) => f.id === id)
+      if (!item) return state
+      const msg: CoachingMessage = {
+        id: `msg-reply-${Date.now()}`,
+        cycleId: item.cycleId,
+        senderId,
+        body: reply,
+        createdAt: new Date().toISOString(),
+      }
+      return {
+        feedbackItems: state.feedbackItems.map((f) =>
+          f.id === id ? { ...f, reply, resolved: true } : f,
+        ),
+        coachingCycles: state.coachingCycles.map((cycle) =>
+          cycle.id === item.cycleId
+            ? { ...cycle, messages: [...cycle.messages, msg] }
+            : cycle,
+        ),
+      }
+    }),
+
+  // Coach adds an action item to a specific coaching cycle
+  addCycleAction: (cycleId, action) =>
+    set((state) => ({
+      coachingCycles: state.coachingCycles.map((cycle) =>
+        cycle.id === cycleId
+          ? { ...cycle, actions: [...cycle.actions, action] }
+          : cycle,
+      ),
+    })),
+
+  // Toggle flag on a teacher — persisted in store
+  toggleFlag: (teacherId) =>
+    set((state) => ({
+      flaggedTeachers: state.flaggedTeachers.includes(teacherId)
+        ? state.flaggedTeachers.filter((id) => id !== teacherId)
+        : [...state.flaggedTeachers, teacherId],
     })),
 }))

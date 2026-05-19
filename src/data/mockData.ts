@@ -5,6 +5,7 @@ import type {
   Adaptation,
   FidelityCheck,
   CoachingCycle,
+  FeedbackItem,
   TrainingSession,
   Notification,
   Permission,
@@ -303,6 +304,28 @@ export const notifications: Notification[] = [
   { id: 'n16', userId: 'r1', message: 'New implementation data available for Q2 export.', type: 'missing_log', createdAt: daysAgo(0) },
   { id: 'n17', userId: 'r1', message: 'Cross-site comparison data refresh complete.', type: 'coaching_followup', createdAt: daysAgo(2) },
   { id: 'n18', userId: 'r1', message: 'Site B monthly upload is pending review.', type: 'fidelity_due', createdAt: daysAgo(1) },
+]
+
+// ─── Feedback Items ───────────────────────────────────────────────────────────
+export const feedbackItems: FeedbackItem[] = [
+  {
+    id: 'fq1', teacherId: 't1', coachId: 'c1', cycleId: 'cyc-t1',
+    teacherName: 'Jane Smith', initials: 'JS', date: '2026-05-15',
+    question: 'How should I handle students who skip the representational phase during CRA? They jump straight to the abstract and I\'m not sure how to redirect without losing momentum.',
+    reply: '', resolved: false,
+  },
+  {
+    id: 'fq2', teacherId: 't2', coachId: 'c1', cycleId: 'cyc-t2',
+    teacherName: 'Kevin Johnson', initials: 'KJ', date: '2026-05-14',
+    question: 'My lesson ran 10 minutes over today — should I log it as partially completed or fully completed? The content was all covered just not in the time I planned.',
+    reply: '', resolved: false,
+  },
+  {
+    id: 'fq3', teacherId: 't4', coachId: 'c1', cycleId: 'cyc-t4',
+    teacherName: 'Mira Park', initials: 'MP', date: '2026-05-13',
+    question: 'Can I count co-teaching sessions with the special ed teacher as a Tier 2 intervention? We\'re working with the same 5 students every day.',
+    reply: '', resolved: false,
+  },
 ]
 
 // ─── Resources ────────────────────────────────────────────────────────────────
