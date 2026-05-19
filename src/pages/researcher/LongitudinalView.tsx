@@ -24,11 +24,6 @@ function avg(vals: number[]) {
   return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0
 }
 
-const overallAvg = monthlyFidelityTrend.map((m) => ({
-  month: m.month,
-  avg: +avg([m.adherence, m.dosage, m.quality, m.responsiveness, m.confidence]).toFixed(2),
-}))
-
 const growthByDimension = (() => {
   const first = monthlyFidelityTrend[0]
   const last = monthlyFidelityTrend[monthlyFidelityTrend.length - 1]
@@ -113,7 +108,7 @@ export function LongitudinalView() {
             <XAxis dataKey="month" tick={{ fontSize: 12 }} />
             <YAxis domain={[2, 5]} tick={{ fontSize: 12 }} />
             <Tooltip
-              formatter={(v: number) => v.toFixed(2)}
+              formatter={(v) => typeof v === 'number' ? v.toFixed(2) : ''}
               contentStyle={{ borderRadius: 12, fontSize: 12 }}
             />
             <Legend wrapperStyle={{ fontSize: 12 }} />
@@ -142,7 +137,7 @@ export function LongitudinalView() {
               <XAxis dataKey="month" tick={{ fontSize: 12 }} />
               <YAxis domain={[2, 5]} tick={{ fontSize: 12 }} />
               <Tooltip
-                formatter={(v: number) => v.toFixed(2)}
+                formatter={(v) => typeof v === 'number' ? v.toFixed(2) : ''}
                 contentStyle={{ borderRadius: 12, fontSize: 12 }}
               />
               <Legend wrapperStyle={{ fontSize: 12 }} />
@@ -168,7 +163,7 @@ export function LongitudinalView() {
               <XAxis dataKey="dimension" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip
-                formatter={(v: number) => `+${v.toFixed(2)} pts`}
+                formatter={(v) => typeof v === 'number' ? `+${v.toFixed(2)} pts` : ''}
                 contentStyle={{ borderRadius: 12, fontSize: 12 }}
               />
               <Bar dataKey="growth" name="Growth (pts)" fill={roleColor} radius={[6, 6, 0, 0]} />

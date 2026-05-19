@@ -5,6 +5,7 @@ interface CardProps {
   children: ReactNode
   className?: string
   padding?: 'sm' | 'md' | 'lg' | 'none'
+  title?: string
   onClick?: React.MouseEventHandler<HTMLDivElement>
 }
 
@@ -15,12 +16,13 @@ const paddingClasses = {
   lg: 'p-6',
 }
 
-export function Card({ children, className = '', padding = 'md', onClick }: CardProps) {
+export function Card({ children, className = '', padding = 'md', title, onClick }: CardProps) {
   return (
     <div
       className={`bg-white border border-gray-200 rounded-xl shadow-sm ${paddingClasses[padding]} ${className}`}
       onClick={onClick}
     >
+      {title && <p className="text-sm font-semibold text-gray-800 mb-4">{title}</p>}
       {children}
     </div>
   )

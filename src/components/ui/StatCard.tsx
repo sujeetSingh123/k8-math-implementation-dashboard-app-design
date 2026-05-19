@@ -4,18 +4,23 @@ import { Card } from './Card'
 interface StatCardProps {
   label: string
   value: string | number
+  unit?: string
   sub?: string
   icon?: ReactNode
   iconColor?: string
+  color?: string
 }
 
-export function StatCard({ label, value, sub, icon, iconColor }: StatCardProps) {
+export function StatCard({ label, value, unit, sub, icon, iconColor, color }: StatCardProps) {
   return (
     <Card>
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">{label}</p>
-          <p className="text-3xl font-bold text-gray-900 leading-none">{value}</p>
+          <p className="text-3xl font-bold leading-none" style={{ color: color ?? '#111827' }}>
+            {value}
+            {unit && <span className="text-base font-medium text-gray-400 ml-1">{unit}</span>}
+          </p>
           {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
         </div>
         {icon && (
