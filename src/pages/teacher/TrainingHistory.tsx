@@ -1,4 +1,4 @@
-import { GraduationCap, Clock, Calendar, ChevronRight, BookOpen } from 'lucide-react'
+import { GraduationCap, Clock, Calendar, ChevronRight, BookOpen, LogIn, LogOut } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { Card } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
@@ -9,7 +9,7 @@ import { Button } from '../../components/ui/Button'
 import { toast } from '../../store/useToastStore'
 import { useState } from 'react'
 import { roleColors } from '../../constants/roles'
-import type { TrainingSession } from '../../types'
+import type { TrainingSession, TrainingAttendance } from '../../types'
 
 const roleColor = roleColors.teacher
 
@@ -28,14 +28,47 @@ const sessionDetails: Record<string, string> = {
   'Adaptation Documentation (FRAME-IS)': 'Training on the FRAME-IS framework for classifying, documenting, and analyzing instructional adaptations.',
 }
 
+function formatTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+}
+
+function hoursLogged(checkedInAt: string, checkedOutAt?: string): string {
+  if (!checkedOutAt) return 'In progress'
+  const mins = Math.round((new Date(checkedOutAt).getTime() - new Date(checkedInAt).getTime()) / 60000)
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  return h > 0 ? `${h}h ${m}m` : `${m}m`
+}
+
 export function TrainingHistory() {
-  const { currentUser, trainingSessions } = useAppStore()
+  const { currentUser, trainingSessions, trainingAttendances, checkInTraining, checkOutTraining } = useAppStore()
   const sessions = trainingSessions[currentUser.id] ?? []
   const [selected, setSelected] = useState<TrainingSession | null>(null)
 
+  const myAttendances = trainingAttendances.filter(a => a.teacherId === currentUser.id)
+  const activeCheckIn = myAttendances.find(a => !a.checkedOutAt)
+
   const attended = sessions.filter(s => s.attended)
-  const hoursLogged = attended.reduce((sum, s) => sum + s.durationHours, 0)
+  const hoursTotal = attended.reduce((sum, s) => sum + s.durationHours, 0)
   const nextSession = sessions.filter(s => new Date(s.date) > new Date()).sort((a, b) => a.date.localeCompare(b.date))[0]
+  const upcomingSessions = sessions.filter(s => new Date(s.date) >= new Date())
+
+  const handleCheckIn = (session: TrainingSession) => {
+    const entry: TrainingAttendance = {
+      id: `ta-${Date.now()}`,
+      teacherId: currentUser.id,
+      sessionTitle: session.title,
+      type: session.type,
+      checkedInAt: new Date().toISOString(),
+    }
+    checkInTraining(entry)
+    toast.success(`Checked in to "${session.title}"`)
+  }
+
+  const handleCheckOut = (id: string) => {
+    checkOutTraining(id)
+    toast.success('Checked out. Time logged!')
+  }
 
   const columns = [
     { key: 'date', header: 'Date', className: 'whitespace-nowrap' },
@@ -62,8 +95,8 @@ export function TrainingHistory() {
             sub={`${Math.round((attended.length / Math.max(sessions.length, 1)) * 100)}% attendance rate`}
             icon={<GraduationCap size={18} />} iconColor={roleColor} />
         </div>
-        <div onClick={() => toast.info(`${hoursLogged} hours of professional development logged.`)}>
-          <StatCard label="Hours Logged" value={hoursLogged.toFixed(1)} sub="Professional development hours" icon={<Clock size={18} />} iconColor={roleColor} />
+        <div onClick={() => toast.info(`${hoursTotal} hours of professional development logged.`)}>
+          <StatCard label="Hours Logged" value={hoursTotal.toFixed(1)} sub="Professional development hours" icon={<Clock size={18} />} iconColor={roleColor} />
         </div>
         <div onClick={() => nextSession && setSelected(nextSession)}>
           <StatCard label="Next Session"
@@ -72,6 +105,59 @@ export function TrainingHistory() {
             icon={<Calendar size={18} />} iconColor={roleColor} />
         </div>
       </div>
+
+      {/* Check-In Section */}
+      <Card>
+        <h2 className="text-sm font-semibold text-gray-800 mb-3">Check In / Check Out</h2>
+        {activeCheckIn ? (
+          <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+            <div>
+              <p className="text-sm font-semibold text-emerald-800">{activeCheckIn.sessionTitle}</p>
+              <p className="text-xs text-emerald-600 mt-0.5">Checked in at {formatTime(activeCheckIn.checkedInAt)}</p>
+            </div>
+            <Button size="sm" roleColor={roleColor} onClick={() => handleCheckOut(activeCheckIn.id)}>
+              <LogOut size={13} />Check Out
+            </Button>
+          </div>
+        ) : upcomingSessions.length > 0 ? (
+          <div className="space-y-2">
+            {upcomingSessions.slice(0, 3).map(s => (
+              <div key={s.id} className="flex items-center justify-between border border-gray-200 rounded-xl px-4 py-3">
+                <div>
+                  <p className="text-sm font-medium text-gray-800">{s.title}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{s.date} · {s.durationHours}h · <Badge color={typeBadgeColors[s.type] ?? 'gray'}>{s.type}</Badge></p>
+                </div>
+                <Button size="sm" variant="secondary" roleColor={roleColor} onClick={() => handleCheckIn(s)}>
+                  <LogIn size={13} />Check In
+                </Button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-400">No upcoming sessions to check in to.</p>
+        )}
+      </Card>
+
+      {/* Recent Attendance */}
+      {myAttendances.length > 0 && (
+        <Card>
+          <h2 className="text-sm font-semibold text-gray-800 mb-3">Recent Attendance</h2>
+          <div className="space-y-2">
+            {myAttendances.slice().reverse().slice(0, 5).map(a => (
+              <div key={a.id} className="flex items-center justify-between text-sm border-b border-gray-50 pb-2 last:border-0 last:pb-0">
+                <div>
+                  <p className="font-medium text-gray-800 text-xs">{a.sessionTitle}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{new Date(a.checkedInAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})} · {formatTime(a.checkedInAt)}</p>
+                </div>
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${a.checkedOutAt ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+                  {hoursLogged(a.checkedInAt, a.checkedOutAt)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
       <Card padding="none">
         <div className="px-4 sm:px-5 py-4 border-b border-gray-100 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-gray-800">Training Sessions</h2>

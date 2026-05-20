@@ -10,25 +10,26 @@ import { roleColors } from '../../constants/roles'
 
 const roleColor = roleColors.teacher
 
-type ResourceType = 'all' | 'video' | 'pdf' | 'checklist' | 'rubric'
+type ResourceType = 'all' | 'video' | 'pdf' | 'checklist' | 'rubric' | 'word'
 
 const typeIcons: Record<string, React.ReactNode> = {
   video: <Play size={20} className="text-blue-500" />,
   pdf: <FileText size={20} className="text-red-500" />,
   checklist: <CheckSquare size={20} className="text-emerald-500" />,
   rubric: <Clipboard size={20} className="text-purple-500" />,
+  word: <FileText size={20} className="text-blue-600" />,
 }
 
 const typeBadgeColors: Record<string, 'blue' | 'red' | 'green' | 'purple'> = {
-  video: 'blue', pdf: 'red', checklist: 'green', rubric: 'purple',
+  video: 'blue', pdf: 'red', checklist: 'green', rubric: 'purple', word: 'blue',
 }
 
 const filters: { key: ResourceType; label: string }[] = [
   { key: 'all', label: 'All' }, { key: 'video', label: 'Video' }, { key: 'pdf', label: 'PDF' },
-  { key: 'checklist', label: 'Checklist' }, { key: 'rubric', label: 'Rubric' },
+  { key: 'checklist', label: 'Checklist' }, { key: 'rubric', label: 'Rubric' }, { key: 'word', label: 'Word' },
 ]
 
-type Resource = typeof resources[number]
+type Resource = { id: string; title: string; type: string; duration: string; description: string }
 
 function ResourcePreviewModal({ resource, onClose }: { resource: Resource; onClose: () => void }) {
   const isVideo = resource.type === 'video'
@@ -76,7 +77,7 @@ export function ResourceLibrary() {
   const [search, setSearch] = useState('')
   const [preview, setPreview] = useState<Resource | null>(null)
 
-  const filtered = resources.filter(r => {
+  const filtered = (resources as { id: string; title: string; type: string; duration: string; description: string }[]).filter(r => {
     const matchesType = activeFilter === 'all' || r.type === activeFilter
     const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase()) || r.description.toLowerCase().includes(search.toLowerCase())
     return matchesType && matchesSearch

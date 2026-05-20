@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import {
   BookOpen, CheckSquare, ClipboardList, MessageSquare, Library, GraduationCap,
   LayoutDashboard, Users, Inbox, TrendingUp, Building2, Activity, BarChart2,
-  Download, X, Shield, LogOut,
+  Download, X, Shield, LogOut, BarChart, GitBranch, CalendarDays,
 } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { roleColors, roleLabels } from '../../constants/roles'
@@ -22,6 +22,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
           { label: 'Fidelity Check', path: '/teacher/fidelity', icon: <CheckSquare size={16} /> },
           { label: 'Adaptations', path: '/teacher/adaptations', icon: <BookOpen size={16} /> },
           { label: 'Coaching', path: '/teacher/coaching', icon: <MessageSquare size={16} />, badge: unreadCounts.coaching > 0 ? String(unreadCounts.coaching) : undefined },
+          { label: 'Student Data', path: '/teacher/student-data', icon: <BarChart size={16} /> },
         ],
       },
       {
@@ -49,6 +50,12 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
         ],
       },
       {
+        section: 'Resources',
+        items: [
+          { label: 'Resource Library', path: '/coach/library', icon: <Library size={16} /> },
+        ],
+      },
+      {
         section: 'Insights',
         items: [
           { label: 'Coach Dashboard', path: '/coach/dashboard', icon: <LayoutDashboard size={16} /> },
@@ -70,6 +77,13 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
         items: [
           { label: 'Organization', path: '/admin/organization', icon: <Users size={16} /> },
           { label: 'Roles & Permissions', path: '/admin/roles', icon: <Shield size={16} /> },
+          { label: 'PD Planning', path: '/admin/pd-planning', icon: <CalendarDays size={16} /> },
+        ],
+      },
+      {
+        section: 'Resources',
+        items: [
+          { label: 'Resource Library', path: '/admin/library', icon: <Library size={16} /> },
         ],
       },
     ]
@@ -80,12 +94,14 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
       items: [
         { label: 'Research Analytics', path: '/researcher/analytics', icon: <BarChart2 size={16} /> },
         { label: 'Longitudinal View', path: '/researcher/longitudinal', icon: <TrendingUp size={16} /> },
+        { label: 'DSAII Pathway', path: '/researcher/dsaii', icon: <GitBranch size={16} /> },
       ],
     },
     {
       section: 'Data',
       items: [
         { label: 'Export Data', path: '/researcher/export', icon: <Download size={16} /> },
+        { label: 'Resource Library', path: '/researcher/library', icon: <Library size={16} /> },
       ],
     },
   ]

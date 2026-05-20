@@ -10,7 +10,10 @@ import type {
   CoachingAction,
   FeedbackItem,
   TrainingSession,
+  TrainingAttendance,
   Notification,
+  StudentDataRecord,
+  PDSession,
   RolePermissions,
   OrgMember,
 } from '../types'
@@ -22,11 +25,23 @@ import {
   coachingCycles,
   feedbackItems,
   trainingSessions,
+  trainingAttendances,
   notifications,
   mockCredentials,
   rolePermissions,
   orgMembers,
+  studentDataRecords,
+  pdSessions,
 } from '../data/mockData'
+
+const defaultDeterminants: Record<string, number> = {
+  'Leadership Support': 72,
+  'Coaching Access': 85,
+  'Staffing Stability': 64,
+  'MTSS Maturity': 58,
+  'Resource Availability': 79,
+  'Implementation Climate': 70,
+}
 
 interface AppStore {
   isAuthenticated: boolean
@@ -40,8 +55,12 @@ interface AppStore {
   feedbackItems: FeedbackItem[]
   flaggedTeachers: string[]
   trainingSessions: Record<string, TrainingSession[]>
+  trainingAttendances: TrainingAttendance[]
   rolePermissions: RolePermissions[]
   orgMembers: OrgMember[]
+  studentDataRecords: StudentDataRecord[]
+  pdSessions: PDSession[]
+  determinants: Record<string, number>
 
   login: (email: string, password: string) => boolean
   logout: () => void
@@ -55,9 +74,14 @@ interface AppStore {
   addOrgMember: (member: OrgMember) => void
   updateOrgMember: (id: string, updates: Partial<OrgMember>) => void
   addFeedbackItem: (item: FeedbackItem) => void
-  replyToFeedback: (id: string, reply: string, senderId: string) => void
+  replyToFeedback: (id: string, reply: string, senderId: string, attachmentName?: string) => void
   addCycleAction: (cycleId: string, action: CoachingAction) => void
   toggleFlag: (teacherId: string) => void
+  checkInTraining: (entry: TrainingAttendance) => void
+  checkOutTraining: (id: string) => void
+  addStudentDataRecord: (record: StudentDataRecord) => void
+  addPDSession: (session: PDSession) => void
+  updateDeterminant: (key: string, value: number) => void
 }
 
 const defaultUser = users[0]
@@ -74,8 +98,12 @@ export const useAppStore = create<AppStore>((set) => ({
   feedbackItems,
   flaggedTeachers: [],
   trainingSessions,
+  trainingAttendances,
   rolePermissions,
   orgMembers,
+  studentDataRecords,
+  pdSessions,
+  determinants: defaultDeterminants,
 
   login: (email, password) => {
     const cred = mockCredentials.find(
@@ -92,7 +120,22 @@ export const useAppStore = create<AppStore>((set) => ({
     set({ isAuthenticated: false, currentUser: defaultUser, currentRole: 'teacher' }),
 
   addLog: (log) =>
-    set((state) => ({ implementationLogs: [log, ...state.implementationLogs] })),
+    set((state) => {
+      const newNotifications = [...state.notifications]
+      if (log.adaptationOccurred) {
+        newNotifications.unshift({
+          id: `notif-adp-${Date.now()}`,
+          userId: log.teacherId,
+          message: "Don't forget to document your adaptation from today's log.",
+          type: 'adaptation_incomplete' as const,
+          createdAt: new Date().toISOString(),
+        })
+      }
+      return {
+        implementationLogs: [log, ...state.implementationLogs],
+        notifications: newNotifications,
+      }
+    }),
 
   addAdaptation: (adaptation) =>
     set((state) => ({ adaptations: [adaptation, ...state.adaptations] })),
@@ -169,7 +212,7 @@ export const useAppStore = create<AppStore>((set) => ({
     })),
 
   // Coach replies → feedback item resolved + reply appears in teacher's coaching thread
-  replyToFeedback: (id, reply, senderId) =>
+  replyToFeedback: (id, reply, senderId, attachmentName) =>
     set((state) => {
       const item = state.feedbackItems.find((f) => f.id === id)
       if (!item) return state
@@ -179,6 +222,7 @@ export const useAppStore = create<AppStore>((set) => ({
         senderId,
         body: reply,
         createdAt: new Date().toISOString(),
+        attachmentName,
       }
       return {
         feedbackItems: state.feedbackItems.map((f) =>
@@ -208,5 +252,37 @@ export const useAppStore = create<AppStore>((set) => ({
       flaggedTeachers: state.flaggedTeachers.includes(teacherId)
         ? state.flaggedTeachers.filter((id) => id !== teacherId)
         : [...state.flaggedTeachers, teacherId],
+    })),
+
+  checkInTraining: (entry) =>
+    set((state) => ({ trainingAttendances: [...state.trainingAttendances, entry] })),
+
+  checkOutTraining: (id) =>
+    set((state) => ({
+      trainingAttendances: state.trainingAttendances.map((a) =>
+        a.id === id ? { ...a, checkedOutAt: new Date().toISOString() } : a,
+      ),
+    })),
+
+  addStudentDataRecord: (record) =>
+    set((state) => {
+      // Mark any pending student_data_due notification as read for this teacher
+      const notifications = state.notifications.map((n) =>
+        n.userId === record.teacherId && n.type === 'student_data_due' && !n.readAt
+          ? { ...n, readAt: new Date().toISOString() }
+          : n,
+      )
+      return {
+        studentDataRecords: [record, ...state.studentDataRecords],
+        notifications,
+      }
+    }),
+
+  addPDSession: (session) =>
+    set((state) => ({ pdSessions: [session, ...state.pdSessions] })),
+
+  updateDeterminant: (key, value) =>
+    set((state) => ({
+      determinants: { ...state.determinants, [key]: value },
     })),
 }))

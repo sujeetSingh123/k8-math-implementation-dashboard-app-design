@@ -18,12 +18,22 @@ const dimensions = [
   { key: 'confidence', label: 'Implementation Confidence', low: 'Not confident', high: 'Very confident' },
 ] as const
 
+const extraDimensions = [
+  { key: 'feasibility', label: 'Feasibility', low: 'Very difficult to implement', high: 'Very easy to implement' },
+  { key: 'acceptability', label: 'Acceptability', low: 'Not acceptable', high: 'Fully acceptable' },
+  { key: 'sustainment', label: 'Sustainment Likelihood', low: 'Not sustainable', high: 'Highly sustainable' },
+] as const
+
 type DimKey = typeof dimensions[number]['key']
+type ExtraDimKey = typeof extraDimensions[number]['key']
 
 export function FidelityCheck() {
   const { currentUser, fidelityChecks, addFidelityCheck } = useAppStore()
   const [scores, setScores] = useState<Record<DimKey, number>>({
     adherence: 3, dosage: 3, quality: 3, responsiveness: 3, confidence: 3,
+  })
+  const [extraScores, setExtraScores] = useState<Record<ExtraDimKey, number>>({
+    feasibility: 3, acceptability: 3, sustainment: 3,
   })
   const [notes, setNotes] = useState('')
   const [saved, setSaved] = useState(false)
@@ -53,6 +63,9 @@ export function FidelityCheck() {
       responsiveness: scores.responsiveness,
       confidence: scores.confidence,
       reflectionNotes: notes || undefined,
+      feasibility: extraScores.feasibility,
+      acceptability: extraScores.acceptability,
+      sustainment: extraScores.sustainment,
     }
     addFidelityCheck(check)
     setSaved(true)
@@ -82,6 +95,22 @@ export function FidelityCheck() {
               highLabel={dim.high}
             />
           ))}
+        </div>
+        <div className="mt-6 pt-5 border-t border-gray-100">
+          <h3 className="text-sm font-semibold text-gray-700 mb-4">Implementation Context</h3>
+          <div className="space-y-5">
+            {extraDimensions.map(dim => (
+              <LikertScale
+                key={dim.key}
+                label={dim.label}
+                value={extraScores[dim.key]}
+                onChange={v => setExtraScores(prev => ({ ...prev, [dim.key]: v }))}
+                roleColor={roleColor}
+                lowLabel={dim.low}
+                highLabel={dim.high}
+              />
+            ))}
+          </div>
         </div>
         <div className="mt-5">
           <label className="text-xs font-medium text-gray-600 block mb-1.5">Reflection Notes (optional)</label>

@@ -1,5 +1,5 @@
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts'
-import { ClipboardList, CheckSquare, BookOpen, MessageSquare } from 'lucide-react'
+import { ClipboardList, CheckSquare, BookOpen, MessageSquare, GraduationCap } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
 import { StatCard } from '../../components/ui/StatCard'
@@ -9,8 +9,38 @@ import { roleColors } from '../../constants/roles'
 
 const roleColor = roleColors.teacher
 
+function getWeekStart(weeksAgo: number): Date {
+  const d = new Date()
+  d.setHours(0, 0, 0, 0)
+  d.setDate(d.getDate() - d.getDay() - weeksAgo * 7)
+  return d
+}
+
+function CoachingActivityChart({ messages, coachId }: { messages: { senderId: string; createdAt: string }[]; coachId: string | undefined }) {
+  const weekData = [1, 2, 3, 4].map((weeksAgo) => {
+    const start = getWeekStart(weeksAgo)
+    const end = getWeekStart(weeksAgo - 1)
+    const count = messages.filter(m => {
+      const d = new Date(m.createdAt)
+      return m.senderId === coachId && d >= start && d < end
+    }).length
+    return { week: `Wk ${5 - weeksAgo}`, Messages: count }
+  })
+  return (
+    <ResponsiveContainer width="100%" height={200}>
+      <BarChart data={weekData}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+        <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+        <YAxis allowDecimals={false} tick={{ fontSize: 10 }} width={20} />
+        <Tooltip />
+        <Bar dataKey="Messages" fill={roleColors.coach} radius={[4, 4, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  )
+}
+
 export function TeacherDashboard() {
-  const { currentUser, implementationLogs, fidelityChecks, adaptations, coachingCycles, notifications } = useAppStore()
+  const { currentUser, implementationLogs, fidelityChecks, adaptations, coachingCycles, notifications, trainingSessions } = useAppStore()
   const navigate = useNavigate()
 
   const myLogs = implementationLogs.filter(l => l.teacherId === currentUser.id)
@@ -29,6 +59,9 @@ export function TeacherDashboard() {
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
   }).length
 
+  const mySessions = trainingSessions[currentUser.id] ?? []
+  const attendedCount = mySessions.filter(s => s.attended).length
+
   const trendData = myChecks.sort((a, b) => b.date.localeCompare(a.date)).slice(0, 4).reverse()
     .map((c, i) => ({ week: `Wk ${i + 1}`, Adherence: c.adherence, Dosage: c.dosage, Quality: c.quality, Responsiveness: c.responsiveness, Confidence: c.confidence }))
 
@@ -44,14 +77,16 @@ export function TeacherDashboard() {
     if (unreadMessages > 0) toast.info(`You have ${unreadMessages} unread coaching message${unreadMessages > 1 ? 's' : ''}.`)
     navigate('/teacher/coaching')
   }
+  const handleTrainingClick = () => { toast.info(`${attendedCount} of ${mySessions.length} training sessions attended.`); navigate('/teacher/training') }
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <div className="cursor-pointer" onClick={handleLogClick}><StatCard label="Log Completion" value={`${logCompletionRate}%`} sub={`${myLogs.length} total`} icon={<ClipboardList size={18} />} iconColor={roleColor} /></div>
         <div className="cursor-pointer" onClick={handleFidelityClick}><StatCard label="Avg Fidelity" value={avgFidelity} sub="All dimensions" icon={<CheckSquare size={18} />} iconColor={roleColor} /></div>
         <div className="cursor-pointer" onClick={handleAdaptClick}><StatCard label="Adaptations" value={thisMonthAdaptations} sub="This month" icon={<BookOpen size={18} />} iconColor={roleColor} /></div>
         <div className="cursor-pointer" onClick={handleCoachClick}><StatCard label="Messages" value={myCycle?.messages.length ?? 0} sub={unreadMessages > 0 ? `${unreadMessages} unread` : 'All read'} icon={<MessageSquare size={18} />} iconColor={roleColor} /></div>
+        <div className="cursor-pointer" onClick={handleTrainingClick}><StatCard label="Training" value={`${attendedCount}/${mySessions.length}`} sub="Sessions attended" icon={<GraduationCap size={18} />} iconColor={roleColor} /></div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
@@ -89,7 +124,6 @@ export function TeacherDashboard() {
           {reasonData.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-gray-400">
               <p className="text-sm mb-2">No adaptations documented yet.</p>
-              <button onClick={() => navigate('/teacher/adaptations')} className="text-xs text-emerald-500 cursor-pointer underline">Document one now</button>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={200}>
@@ -103,6 +137,16 @@ export function TeacherDashboard() {
           )}
         </Card>
       </div>
+      <Card>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-800">Coaching Activity (Last 4 Weeks)</h3>
+          <button onClick={() => navigate('/teacher/coaching')} className="text-xs text-emerald-600 hover:text-emerald-800 cursor-pointer">Open thread →</button>
+        </div>
+        <CoachingActivityChart
+          messages={myCycle?.messages ?? []}
+          coachId={myCycle?.coachId}
+        />
+      </Card>
     </div>
   )
 }

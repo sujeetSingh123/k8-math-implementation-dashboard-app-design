@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Send, CheckCircle, Circle, Calendar, AlertCircle, HelpCircle } from 'lucide-react'
+import { Send, CheckCircle, Circle, Calendar, AlertCircle, HelpCircle, Paperclip, X as XIcon } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
@@ -32,6 +32,8 @@ export function CoachingThread() {
   const { currentUser, coachingCycles, sendMessage, completeAction } = useAppStore()
   const [text, setText] = useState('')
   const [askOpen, setAskOpen] = useState(false)
+  const [attachmentName, setAttachmentName] = useState<string | undefined>(undefined)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const cycle = coachingCycles.find(c => c.teacherId === currentUser.id)
@@ -49,9 +51,17 @@ export function CoachingThread() {
       senderId: currentUser.id,
       body: text.trim(),
       createdAt: new Date().toISOString(),
+      attachmentName,
     }
     sendMessage(cycle.id, msg)
     setText('')
+    setAttachmentName(undefined)
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) setAttachmentName(file.name)
+    e.target.value = ''
   }
 
   const mySessions = trainingSessions[currentUser.id] ?? []
@@ -135,6 +145,12 @@ export function CoachingThread() {
                     >
                       {!isMe && <p className="text-xs font-semibold mb-0.5 text-blue-700">{sender?.name}</p>}
                       <p>{msg.body}</p>
+                      {msg.attachmentName && (
+                        <div className={`flex items-center gap-1 mt-1.5 text-xs rounded-lg px-2 py-1 ${isMe ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                          <Paperclip size={10} className="flex-shrink-0" />
+                          <span className="truncate max-w-[160px]">{msg.attachmentName}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -142,15 +158,28 @@ export function CoachingThread() {
             })}
             <div ref={bottomRef} />
           </div>
-          <div className="border-t border-gray-200 p-3 flex gap-2">
-            <input
-              value={text}
-              onChange={e => setText(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
-              placeholder={`Message ${coach?.name ?? 'coach'}…`}
-              className="flex-1 min-w-0 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
-            />
-            <Button onClick={handleSend} roleColor={roleColor} size="sm"><Send size={14} /></Button>
+          <div className="border-t border-gray-200 p-3 space-y-2">
+            {attachmentName && (
+              <div className="flex items-center gap-1.5 text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg px-2.5 py-1.5">
+                <Paperclip size={11} />
+                <span className="flex-1 truncate">{attachmentName}</span>
+                <button onClick={() => setAttachmentName(undefined)} className="cursor-pointer flex-shrink-0"><XIcon size={12} /></button>
+              </div>
+            )}
+            <div className="flex gap-2">
+              <input
+                value={text}
+                onChange={e => setText(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
+                placeholder={`Message ${coach?.name ?? 'coach'}…`}
+                className="flex-1 min-w-0 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
+              />
+              <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} />
+              <Button onClick={() => fileInputRef.current?.click()} roleColor={roleColor} size="sm" variant="secondary" title="Attach file">
+                <Paperclip size={14} />
+              </Button>
+              <Button onClick={handleSend} roleColor={roleColor} size="sm"><Send size={14} /></Button>
+            </div>
           </div>
         </Card>
       </div>

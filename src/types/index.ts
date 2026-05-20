@@ -53,6 +53,9 @@ export type FidelityCheck = {
   responsiveness: number
   confidence: number
   reflectionNotes?: string
+  feasibility?: number
+  acceptability?: number
+  sustainment?: number
 }
 
 export type CoachingMessage = {
@@ -62,6 +65,7 @@ export type CoachingMessage = {
   body: string
   createdAt: string
   readAt?: string
+  attachmentName?: string
 }
 
 export type CoachingCycle = {
@@ -106,11 +110,20 @@ export type TrainingSession = {
   attended: boolean
 }
 
+export type TrainingAttendance = {
+  id: string
+  teacherId: string
+  sessionTitle: string
+  type: 'training' | 'lab' | 'coaching'
+  checkedInAt: string
+  checkedOutAt?: string
+}
+
 export type Notification = {
   id: string
   userId: string
   message: string
-  type: 'missing_log' | 'fidelity_due' | 'coaching_followup' | 'training_deadline'
+  type: 'missing_log' | 'fidelity_due' | 'coaching_followup' | 'training_deadline' | 'student_data_due' | 'adaptation_incomplete'
   readAt?: string
   createdAt: string
 }
@@ -122,6 +135,29 @@ export type StudentDataUpload = {
   dataType: string
   value: number
   tier: string
+}
+
+export type StudentDataRecord = {
+  id: string
+  teacherId: string
+  date: string
+  dataType: 'Class Average' | 'Progress Monitoring' | 'Benchmark Score'
+  value: number
+  tier: string
+}
+
+export type PDSession = {
+  id: string
+  title: string
+  type: 'training' | 'lab' | 'coaching'
+  scheduledDate: string
+  durationHours: number
+  targetAudience: string
+  facilitator: string
+  location: string
+  enrolledCount: number
+  capacity: number
+  status: 'upcoming' | 'completed' | 'cancelled'
 }
 
 export type Permission = {

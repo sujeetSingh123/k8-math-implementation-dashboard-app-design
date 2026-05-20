@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Settings } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Modal } from '../../components/ui/Modal'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
 import { toast } from '../../store/useToastStore'
+import { useAppStore } from '../../store/useAppStore'
 import { monthlyFidelityTrend } from '../../data/mockData'
 import { roleColors } from '../../constants/roles'
 
@@ -19,6 +20,7 @@ const capacityMeta: Record<string, { status: 'green' | 'amber' | 'red'; note: st
   'Staffing Stability': { status: 'amber', note: 'Jefferson Elementary had 3 staff changes this semester, directly impacting implementation continuity and log completion rates.' },
   'MTSS Maturity': { status: 'red', note: 'Washington and Jefferson are in early implementation phase. Both sites flagged as priority for Q4 intensive coaching visits and leadership alignment.' },
   'Resource Availability': { status: 'green', note: 'Curricular materials available at all sites. Stipend budget approved for 2 additional PD days. Substitute coverage confirmed for training dates.' },
+  'Implementation Climate': { status: 'amber', note: 'Staff surveys indicate moderate support for MTSS. Leadership alignment sessions planned for Q4 to strengthen buy-in across all sites.' },
 }
 
 const tierMeta: Record<string, { status: 'green' | 'amber' | 'red'; note: string }> = {
@@ -44,14 +46,6 @@ function ProgressBar({ label, value, color = roleColor, onClick }: ProgressBarPr
   )
 }
 
-const capacityIndicators = [
-  { label: 'Leadership Support', value: 72 },
-  { label: 'Coaching Access', value: 85 },
-  { label: 'Staffing Stability', value: 64 },
-  { label: 'MTSS Maturity', value: 58 },
-  { label: 'Resource Availability', value: 79 },
-]
-
 const tierCoverage = [
   { label: 'Tier 1 (Universal)', value: 88, color: '#10B981' },
   { label: 'Tier 2 (Targeted)', value: 71, color: '#3B82F6' },
@@ -60,12 +54,28 @@ const tierCoverage = [
 ]
 
 export function MTSSMonitoring() {
+  const { determinants, updateDeterminant } = useAppStore()
   const [detail, setDetail] = useState<IndicatorDetail | null>(null)
+  const [editOpen, setEditOpen] = useState(false)
+  const [sliderValues, setSliderValues] = useState<Record<string, number>>({ ...determinants })
+
+  const capacityIndicators = Object.entries(determinants).map(([label, value]) => ({ label, value }))
 
   const trendData = monthlyFidelityTrend.map(m => ({
     month: m.month,
     'Avg Fidelity': parseFloat(((m.adherence + m.dosage + m.quality + m.responsiveness + m.confidence) / 5).toFixed(2)),
   }))
+
+  const handleSaveEdits = () => {
+    Object.entries(sliderValues).forEach(([key, val]) => updateDeterminant(key, val))
+    toast.success('Capacity indicators updated.')
+    setEditOpen(false)
+  }
+
+  const openEdit = () => {
+    setSliderValues({ ...determinants })
+    setEditOpen(true)
+  }
 
   return (
     <div className="space-y-4">
@@ -80,13 +90,20 @@ export function MTSSMonitoring() {
         <Card>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-gray-800">Capacity Indicators</h2>
-            <button onClick={() => toast.info('Capacity indicators measure district readiness for sustained MTSS implementation.')} className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer">What's this?</button>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="secondary" roleColor={roleColor} onClick={openEdit}>
+                <Settings size={13} />Edit Indicators
+              </Button>
+            </div>
           </div>
           <div className="space-y-4">
-            {capacityIndicators.map(ci => (
-              <ProgressBar key={ci.label} label={ci.label} value={ci.value}
-                onClick={() => setDetail({ label: ci.label, value: ci.value, ...capacityMeta[ci.label] })} />
-            ))}
+            {capacityIndicators.map(ci => {
+              const meta = capacityMeta[ci.label]
+              return (
+                <ProgressBar key={ci.label} label={ci.label} value={ci.value}
+                  onClick={() => meta && setDetail({ label: ci.label, value: ci.value, ...meta })} />
+              )
+            })}
           </div>
         </Card>
         <Card>
@@ -133,6 +150,37 @@ export function MTSSMonitoring() {
               <Button roleColor={roleColor} onClick={() => { toast.success('Action item logged for this indicator.'); setDetail(null) }}>Log Action</Button>
               <Button variant="secondary" roleColor={roleColor} onClick={() => { toast.info('Pulling school-level breakdown for this indicator…'); setDetail(null) }}>View by School</Button>
               <Button variant="ghost" roleColor={roleColor} onClick={() => setDetail(null)}>Close</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {editOpen && (
+        <Modal open onClose={() => setEditOpen(false)} title="Edit Capacity Indicators">
+          <div className="space-y-5">
+            {Object.entries(sliderValues).map(([key, val]) => (
+              <div key={key} className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-sm font-medium text-gray-700">{key}</label>
+                  <span className="text-sm font-bold text-gray-800 w-10 text-right">{val}%</span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={val}
+                  onChange={e => setSliderValues(prev => ({ ...prev, [key]: Number(e.target.value) }))}
+                  className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                  style={{ accentColor: roleColor }}
+                />
+                <div className="flex justify-between text-xs text-gray-400">
+                  <span>0%</span><span>50%</span><span>100%</span>
+                </div>
+              </div>
+            ))}
+            <div className="flex gap-2 pt-2">
+              <Button roleColor={roleColor} onClick={handleSaveEdits}>Save Changes</Button>
+              <Button variant="ghost" roleColor={roleColor} onClick={() => setEditOpen(false)}>Cancel</Button>
             </div>
           </div>
         </Modal>

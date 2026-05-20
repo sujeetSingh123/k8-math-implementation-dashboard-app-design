@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Bell, CheckCheck, AlertCircle, MessageSquare, GraduationCap, ClipboardList, X } from 'lucide-react'
+import { Bell, CheckCheck, AlertCircle, MessageSquare, GraduationCap, ClipboardList, X, UploadCloud, AlertTriangle } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import type { Notification } from '../../types'
 
@@ -8,6 +8,8 @@ const typeIcons: Record<Notification['type'], React.ReactNode> = {
   fidelity_due: <AlertCircle size={14} className="text-blue-500" />,
   coaching_followup: <MessageSquare size={14} className="text-emerald-500" />,
   training_deadline: <GraduationCap size={14} className="text-purple-500" />,
+  student_data_due: <UploadCloud size={14} className="text-teal-500" />,
+  adaptation_incomplete: <AlertTriangle size={14} className="text-orange-500" />,
 }
 
 interface NotificationPanelProps {

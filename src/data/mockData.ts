@@ -7,7 +7,10 @@ import type {
   CoachingCycle,
   FeedbackItem,
   TrainingSession,
+  TrainingAttendance,
   Notification,
+  StudentDataRecord,
+  PDSession,
   Permission,
   RolePermissions,
   OrgMember,
@@ -292,6 +295,48 @@ export const trainingSessions: Record<string, TrainingSession[]> = {
   t5: makeTrainingSessions('t5'),
 }
 
+// ─── Training Attendances ─────────────────────────────────────────────────────
+export const trainingAttendances: TrainingAttendance[] = [
+  { id: 'ta-1', teacherId: 't1', sessionTitle: 'CRA Instruction: Concrete Phase', type: 'training', checkedInAt: daysAgo(20) + 'T09:00:00', checkedOutAt: daysAgo(20) + 'T11:00:00' },
+  { id: 'ta-2', teacherId: 't1', sessionTitle: 'Error Correction Protocols', type: 'training', checkedInAt: daysAgo(10) + 'T13:00:00', checkedOutAt: daysAgo(10) + 'T14:30:00' },
+  { id: 'ta-3', teacherId: 't2', sessionTitle: 'Math MTSS Overview & Tier Structure', type: 'training', checkedInAt: daysAgo(30) + 'T09:00:00', checkedOutAt: daysAgo(30) + 'T12:00:00' },
+  { id: 'ta-4', teacherId: 't1', sessionTitle: 'Tier 2 Small Group Routines', type: 'lab', checkedInAt: daysAgo(5) + 'T10:00:00', checkedOutAt: undefined },
+]
+
+// ─── Student Data Records ─────────────────────────────────────────────────────
+export const studentDataRecords: StudentDataRecord[] = [
+  { id: 'sdr-1',  teacherId: 't1', date: daysAgo(60), dataType: 'Benchmark Score',      value: 68, tier: 'Tier 1' },
+  { id: 'sdr-2',  teacherId: 't1', date: daysAgo(50), dataType: 'Progress Monitoring',  value: 71, tier: 'Tier 2' },
+  { id: 'sdr-3',  teacherId: 't1', date: daysAgo(42), dataType: 'Class Average',        value: 74, tier: 'Tier 1' },
+  { id: 'sdr-4',  teacherId: 't1', date: daysAgo(35), dataType: 'Progress Monitoring',  value: 76, tier: 'Tier 2' },
+  { id: 'sdr-5',  teacherId: 't1', date: daysAgo(28), dataType: 'Benchmark Score',      value: 79, tier: 'Tier 1' },
+  { id: 'sdr-6',  teacherId: 't1', date: daysAgo(21), dataType: 'Class Average',        value: 81, tier: 'Tier 1' },
+  { id: 'sdr-7',  teacherId: 't1', date: daysAgo(14), dataType: 'Progress Monitoring',  value: 83, tier: 'Tier 3' },
+  { id: 'sdr-8',  teacherId: 't1', date: daysAgo(7),  dataType: 'Class Average',        value: 85, tier: 'Tier 1' },
+  { id: 'sdr-9',  teacherId: 't2', date: daysAgo(55), dataType: 'Benchmark Score',      value: 62, tier: 'Tier 2' },
+  { id: 'sdr-10', teacherId: 't2', date: daysAgo(40), dataType: 'Progress Monitoring',  value: 65, tier: 'Tier 2' },
+  { id: 'sdr-11', teacherId: 't2', date: daysAgo(25), dataType: 'Class Average',        value: 67, tier: 'Tier 1' },
+  { id: 'sdr-12', teacherId: 't2', date: daysAgo(10), dataType: 'Progress Monitoring',  value: 70, tier: 'Tier 3' },
+  { id: 'sdr-13', teacherId: 't3', date: daysAgo(45), dataType: 'Benchmark Score',      value: 88, tier: 'Tier 1' },
+  { id: 'sdr-14', teacherId: 't3', date: daysAgo(30), dataType: 'Class Average',        value: 91, tier: 'Tier 1' },
+  { id: 'sdr-15', teacherId: 't3', date: daysAgo(15), dataType: 'Progress Monitoring',  value: 93, tier: 'Tier 2' },
+  { id: 'sdr-16', teacherId: 't4', date: daysAgo(50), dataType: 'Benchmark Score',      value: 55, tier: 'Tier 2' },
+  { id: 'sdr-17', teacherId: 't4', date: daysAgo(35), dataType: 'Progress Monitoring',  value: 52, tier: 'Tier 3' },
+  { id: 'sdr-18', teacherId: 't4', date: daysAgo(20), dataType: 'Class Average',        value: 58, tier: 'Tier 1' },
+  { id: 'sdr-19', teacherId: 't5', date: daysAgo(45), dataType: 'Class Average',        value: 75, tier: 'Tier 1' },
+  { id: 'sdr-20', teacherId: 't5', date: daysAgo(15), dataType: 'Progress Monitoring',  value: 79, tier: 'Tier 2' },
+]
+
+// ─── PD Sessions ──────────────────────────────────────────────────────────────
+export const pdSessions: PDSession[] = [
+  { id: 'pd-1', title: 'Math MTSS Year-End Review', type: 'training', scheduledDate: daysAgo(-14), durationHours: 3, targetAudience: 'All Teachers', facilitator: 'Maria Chen', location: 'District Office — Room 101', enrolledCount: 18, capacity: 25, status: 'upcoming' },
+  { id: 'pd-2', title: 'CRA Lab: Representational Phase', type: 'lab', scheduledDate: daysAgo(-7), durationHours: 2.5, targetAudience: 'Tier 2 Teachers', facilitator: 'David Kim', location: 'Lincoln Elementary — Lab A', enrolledCount: 10, capacity: 12, status: 'upcoming' },
+  { id: 'pd-3', title: 'Coaching Conversation Frameworks', type: 'coaching', scheduledDate: daysAgo(-3), durationHours: 2, targetAudience: 'Coaches', facilitator: 'Aisha Patel', location: 'Virtual (Zoom)', enrolledCount: 4, capacity: 6, status: 'upcoming' },
+  { id: 'pd-4', title: 'Data-Driven Decision Making Q3', type: 'training', scheduledDate: daysAgo(15), durationHours: 2, targetAudience: 'All Teachers', facilitator: 'Maria Chen', location: 'Washington Elementary — Cafeteria', enrolledCount: 22, capacity: 25, status: 'completed' },
+  { id: 'pd-5', title: 'Fidelity Self-Assessment Practices', type: 'coaching', scheduledDate: daysAgo(30), durationHours: 1.5, targetAudience: 'All Teachers', facilitator: 'David Kim', location: 'Jefferson Elementary — Library', enrolledCount: 14, capacity: 20, status: 'completed' },
+  { id: 'pd-6', title: 'Adaptation Documentation (FRAME-IS)', type: 'training', scheduledDate: daysAgo(45), durationHours: 2, targetAudience: 'All Staff', facilitator: 'Aisha Patel', location: 'District Office — Room 204', enrolledCount: 30, capacity: 30, status: 'completed' },
+]
+
 // ─── Notifications ────────────────────────────────────────────────────────────
 export const notifications: Notification[] = [
   { id: 'n1', userId: 't1', message: 'Your fidelity self-check is due — last completed 8 days ago.', type: 'fidelity_due', createdAt: daysAgo(1) },
@@ -312,6 +357,9 @@ export const notifications: Notification[] = [
   { id: 'n16', userId: 'r1', message: 'New implementation data available for Q2 export.', type: 'missing_log', createdAt: daysAgo(0) },
   { id: 'n17', userId: 'r1', message: 'Cross-site comparison data refresh complete.', type: 'coaching_followup', createdAt: daysAgo(2) },
   { id: 'n18', userId: 'r1', message: 'Site B monthly upload is pending review.', type: 'fidelity_due', createdAt: daysAgo(1) },
+  { id: 'n19', userId: 't1', message: 'Student data upload due — please submit your latest progress monitoring scores.', type: 'student_data_due', createdAt: daysAgo(2) },
+  { id: 'n20', userId: 't2', message: 'Your student data upload is overdue. Please upload your class scores this week.', type: 'student_data_due', createdAt: daysAgo(1) },
+  { id: 'n21', userId: 't4', message: "Don't forget to document your adaptation from today's log.", type: 'adaptation_incomplete', createdAt: daysAgo(0) },
 ]
 
 // ─── Feedback Items ───────────────────────────────────────────────────────────
@@ -346,6 +394,8 @@ export const resources = [
   { id: 'res-6', title: 'Adaptation Decision Guide (FRAME-IS)', type: 'pdf', duration: '6 pages', description: 'Framework for documenting and evaluating instructional adaptations.' },
   { id: 'res-7', title: 'Error Correction Protocol Walkthrough', type: 'video', duration: '15 min', description: 'Demonstration of the 4-step error correction model.' },
   { id: 'res-8', title: 'Progress Monitoring Interpretation Guide', type: 'pdf', duration: '12 pages', description: 'How to use progress monitoring data for Tier 3 decisions.' },
+  { id: 'res-9', title: 'Lesson Plan Template — CRA Sequence', type: 'word', duration: '3 pages', description: 'Editable Word template for planning lessons using the CRA instructional sequence.' },
+  { id: 'res-10', title: 'Coaching Cycle Notes Template', type: 'word', duration: '2 pages', description: 'Editable Word document for documenting coaching cycle goals, observations, and action items.' },
 ]
 
 // ─── Monthly Fidelity Trend (for charts) ────────────────────────────────────
