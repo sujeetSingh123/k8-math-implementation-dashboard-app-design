@@ -1,4 +1,4 @@
-import { GraduationCap, Clock, Calendar, ChevronRight, BookOpen, LogIn, LogOut } from 'lucide-react'
+import { GraduationCap, Clock, Calendar, ChevronRight, BookOpen, LogIn, LogOut, MapPin, User } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { Card } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
@@ -17,16 +17,6 @@ const typeBadgeColors: Record<string, 'blue' | 'purple' | 'green'> = {
   training: 'blue', coaching: 'purple', lab: 'green',
 }
 
-const sessionDetails: Record<string, string> = {
-  'Math MTSS Overview & Tier Structure': 'Covers the three-tier framework for math intervention, roles of general and special educators, and data-based decision making in a math MTSS model.',
-  'CRA Instruction: Concrete Phase': 'Hands-on training with manipulatives for teaching number concepts using physical objects before moving to pictures or symbols.',
-  'CRA Instruction: Representational Phase': 'Lab session exploring the pictorial/representational stage of the CRA sequence, including drawing models and diagrams.',
-  'Error Correction Protocols': 'Learn and practice the four-step error correction procedure: Stop → Model → Re-teach → Practice.',
-  'Fidelity Self-Assessment Practices': 'Coaching session on using the five-dimension fidelity rubric for self-reflection and goal-setting.',
-  'Tier 2 Small Group Routines': 'Lab session building a consistent Tier 2 routine structure: warm-up, targeted instruction, guided practice, exit check.',
-  'Data-Driven Instructional Decisions': 'Coaching session on interpreting progress monitoring data and using decision trees to adjust intervention intensity.',
-  'Adaptation Documentation (FRAME-IS)': 'Training on the FRAME-IS framework for classifying, documenting, and analyzing instructional adaptations.',
-}
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
@@ -41,12 +31,23 @@ function hoursLogged(checkedInAt: string, checkedOutAt?: string): string {
 }
 
 export function TrainingHistory() {
-  const { currentUser, trainingSessions, trainingAttendances, checkInTraining, checkOutTraining } = useAppStore()
-  const sessions = trainingSessions[currentUser.id] ?? []
+  const { currentUser, pdSessions, trainingAttendances, checkInTraining, checkOutTraining } = useAppStore()
   const [selected, setSelected] = useState<TrainingSession | null>(null)
 
   const myAttendances = trainingAttendances.filter(a => a.teacherId === currentUser.id)
   const activeCheckIn = myAttendances.find(a => !a.checkedOutAt)
+
+  const sessions: TrainingSession[] = pdSessions.map(pd => ({
+    id: pd.id,
+    title: pd.title,
+    type: pd.type,
+    date: pd.scheduledDate,
+    durationHours: pd.durationHours,
+    attended: pd.status === 'completed' && myAttendances.some(a => a.sessionTitle === pd.title && !!a.checkedOutAt),
+    description: pd.description,
+    facilitator: pd.facilitator,
+    location: pd.location,
+  }))
 
   const attended = sessions.filter(s => s.attended)
   const hoursTotal = attended.reduce((sum, s) => sum + s.durationHours, 0)
@@ -127,9 +128,14 @@ export function TrainingHistory() {
                   <p className="text-sm font-medium text-gray-800">{s.title}</p>
                   <p className="text-xs text-gray-400 mt-0.5">{s.date} · {s.durationHours}h · <Badge color={typeBadgeColors[s.type] ?? 'gray'}>{s.type}</Badge></p>
                 </div>
-                <Button size="sm" variant="secondary" roleColor={roleColor} onClick={() => handleCheckIn(s)}>
-                  <LogIn size={13} />Check In
-                </Button>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => setSelected(s)} className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer">
+                    View Details
+                  </button>
+                  <Button size="sm" variant="secondary" roleColor={roleColor} onClick={() => handleCheckIn(s)}>
+                    <LogIn size={13} />Check In
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
@@ -179,18 +185,31 @@ export function TrainingHistory() {
           <div className="space-y-4">
             <div className="flex items-center gap-3 flex-wrap">
               <Badge color={typeBadgeColors[selected.type] ?? 'gray'}>{selected.type}</Badge>
-              <Badge color={selected.attended ? 'green' : 'red'}>{selected.attended ? 'Attended' : 'Missed'}</Badge>
+              {new Date(selected.date) > new Date()
+                ? <Badge color="blue">Upcoming</Badge>
+                : <Badge color={selected.attended ? 'green' : 'red'}>{selected.attended ? 'Attended' : 'Missed'}</Badge>
+              }
               <span className="text-xs text-gray-400">{selected.date} · {selected.durationHours}h</span>
             </div>
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
               <div className="flex items-start gap-2">
                 <BookOpen size={16} className="text-gray-400 mt-0.5 flex-shrink-0" />
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  {sessionDetails[selected.title] ?? 'Session details not available.'}
+                  {selected.description ?? 'Session details not available.'}
                 </p>
               </div>
+              {(selected.facilitator || selected.location) && (
+                <div className="flex flex-wrap gap-3 pt-1 border-t border-gray-200">
+                  {selected.facilitator && (
+                    <span className="flex items-center gap-1.5 text-xs text-gray-500"><User size={12} />{selected.facilitator}</span>
+                  )}
+                  {selected.location && (
+                    <span className="flex items-center gap-1.5 text-xs text-gray-500"><MapPin size={12} />{selected.location}</span>
+                  )}
+                </div>
+              )}
             </div>
-            {!selected.attended && (
+            {new Date(selected.date) <= new Date() && !selected.attended && (
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
                 <p className="text-xs text-amber-700 font-medium">You missed this session. Contact your coach to schedule a make-up.</p>
               </div>
@@ -200,11 +219,11 @@ export function TrainingHistory() {
                 <Button roleColor={roleColor} onClick={() => { toast.success('Certificate downloaded!'); setSelected(null) }}>
                   <GraduationCap size={14} />Download Certificate
                 </Button>
-              ) : (
+              ) : new Date(selected.date) <= new Date() ? (
                 <Button roleColor={roleColor} onClick={() => { toast.info('Make-up request sent to your coach.'); setSelected(null) }}>
                   Request Make-Up
                 </Button>
-              )}
+              ) : null}
               <Button variant="ghost" roleColor={roleColor} onClick={() => setSelected(null)}>Close</Button>
             </div>
           </div>

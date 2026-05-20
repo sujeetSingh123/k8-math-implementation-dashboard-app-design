@@ -84,6 +84,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
         section: 'Resources',
         items: [
           { label: 'Resource Library', path: '/admin/library', icon: <Library size={16} /> },
+          { label: 'Manage Resources', path: '/admin/resources', icon: <Library size={16} /> },
         ],
       },
     ]

@@ -15,6 +15,7 @@ import type {
   RolePermissions,
   OrgMember,
   MockCredential,
+  Resource,
 } from '../types'
 
 // ─── Schools ─────────────────────────────────────────────────────────────────
@@ -297,10 +298,10 @@ export const trainingSessions: Record<string, TrainingSession[]> = {
 
 // ─── Training Attendances ─────────────────────────────────────────────────────
 export const trainingAttendances: TrainingAttendance[] = [
-  { id: 'ta-1', teacherId: 't1', sessionTitle: 'CRA Instruction: Concrete Phase', type: 'training', checkedInAt: daysAgo(20) + 'T09:00:00', checkedOutAt: daysAgo(20) + 'T11:00:00' },
-  { id: 'ta-2', teacherId: 't1', sessionTitle: 'Error Correction Protocols', type: 'training', checkedInAt: daysAgo(10) + 'T13:00:00', checkedOutAt: daysAgo(10) + 'T14:30:00' },
-  { id: 'ta-3', teacherId: 't2', sessionTitle: 'Math MTSS Overview & Tier Structure', type: 'training', checkedInAt: daysAgo(30) + 'T09:00:00', checkedOutAt: daysAgo(30) + 'T12:00:00' },
-  { id: 'ta-4', teacherId: 't1', sessionTitle: 'Tier 2 Small Group Routines', type: 'lab', checkedInAt: daysAgo(5) + 'T10:00:00', checkedOutAt: undefined },
+  { id: 'ta-1', teacherId: 't1', sessionTitle: 'Fidelity Self-Assessment Practices', type: 'coaching', checkedInAt: daysAgo(30) + 'T09:00:00', checkedOutAt: daysAgo(30) + 'T10:30:00' },
+  { id: 'ta-2', teacherId: 't1', sessionTitle: 'Adaptation Documentation (FRAME-IS)', type: 'training', checkedInAt: daysAgo(45) + 'T13:00:00', checkedOutAt: daysAgo(45) + 'T15:00:00' },
+  { id: 'ta-3', teacherId: 't2', sessionTitle: 'Data-Driven Decision Making Q3', type: 'training', checkedInAt: daysAgo(15) + 'T09:00:00', checkedOutAt: daysAgo(15) + 'T11:00:00' },
+  { id: 'ta-4', teacherId: 't1', sessionTitle: 'Data-Driven Decision Making Q3', type: 'training', checkedInAt: daysAgo(15) + 'T09:00:00', checkedOutAt: daysAgo(15) + 'T11:00:00' },
 ]
 
 // ─── Student Data Records ─────────────────────────────────────────────────────
@@ -329,12 +330,12 @@ export const studentDataRecords: StudentDataRecord[] = [
 
 // ─── PD Sessions ──────────────────────────────────────────────────────────────
 export const pdSessions: PDSession[] = [
-  { id: 'pd-1', title: 'Math MTSS Year-End Review', type: 'training', scheduledDate: daysAgo(-14), durationHours: 3, targetAudience: 'All Teachers', facilitator: 'Maria Chen', location: 'District Office — Room 101', enrolledCount: 18, capacity: 25, status: 'upcoming' },
-  { id: 'pd-2', title: 'CRA Lab: Representational Phase', type: 'lab', scheduledDate: daysAgo(-7), durationHours: 2.5, targetAudience: 'Tier 2 Teachers', facilitator: 'David Kim', location: 'Lincoln Elementary — Lab A', enrolledCount: 10, capacity: 12, status: 'upcoming' },
-  { id: 'pd-3', title: 'Coaching Conversation Frameworks', type: 'coaching', scheduledDate: daysAgo(-3), durationHours: 2, targetAudience: 'Coaches', facilitator: 'Aisha Patel', location: 'Virtual (Zoom)', enrolledCount: 4, capacity: 6, status: 'upcoming' },
-  { id: 'pd-4', title: 'Data-Driven Decision Making Q3', type: 'training', scheduledDate: daysAgo(15), durationHours: 2, targetAudience: 'All Teachers', facilitator: 'Maria Chen', location: 'Washington Elementary — Cafeteria', enrolledCount: 22, capacity: 25, status: 'completed' },
-  { id: 'pd-5', title: 'Fidelity Self-Assessment Practices', type: 'coaching', scheduledDate: daysAgo(30), durationHours: 1.5, targetAudience: 'All Teachers', facilitator: 'David Kim', location: 'Jefferson Elementary — Library', enrolledCount: 14, capacity: 20, status: 'completed' },
-  { id: 'pd-6', title: 'Adaptation Documentation (FRAME-IS)', type: 'training', scheduledDate: daysAgo(45), durationHours: 2, targetAudience: 'All Staff', facilitator: 'Aisha Patel', location: 'District Office — Room 204', enrolledCount: 30, capacity: 30, status: 'completed' },
+  { id: 'pd-1', title: 'Math MTSS Year-End Review', type: 'training', scheduledDate: daysAgo(-14), durationHours: 3, targetAudience: 'All Teachers', facilitator: 'Maria Chen', location: 'District Office — Room 101', enrolledCount: 18, capacity: 25, status: 'upcoming', description: 'End-of-year review of MTSS implementation fidelity across all tiers. Teams will analyze district-wide data, identify trends, and set goals for the following school year.' },
+  { id: 'pd-2', title: 'CRA Lab: Representational Phase', type: 'lab', scheduledDate: daysAgo(-7), durationHours: 2.5, targetAudience: 'Tier 2 Teachers', facilitator: 'David Kim', location: 'Lincoln Elementary — Lab A', enrolledCount: 10, capacity: 12, status: 'upcoming', description: 'Hands-on lab exploring the pictorial/representational stage of the CRA sequence. Participants will practice drawing models and diagrams to bridge concrete manipulatives and abstract symbols.' },
+  { id: 'pd-3', title: 'Coaching Conversation Frameworks', type: 'coaching', scheduledDate: daysAgo(-3), durationHours: 2, targetAudience: 'Coaches', facilitator: 'Aisha Patel', location: 'Virtual (Zoom)', enrolledCount: 4, capacity: 6, status: 'upcoming', description: 'Coaching session focused on structured conversation frameworks for observational feedback, goal-setting dialogues, and action planning with teachers.' },
+  { id: 'pd-4', title: 'Data-Driven Decision Making Q3', type: 'training', scheduledDate: daysAgo(15), durationHours: 2, targetAudience: 'All Teachers', facilitator: 'Maria Chen', location: 'Washington Elementary — Cafeteria', enrolledCount: 22, capacity: 25, status: 'completed', description: 'Training on interpreting Q3 progress monitoring data to make Tier placement decisions. Covered data decision trees, cut scores, and documentation requirements for Tier 2 and Tier 3 adjustments.' },
+  { id: 'pd-5', title: 'Fidelity Self-Assessment Practices', type: 'coaching', scheduledDate: daysAgo(30), durationHours: 1.5, targetAudience: 'All Teachers', facilitator: 'David Kim', location: 'Jefferson Elementary — Library', enrolledCount: 14, capacity: 20, status: 'completed', description: 'Coaching session on using the five-dimension fidelity rubric for self-reflection and goal-setting. Participants calibrated ratings against video examples and identified one growth area for the next cycle.' },
+  { id: 'pd-6', title: 'Adaptation Documentation (FRAME-IS)', type: 'training', scheduledDate: daysAgo(45), durationHours: 2, targetAudience: 'All Staff', facilitator: 'Aisha Patel', location: 'District Office — Room 204', enrolledCount: 30, capacity: 30, status: 'completed', description: 'Training on the FRAME-IS framework for classifying, documenting, and analyzing instructional adaptations. Covered the six modification categories, fidelity implications, and how to log adaptations in the system.' },
 ]
 
 // ─── Notifications ────────────────────────────────────────────────────────────
@@ -385,17 +386,19 @@ export const feedbackItems: FeedbackItem[] = [
 ]
 
 // ─── Resources ────────────────────────────────────────────────────────────────
-export const resources = [
-  { id: 'res-1', title: 'CRA Routine Implementation Guide', type: 'video', duration: '22 min', description: 'Step-by-step walkthrough of the Concrete-Representational-Abstract sequence.' },
-  { id: 'res-2', title: 'MTSS Mathematics Implementation Manual', type: 'pdf', duration: '48 pages', description: 'Complete district manual for multi-tiered math support.' },
-  { id: 'res-3', title: 'Daily Log Completion Checklist', type: 'checklist', duration: '1 page', description: 'Quick reference for completing your daily implementation log.' },
-  { id: 'res-4', title: 'Fidelity Self-Assessment Rubric', type: 'rubric', duration: '2 pages', description: 'Detailed rubric aligned to the 5 fidelity dimensions.' },
-  { id: 'res-5', title: 'Tier 2 Small Group Strategies', type: 'video', duration: '18 min', description: 'Evidence-based strategies for Tier 2 targeted instruction.' },
-  { id: 'res-6', title: 'Adaptation Decision Guide (FRAME-IS)', type: 'pdf', duration: '6 pages', description: 'Framework for documenting and evaluating instructional adaptations.' },
-  { id: 'res-7', title: 'Error Correction Protocol Walkthrough', type: 'video', duration: '15 min', description: 'Demonstration of the 4-step error correction model.' },
-  { id: 'res-8', title: 'Progress Monitoring Interpretation Guide', type: 'pdf', duration: '12 pages', description: 'How to use progress monitoring data for Tier 3 decisions.' },
-  { id: 'res-9', title: 'Lesson Plan Template — CRA Sequence', type: 'word', duration: '3 pages', description: 'Editable Word template for planning lessons using the CRA instructional sequence.' },
-  { id: 'res-10', title: 'Coaching Cycle Notes Template', type: 'word', duration: '2 pages', description: 'Editable Word document for documenting coaching cycle goals, observations, and action items.' },
+export const resources: Resource[] = [
+  { id: 'res-1', title: 'CRA Routine Implementation Guide', type: 'video', duration: '22 min', description: 'Step-by-step walkthrough of the Concrete-Representational-Abstract sequence.', accessRoles: ['teacher', 'coach'], uploadedAt: '2025-08-01' },
+  { id: 'res-2', title: 'MTSS Mathematics Implementation Manual', type: 'pdf', duration: '48 pages', description: 'Complete district manual for multi-tiered math support.', accessRoles: ['teacher', 'coach', 'admin', 'researcher'], uploadedAt: '2025-08-01' },
+  { id: 'res-3', title: 'Daily Log Completion Checklist', type: 'pdf', duration: '1 page', description: 'Quick reference for completing your daily implementation log.', accessRoles: ['teacher'], uploadedAt: '2025-08-05' },
+  { id: 'res-4', title: 'Fidelity Self-Assessment Rubric', type: 'pdf', duration: '2 pages', description: 'Detailed rubric aligned to the 5 fidelity dimensions.', accessRoles: ['teacher', 'coach'], uploadedAt: '2025-08-05' },
+  { id: 'res-5', title: 'Tier 2 Small Group Strategies', type: 'video', duration: '18 min', description: 'Evidence-based strategies for Tier 2 targeted instruction.', accessRoles: ['teacher', 'coach'], uploadedAt: '2025-08-10' },
+  { id: 'res-6', title: 'Adaptation Decision Guide (FRAME-IS)', type: 'pdf', duration: '6 pages', description: 'Framework for documenting and evaluating instructional adaptations.', accessRoles: ['teacher', 'coach', 'researcher'], uploadedAt: '2025-08-10' },
+  { id: 'res-7', title: 'Error Correction Protocol Walkthrough', type: 'video', duration: '15 min', description: 'Demonstration of the 4-step error correction model.', accessRoles: ['teacher', 'coach'], uploadedAt: '2025-09-01' },
+  { id: 'res-8', title: 'Progress Monitoring Interpretation Guide', type: 'pdf', duration: '12 pages', description: 'How to use progress monitoring data for Tier 3 decisions.', accessRoles: ['teacher', 'coach', 'researcher'], uploadedAt: '2025-09-01' },
+  { id: 'res-9', title: 'Lesson Plan Template — CRA Sequence', type: 'word', duration: '3 pages', description: 'Editable Word template for planning lessons using the CRA instructional sequence.', accessRoles: ['teacher'], uploadedAt: '2025-09-15' },
+  { id: 'res-10', title: 'Coaching Cycle Notes Template', type: 'word', duration: '2 pages', description: 'Editable Word document for documenting coaching cycle goals, observations, and action items.', accessRoles: ['coach', 'admin'], uploadedAt: '2025-09-15' },
+  { id: 'res-11', title: 'District MTSS Data Summary Report', type: 'pdf', duration: '8 pages', description: 'Aggregated district-level MTSS implementation report for leadership review.', accessRoles: ['admin', 'researcher'], uploadedAt: '2025-10-01' },
+  { id: 'res-12', title: 'Implementation Science Research Brief', type: 'pdf', duration: '14 pages', description: 'Research brief on DSAII framework and implementation science methodology.', accessRoles: ['researcher', 'admin'], uploadedAt: '2025-10-01' },
 ]
 
 // ─── Monthly Fidelity Trend (for charts) ────────────────────────────────────

@@ -41,7 +41,7 @@ function PathwayCard({ title, metrics, status }: {
 }
 
 export function DSAIIPathway() {
-  const { determinants, coachingCycles, trainingSessions, adaptations, fidelityChecks, studentDataRecords } = useAppStore()
+  const { determinants, coachingCycles, trainingAttendances, adaptations, fidelityChecks, studentDataRecords } = useAppStore()
 
   // Panel 1: Determinants
   const det = determinants
@@ -50,8 +50,7 @@ export function DSAIIPathway() {
 
   // Panel 2: Strategies
   const coachMsgCount = coachingCycles.reduce((sum, c) => sum + c.messages.filter(m => m.senderId !== c.teacherId).length, 0)
-  const allSessions = Object.values(trainingSessions).flat()
-  const trainedCount = allSessions.filter(s => s.attended).length
+  const trainedCount = trainingAttendances.filter(a => !!a.checkedOutAt).length
   const feedbackCycles = coachingCycles.reduce((sum, c) => sum + c.actions.length, 0)
   const stratStatus = statusBadge(coachMsgCount, 20, 10)
 

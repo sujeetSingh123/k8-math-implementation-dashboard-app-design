@@ -18,6 +18,7 @@ import { MTSSMonitoring } from './pages/admin/MTSSMonitoring'
 import { RolesPermissions } from './pages/admin/RolesPermissions'
 import { Organization } from './pages/admin/Organization'
 import { PDPlanning } from './pages/admin/PDPlanning'
+import { ResourceManagement } from './pages/admin/ResourceManagement'
 import { ResearchAnalytics } from './pages/researcher/ResearchAnalytics'
 import { LongitudinalView } from './pages/researcher/LongitudinalView'
 import { DataExport } from './pages/researcher/DataExport'
@@ -67,6 +68,7 @@ export default function App() {
         <Route path="/admin/organization" element={<ProtectedLayout><Organization /></ProtectedLayout>} />
         <Route path="/admin/pd-planning" element={<ProtectedLayout><PDPlanning /></ProtectedLayout>} />
         <Route path="/admin/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
+        <Route path="/admin/resources" element={<ProtectedLayout><ResourceManagement /></ProtectedLayout>} />
         <Route path="/researcher/analytics" element={<ProtectedLayout><ResearchAnalytics /></ProtectedLayout>} />
         <Route path="/researcher/longitudinal" element={<ProtectedLayout><LongitudinalView /></ProtectedLayout>} />
         <Route path="/researcher/export" element={<ProtectedLayout><DataExport /></ProtectedLayout>} />

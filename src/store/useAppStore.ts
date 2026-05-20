@@ -9,13 +9,14 @@ import type {
   CoachingMessage,
   CoachingAction,
   FeedbackItem,
-  TrainingSession,
+
   TrainingAttendance,
   Notification,
   StudentDataRecord,
   PDSession,
   RolePermissions,
   OrgMember,
+  Resource,
 } from '../types'
 import {
   users,
@@ -24,7 +25,6 @@ import {
   fidelityChecks,
   coachingCycles,
   feedbackItems,
-  trainingSessions,
   trainingAttendances,
   notifications,
   mockCredentials,
@@ -32,6 +32,7 @@ import {
   orgMembers,
   studentDataRecords,
   pdSessions,
+  resources,
 } from '../data/mockData'
 
 const defaultDeterminants: Record<string, number> = {
@@ -54,13 +55,14 @@ interface AppStore {
   coachingCycles: CoachingCycle[]
   feedbackItems: FeedbackItem[]
   flaggedTeachers: string[]
-  trainingSessions: Record<string, TrainingSession[]>
+
   trainingAttendances: TrainingAttendance[]
   rolePermissions: RolePermissions[]
   orgMembers: OrgMember[]
   studentDataRecords: StudentDataRecord[]
   pdSessions: PDSession[]
   determinants: Record<string, number>
+  resources: Resource[]
 
   login: (email: string, password: string) => boolean
   logout: () => void
@@ -82,6 +84,9 @@ interface AppStore {
   addStudentDataRecord: (record: StudentDataRecord) => void
   addPDSession: (session: PDSession) => void
   updateDeterminant: (key: string, value: number) => void
+  addResource: (resource: Resource) => void
+  updateResource: (id: string, updates: Partial<Resource>) => void
+  deleteResource: (id: string) => void
 }
 
 const defaultUser = users[0]
@@ -97,13 +102,13 @@ export const useAppStore = create<AppStore>((set) => ({
   coachingCycles,
   feedbackItems,
   flaggedTeachers: [],
-  trainingSessions,
   trainingAttendances,
   rolePermissions,
   orgMembers,
   studentDataRecords,
   pdSessions,
   determinants: defaultDeterminants,
+  resources,
 
   login: (email, password) => {
     const cred = mockCredentials.find(
@@ -285,4 +290,15 @@ export const useAppStore = create<AppStore>((set) => ({
     set((state) => ({
       determinants: { ...state.determinants, [key]: value },
     })),
+
+  addResource: (resource) =>
+    set((state) => ({ resources: [resource, ...state.resources] })),
+
+  updateResource: (id, updates) =>
+    set((state) => ({
+      resources: state.resources.map((r) => (r.id === id ? { ...r, ...updates } : r)),
+    })),
+
+  deleteResource: (id) =>
+    set((state) => ({ resources: state.resources.filter((r) => r.id !== id) })),
 }))

@@ -108,6 +108,9 @@ export type TrainingSession = {
   date: string
   durationHours: number
   attended: boolean
+  description?: string
+  facilitator?: string
+  location?: string
 }
 
 export type TrainingAttendance = {
@@ -158,6 +161,7 @@ export type PDSession = {
   enrolledCount: number
   capacity: number
   status: 'upcoming' | 'completed' | 'cancelled'
+  description?: string
 }
 
 export type Permission = {
@@ -188,4 +192,15 @@ export type MockCredential = {
   email: string
   password: string
   userId: string
+}
+
+export type Resource = {
+  id: string
+  title: string
+  type: 'video' | 'pdf' | 'word'
+  duration: string
+  description: string
+  accessRoles: Role[]
+  uploadedAt: string
+  fileName?: string
 }

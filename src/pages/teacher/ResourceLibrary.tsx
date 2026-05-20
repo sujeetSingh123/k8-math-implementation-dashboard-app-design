@@ -1,37 +1,31 @@
 import { useState } from 'react'
-import { Play, FileText, CheckSquare, Clipboard, Download, Library, ExternalLink } from 'lucide-react'
-import { resources } from '../../data/mockData'
+import { Play, FileText, Download, Library, ExternalLink } from 'lucide-react'
+import { useAppStore } from '../../store/useAppStore'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
 import { Modal } from '../../components/ui/Modal'
 import { toast } from '../../store/useToastStore'
 import { roleColors } from '../../constants/roles'
+import type { Resource } from '../../types'
 
-const roleColor = roleColors.teacher
-
-type ResourceType = 'all' | 'video' | 'pdf' | 'checklist' | 'rubric' | 'word'
+type ResourceType = 'all' | 'video' | 'pdf' | 'word'
 
 const typeIcons: Record<string, React.ReactNode> = {
   video: <Play size={20} className="text-blue-500" />,
   pdf: <FileText size={20} className="text-red-500" />,
-  checklist: <CheckSquare size={20} className="text-emerald-500" />,
-  rubric: <Clipboard size={20} className="text-purple-500" />,
   word: <FileText size={20} className="text-blue-600" />,
 }
 
 const typeBadgeColors: Record<string, 'blue' | 'red' | 'green' | 'purple'> = {
-  video: 'blue', pdf: 'red', checklist: 'green', rubric: 'purple', word: 'blue',
+  video: 'blue', pdf: 'red', word: 'blue',
 }
 
 const filters: { key: ResourceType; label: string }[] = [
-  { key: 'all', label: 'All' }, { key: 'video', label: 'Video' }, { key: 'pdf', label: 'PDF' },
-  { key: 'checklist', label: 'Checklist' }, { key: 'rubric', label: 'Rubric' }, { key: 'word', label: 'Word' },
+  { key: 'all', label: 'All' }, { key: 'video', label: 'Video' }, { key: 'pdf', label: 'PDF' }, { key: 'word', label: 'Word' },
 ]
 
-type Resource = { id: string; title: string; type: string; duration: string; description: string }
-
-function ResourcePreviewModal({ resource, onClose }: { resource: Resource; onClose: () => void }) {
+function ResourcePreviewModal({ resource, roleColor, onClose }: { resource: Resource; roleColor: string; onClose: () => void }) {
   const isVideo = resource.type === 'video'
   return (
     <Modal open onClose={onClose} title={resource.title} size="lg">
@@ -73,11 +67,14 @@ function ResourcePreviewModal({ resource, onClose }: { resource: Resource; onClo
 }
 
 export function ResourceLibrary() {
+  const { resources, currentUser, currentRole } = useAppStore()
+  const roleColor = roleColors[currentRole]
   const [activeFilter, setActiveFilter] = useState<ResourceType>('all')
   const [search, setSearch] = useState('')
   const [preview, setPreview] = useState<Resource | null>(null)
 
-  const filtered = (resources as { id: string; title: string; type: string; duration: string; description: string }[]).filter(r => {
+  const filtered = resources.filter(r => {
+    if (!r.accessRoles.includes(currentUser.role)) return false
     const matchesType = activeFilter === 'all' || r.type === activeFilter
     const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase()) || r.description.toLowerCase().includes(search.toLowerCase())
     return matchesType && matchesSearch
@@ -132,7 +129,7 @@ export function ResourceLibrary() {
           ))}
         </div>
       )}
-      {preview && <ResourcePreviewModal resource={preview} onClose={() => setPreview(null)} />}
+      {preview && <ResourcePreviewModal resource={preview} roleColor={roleColor} onClose={() => setPreview(null)} />}
     </div>
   )
 }

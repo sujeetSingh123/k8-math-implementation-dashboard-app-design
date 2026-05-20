@@ -40,7 +40,7 @@ function CoachingActivityChart({ messages, coachId }: { messages: { senderId: st
 }
 
 export function TeacherDashboard() {
-  const { currentUser, implementationLogs, fidelityChecks, adaptations, coachingCycles, notifications, trainingSessions } = useAppStore()
+  const { currentUser, implementationLogs, fidelityChecks, adaptations, coachingCycles, notifications, pdSessions, trainingAttendances } = useAppStore()
   const navigate = useNavigate()
 
   const myLogs = implementationLogs.filter(l => l.teacherId === currentUser.id)
@@ -59,8 +59,11 @@ export function TeacherDashboard() {
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
   }).length
 
-  const mySessions = trainingSessions[currentUser.id] ?? []
-  const attendedCount = mySessions.filter(s => s.attended).length
+  const mySessions = pdSessions
+  const myAttendances = trainingAttendances.filter(a => a.teacherId === currentUser.id)
+  const attendedCount = mySessions.filter(s =>
+    s.status === 'completed' && myAttendances.some(a => a.sessionTitle === s.title && !!a.checkedOutAt)
+  ).length
 
   const trendData = myChecks.sort((a, b) => b.date.localeCompare(a.date)).slice(0, 4).reverse()
     .map((c, i) => ({ week: `Wk ${i + 1}`, Adherence: c.adherence, Dosage: c.dosage, Quality: c.quality, Responsiveness: c.responsiveness, Confidence: c.confidence }))
