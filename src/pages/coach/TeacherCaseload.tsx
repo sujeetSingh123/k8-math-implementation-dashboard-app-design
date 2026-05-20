@@ -9,9 +9,10 @@ import { Modal } from '../../components/ui/Modal'
 import { Button } from '../../components/ui/Button'
 import { toast } from '../../store/useToastStore'
 import { users } from '../../data/mockData'
+import { roleColors } from '../../constants/roles'
 import type { ImplementationLog } from '../../types'
 
-const roleColor = '#3B82F6'
+const roleColor = roleColors.coach
 
 function getStatus(avgFidelity: number): { label: string; color: 'green' | 'amber' | 'red' } {
   if (avgFidelity >= 4.0) return { label: 'On Track', color: 'green' }

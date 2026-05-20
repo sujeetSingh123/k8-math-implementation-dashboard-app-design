@@ -5,8 +5,9 @@ import { useAppStore } from '../../store/useAppStore'
 import { StatCard } from '../../components/ui/StatCard'
 import { Card } from '../../components/ui/Card'
 import { toast } from '../../store/useToastStore'
+import { roleColors } from '../../constants/roles'
 
-const roleColor = '#10B981'
+const roleColor = roleColors.teacher
 
 export function TeacherDashboard() {
   const { currentUser, implementationLogs, fidelityChecks, adaptations, coachingCycles, notifications } = useAppStore()

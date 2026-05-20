@@ -4,9 +4,10 @@ import { Modal } from '../../components/ui/Modal'
 import { Button } from '../../components/ui/Button'
 import { useAppStore } from '../../store/useAppStore'
 import { toast } from '../../store/useToastStore'
+import { roleColors } from '../../constants/roles'
 import type { CoachingCycle, User } from '../../types'
 
-const roleColor = '#10B981'
+const roleColor = roleColors.teacher
 
 interface Props {
   cycle: CoachingCycle

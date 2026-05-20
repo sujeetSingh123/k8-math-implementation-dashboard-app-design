@@ -2,21 +2,8 @@ import { useState } from 'react'
 import { Shield, Check, X } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { permissions } from '../../data/mockData'
+import { roleColors, roleLabels } from '../../constants/roles'
 import type { Role } from '../../types'
-
-const roleColors: Record<Role, string> = {
-  teacher: '#10B981',
-  coach: '#3B82F6',
-  admin: '#F59E0B',
-  researcher: '#8B5CF6',
-}
-
-const roleLabels: Record<Role, string> = {
-  teacher: 'Teacher',
-  coach: 'Coach',
-  admin: 'Administrator',
-  researcher: 'Researcher',
-}
 
 const roleDescriptions: Record<Role, string> = {
   teacher: 'Classroom teachers implementing math curricula',

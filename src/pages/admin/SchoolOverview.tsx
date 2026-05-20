@@ -8,8 +8,9 @@ import { Table } from '../../components/ui/Table'
 import { Modal } from '../../components/ui/Modal'
 import { Button } from '../../components/ui/Button'
 import { toast } from '../../store/useToastStore'
+import { roleColors } from '../../constants/roles'
 
-const roleColor = '#F59E0B'
+const roleColor = roleColors.admin
 
 type SchoolRow = {
   school: string

@@ -6,8 +6,9 @@ import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
 import { Modal } from '../../components/ui/Modal'
 import { toast } from '../../store/useToastStore'
+import { roleColors } from '../../constants/roles'
 
-const roleColor = '#10B981'
+const roleColor = roleColors.teacher
 
 type ResourceType = 'all' | 'video' | 'pdf' | 'checklist' | 'rubric'
 

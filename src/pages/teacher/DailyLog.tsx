@@ -6,9 +6,11 @@ import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { ChipSelector } from '../../components/ui/ChipSelector'
 import { toast } from '../../store/useToastStore'
+import { roleColors } from '../../constants/roles'
+import { instructionalRoutines, ebpComponents, implementationStrategies, implementationTiers, modificationOptions, adaptationReasons } from '../../data/mockData'
 import type { ImplementationLog, Adaptation } from '../../types'
 
-const roleColor = '#10B981'
+const roleColor = roleColors.teacher
 
 type LogForm = {
   instructionalRoutine: string
@@ -34,11 +36,11 @@ function AdaptationSubForm({
       <p className="text-sm font-semibold text-amber-800">Adaptation Details (FRAME-IS)</p>
       <div>
         <label className="text-xs font-medium text-gray-600 block mb-1.5">What was modified</label>
-        <ChipSelector options={['Content','Timing/Duration','Materials','Delivery method','Grouping']} value={whatModified} onChange={setWhatModified} roleColor={roleColor} />
+        <ChipSelector options={modificationOptions} value={whatModified} onChange={setWhatModified} roleColor={roleColor} />
       </div>
       <div>
         <label className="text-xs font-medium text-gray-600 block mb-1.5">Reason(s)</label>
-        <ChipSelector options={['Time constraints','Student responsiveness','Scheduling issues','Resource limitations','Behavior concerns','Language needs']} value={reasons} onChange={setReasons} roleColor={roleColor} />
+        <ChipSelector options={adaptationReasons} value={reasons} onChange={setReasons} roleColor={roleColor} />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
@@ -172,19 +174,19 @@ export function DailyLog() {
             <div>
               <label className="text-xs font-medium text-gray-600 block mb-1.5">Instructional Routine</label>
               <select {...register('instructionalRoutine',{required:true})} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300">
-                {['Number Sense Warm-up','Explicit Instruction','Guided Practice','Problem Solving Task','Fluency Practice'].map(o=><option key={o}>{o}</option>)}
+                {instructionalRoutines.map(o=><option key={o}>{o}</option>)}
               </select>
             </div>
             <div>
               <label className="text-xs font-medium text-gray-600 block mb-1.5">EBP Component</label>
               <select {...register('ebpComponent',{required:true})} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300">
-                {['CRA','Explicit Modeling','Error Correction','Distributed Practice','Worked Examples'].map(o=><option key={o}>{o}</option>)}
+                {ebpComponents.map(o=><option key={o}>{o}</option>)}
               </select>
             </div>
             <div>
               <label className="text-xs font-medium text-gray-600 block mb-1.5">Implementation Strategy</label>
               <select {...register('implementationStrategy',{required:true})} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300">
-                {['Think-aloud','Peer-assisted learning','Interleaved practice','Corrective feedback'].map(o=><option key={o}>{o}</option>)}
+                {implementationStrategies.map(o=><option key={o}>{o}</option>)}
               </select>
             </div>
             <div>
@@ -194,7 +196,7 @@ export function DailyLog() {
           </div>
           <div>
             <label className="text-xs font-medium text-gray-600 block mb-1.5">Tier</label>
-            <ChipSelector options={['Tier 1','Tier 2','Tier 3','SPED']} value={tierChips} onChange={setTierChips} roleColor={roleColor} />
+            <ChipSelector options={implementationTiers} value={tierChips} onChange={setTierChips} roleColor={roleColor} />
           </div>
           <div>
             <label className="text-xs font-medium text-gray-600 block mb-1.5">Lesson Completion</label>

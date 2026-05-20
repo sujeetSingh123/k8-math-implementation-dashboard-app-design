@@ -7,8 +7,9 @@ import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
 import { toast } from '../../store/useToastStore'
 import { monthlyFidelityTrend } from '../../data/mockData'
+import { roleColors } from '../../constants/roles'
 
-const roleColor = '#F59E0B'
+const roleColor = roleColors.admin
 
 type IndicatorDetail = { label: string; value: number; note: string; status: 'green' | 'amber' | 'red' }
 

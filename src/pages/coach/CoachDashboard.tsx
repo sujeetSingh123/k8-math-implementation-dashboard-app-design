@@ -6,8 +6,9 @@ import { StatCard } from '../../components/ui/StatCard'
 import { Card } from '../../components/ui/Card'
 import { toast } from '../../store/useToastStore'
 import { users } from '../../data/mockData'
+import { roleColors } from '../../constants/roles'
 
-const roleColor = '#3B82F6'
+const roleColor = roleColors.coach
 
 function getBarColor(avg: number): string {
   if (avg >= 4.0) return '#10B981'

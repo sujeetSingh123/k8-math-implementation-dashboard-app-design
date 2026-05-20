@@ -5,9 +5,10 @@ import { useAppStore } from '../../store/useAppStore'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { LikertScale } from '../../components/ui/LikertScale'
+import { roleColors } from '../../constants/roles'
 import type { FidelityCheck as FidelityCheckType } from '../../types'
 
-const roleColor = '#10B981'
+const roleColor = roleColors.teacher
 
 const dimensions = [
   { key: 'adherence', label: 'Adherence', low: 'Not following protocol', high: 'Fully following' },

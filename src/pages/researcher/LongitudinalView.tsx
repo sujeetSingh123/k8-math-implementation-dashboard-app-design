@@ -6,8 +6,9 @@ import { TrendingUp } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
 import { monthlyFidelityTrend, teacherFidelityTrends, users } from '../../data/mockData'
+import { roleColors } from '../../constants/roles'
 
-const roleColor = '#8B5CF6'
+const roleColor = roleColors.researcher
 
 const dimensionColors: Record<string, string> = {
   adherence: '#8B5CF6',

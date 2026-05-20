@@ -7,8 +7,9 @@ import { Badge } from '../../components/ui/Badge'
 import { Table } from '../../components/ui/Table'
 import { Modal } from '../../components/ui/Modal'
 import { toast } from '../../store/useToastStore'
+import { roleColors } from '../../constants/roles'
 
-const roleColor = '#8B5CF6'
+const roleColor = roleColors.researcher
 
 type ExportForm = {
   dataset: string

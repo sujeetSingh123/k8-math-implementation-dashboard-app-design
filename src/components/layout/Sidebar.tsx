@@ -5,21 +5,8 @@ import {
   Download, X, Shield, LogOut,
 } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
+import { roleColors, roleLabels } from '../../constants/roles'
 import type { Role } from '../../types'
-
-const roleColors: Record<Role, string> = {
-  teacher: '#10B981',
-  coach: '#3B82F6',
-  admin: '#F59E0B',
-  researcher: '#8B5CF6',
-}
-
-const roleLabels: Record<Role, string> = {
-  teacher: 'Teacher',
-  coach: 'Coach',
-  admin: 'Administrator',
-  researcher: 'Researcher',
-}
 
 type NavItem = { label: string; path: string; icon: React.ReactNode; badge?: string }
 type NavSection = { section: string; items: NavItem[] }

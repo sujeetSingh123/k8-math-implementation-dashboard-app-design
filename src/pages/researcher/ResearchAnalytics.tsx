@@ -9,8 +9,9 @@ import { Modal } from '../../components/ui/Modal'
 import { Button } from '../../components/ui/Button'
 import { toast } from '../../store/useToastStore'
 import { monthlyFidelityTrend } from '../../data/mockData'
+import { roleColors } from '../../constants/roles'
 
-const roleColor = '#8B5CF6'
+const roleColor = roleColors.researcher
 
 const dsaiiNotes: Record<string, string> = {
   'Leadership Support (Determinant)': 'Principal walkthrough frequency correlates strongly with fidelity (r=0.61). Sites with bi-weekly walkthroughs show 18% higher log completion rates.',

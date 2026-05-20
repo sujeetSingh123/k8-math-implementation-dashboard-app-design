@@ -3,21 +3,8 @@ import { useForm } from 'react-hook-form'
 import { Building2, Users, Plus, Search, MoreVertical, UserCheck, UserX, Mail } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { schools } from '../../data/mockData'
+import { roleColors, roleLabels } from '../../constants/roles'
 import type { OrgMember, Role } from '../../types'
-
-const roleColors: Record<Role, string> = {
-  teacher: '#10B981',
-  coach: '#3B82F6',
-  admin: '#F59E0B',
-  researcher: '#8B5CF6',
-}
-
-const roleLabels: Record<Role, string> = {
-  teacher: 'Teacher',
-  coach: 'Coach',
-  admin: 'Admin',
-  researcher: 'Researcher',
-}
 
 const statusColors = {
   active: 'bg-green-100 text-green-700',

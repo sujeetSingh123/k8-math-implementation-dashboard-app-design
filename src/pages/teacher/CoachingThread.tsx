@@ -6,13 +6,14 @@ import { Button } from '../../components/ui/Button'
 import { AskCoachModal } from './AskCoachModal'
 import type { CoachingMessage } from '../../types'
 import { users, trainingSessions } from '../../data/mockData'
+import { roleColors, sessionTypeColors } from '../../constants/roles'
 
-const roleColor = '#10B981'
+const roleColor = roleColors.teacher
 
 const sessionBadge: Record<string, { color: string; label: string }> = {
-  coaching: { color: '#3B82F6', label: 'Coaching' },
-  lab:      { color: '#8B5CF6', label: 'Lab' },
-  training: { color: '#F59E0B', label: 'Training' },
+  coaching: { color: sessionTypeColors.coaching, label: 'Coaching' },
+  lab:      { color: sessionTypeColors.lab,      label: 'Lab' },
+  training: { color: sessionTypeColors.training, label: 'Training' },
 }
 
 function msgDateLabel(iso: string): string {
@@ -76,7 +77,7 @@ export function CoachingThread() {
           <div className="flex items-start gap-3">
             <div
               className="w-10 h-10 rounded-full text-white text-sm font-bold flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: '#3B82F6' }}
+              style={{ backgroundColor: coach ? roleColors[coach.role] : roleColors.coach }}
             >
               {coach?.initials ?? '?'}
             </div>
@@ -123,7 +124,7 @@ export function CoachingThread() {
                     {!isMe && (
                       <div
                         className="w-7 h-7 rounded-full text-white text-xs font-bold flex items-center justify-center flex-shrink-0"
-                        style={{ backgroundColor: '#3B82F6' }}
+                        style={{ backgroundColor: coach ? roleColors[coach.role] : roleColors.coach }}
                       >
                         {sender?.initials ?? '?'}
                       </div>

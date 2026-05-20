@@ -6,9 +6,11 @@ import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
 import { Table } from '../../components/ui/Table'
 import { ChipSelector } from '../../components/ui/ChipSelector'
+import { roleColors } from '../../constants/roles'
+import { modificationOptions, adaptationReasons } from '../../data/mockData'
 import type { Adaptation } from '../../types'
 
-const roleColor = '#10B981'
+const roleColor = roleColors.teacher
 
 export function AdaptationForm() {
   const { currentUser, adaptations, addAdaptation } = useAppStore()
@@ -88,11 +90,11 @@ export function AdaptationForm() {
           </div>
           <div>
             <label className="text-xs font-medium text-gray-600 block mb-1.5">What was modified</label>
-            <ChipSelector options={['Content','Timing/Duration','Materials','Delivery method','Grouping']} value={whatModified} onChange={setWhatModified} roleColor={roleColor} />
+            <ChipSelector options={modificationOptions} value={whatModified} onChange={setWhatModified} roleColor={roleColor} />
           </div>
           <div>
             <label className="text-xs font-medium text-gray-600 block mb-1.5">Reason(s) for adaptation</label>
-            <ChipSelector options={['Time constraints','Student responsiveness','Scheduling issues','Resource limitations','Behavior concerns','Language needs']} value={reasons} onChange={setReasons} roleColor={roleColor} />
+            <ChipSelector options={adaptationReasons} value={reasons} onChange={setReasons} roleColor={roleColor} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>

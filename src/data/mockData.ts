@@ -52,10 +52,15 @@ function randomBetween(min: number, max: number): number {
   return Math.round(Math.random() * (max - min) + min)
 }
 
-const routines = ['Number Sense Warm-up', 'Explicit Instruction', 'Guided Practice', 'Problem Solving Task', 'Fluency Practice']
-const ebps = ['CRA', 'Explicit Modeling', 'Error Correction', 'Distributed Practice', 'Worked Examples']
-const strategies = ['Think-aloud', 'Peer-assisted learning', 'Interleaved practice', 'Corrective feedback']
-const tiers: ImplementationLog['tier'][] = ['Tier 1', 'Tier 2', 'Tier 3', 'SPED']
+export const instructionalRoutines = ['Number Sense Warm-up', 'Explicit Instruction', 'Guided Practice', 'Problem Solving Task', 'Fluency Practice']
+export const ebpComponents = ['CRA', 'Explicit Modeling', 'Error Correction', 'Distributed Practice', 'Worked Examples']
+export const implementationStrategies = ['Think-aloud', 'Peer-assisted learning', 'Interleaved practice', 'Corrective feedback']
+export const implementationTiers: ImplementationLog['tier'][] = ['Tier 1', 'Tier 2', 'Tier 3', 'SPED']
+
+const routines = instructionalRoutines
+const ebps = ebpComponents
+const strategies = implementationStrategies
+const tiers = implementationTiers
 
 function makeLog(
   id: string,
@@ -124,8 +129,11 @@ export const fidelityChecks: FidelityCheck[] = [
 ]
 
 // ─── Adaptations ──────────────────────────────────────────────────────────────
-const modOptions = ['Content', 'Timing/Duration', 'Materials', 'Delivery method', 'Grouping']
-const reasonOptions = ['Time constraints', 'Student responsiveness', 'Scheduling issues', 'Resource limitations', 'Behavior concerns', 'Language needs']
+export const modificationOptions = ['Content', 'Timing/Duration', 'Materials', 'Delivery method', 'Grouping']
+export const adaptationReasons = ['Time constraints', 'Student responsiveness', 'Scheduling issues', 'Resource limitations', 'Behavior concerns', 'Language needs']
+
+const modOptions = modificationOptions
+const reasonOptions = adaptationReasons
 
 export const adaptations: Adaptation[] = [
   { id: 'adp-1', logId: 'log-t1-0', teacherId: 't1', whatModified: ['Timing/Duration', 'Content'], reasons: ['Time constraints'], plannedVsReactive: 'reactive', fidelityType: 'consistent', description: 'Shortened warm-up to fit within class period.', date: daysAgo(5) },

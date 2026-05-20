@@ -8,9 +8,10 @@ import { Modal } from '../../components/ui/Modal'
 import { Button } from '../../components/ui/Button'
 import { toast } from '../../store/useToastStore'
 import { useState } from 'react'
+import { roleColors } from '../../constants/roles'
 import type { TrainingSession } from '../../types'
 
-const roleColor = '#10B981'
+const roleColor = roleColors.teacher
 
 const typeBadgeColors: Record<string, 'blue' | 'purple' | 'green'> = {
   training: 'blue', coaching: 'purple', lab: 'green',

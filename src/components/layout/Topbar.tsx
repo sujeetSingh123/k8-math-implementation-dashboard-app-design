@@ -3,21 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Bell, Menu, ChevronDown, LogOut, Settings } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { NotificationPanel } from '../ui/NotificationPanel'
-import type { Role } from '../../types'
-
-const roleColors: Record<Role, string> = {
-  teacher: '#10B981',
-  coach: '#3B82F6',
-  admin: '#F59E0B',
-  researcher: '#8B5CF6',
-}
-
-const roleLabels: Record<Role, string> = {
-  teacher: 'Teacher',
-  coach: 'Coach',
-  admin: 'Administrator',
-  researcher: 'Researcher',
-}
+import { roleColors, roleLabels } from '../../constants/roles'
 
 interface TopbarProps {
   title: string

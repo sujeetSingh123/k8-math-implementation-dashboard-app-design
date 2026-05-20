@@ -6,9 +6,10 @@ import { Modal } from '../../components/ui/Modal'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { useAppStore } from '../../store/useAppStore'
 import { toast } from '../../store/useToastStore'
+import { roleColors } from '../../constants/roles'
 import type { CoachingAction } from '../../types'
 
-const roleColor = '#3B82F6'
+const roleColor = roleColors.coach
 
 function daysAgo(dateStr: string): number {
   return Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000)
