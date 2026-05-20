@@ -12,6 +12,20 @@ const roleDescriptions: Record<Role, string> = {
   researcher: 'External researchers and data analysts',
 }
 
+const permissionGates: Record<string, string> = {
+  p_edit_logs: 'Daily Log, Adaptations',
+  p_view_fidelity: 'Fidelity Check, MTSS Monitoring',
+  p_respond_coaching: 'Coaching, Feedback Queue',
+  p_view_student_data: 'Student Data, Longitudinal View',
+  p_view_reports: 'Dashboard, School Overview, DSAII Pathway',
+  p_view_users: 'My Teachers, Organization',
+  p_assign_roles: 'Roles & Permissions',
+  p_manage_org: 'PD Planning, Manage Resources',
+  p_export_data: 'Export Data',
+  p_view_logs: 'Research Analytics',
+  p_create_coaching: 'Coaching Cycles',
+}
+
 const categoryLabels: Record<string, string> = {
   data: 'Data Access',
   users: 'User Management',
@@ -115,6 +129,12 @@ export function RolesPermissions() {
                       <div className="min-w-0 pr-4">
                         <p className="text-sm font-medium text-gray-800">{perm.name}</p>
                         <p className="text-xs text-gray-400 mt-0.5">{perm.description}</p>
+                        {permissionGates[perm.id] && (
+                          <p className="text-xs mt-1">
+                            <span className="text-gray-400">Gates: </span>
+                            <span className="text-gray-500 font-medium">{permissionGates[perm.id]}</span>
+                          </p>
+                        )}
                       </div>
                       <button
                         onClick={() => !isAdminRole && togglePermission(activeRole, perm.id)}

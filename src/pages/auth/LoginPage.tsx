@@ -17,10 +17,15 @@ const roleDefaults: Record<string, string> = {
 }
 
 const demoAccounts = [
-  { label: 'Teacher', email: 'teacher@demo.com' },
-  { label: 'Coach', email: 'coach@demo.com' },
-  { label: 'Admin', email: 'admin@demo.com' },
-  { label: 'Researcher', email: 'researcher@demo.com' },
+  { label: 'Anna Carter', sub: 'Teacher · Grade 3 · SCH01', email: 'anna.carter@example.org' },
+  { label: 'Brian Lee', sub: 'Teacher · Grade 4 · SCH01', email: 'brian.lee@example.org' },
+  { label: 'Carla Nguyen', sub: 'Teacher · Grade 5 · SCH01', email: 'carla.nguyen@example.org' },
+  { label: 'David Brooks', sub: 'Teacher · Grade 6 · SCH02', email: 'david.brooks@example.org' },
+  { label: 'Elena Martinez', sub: 'Teacher · Grade 7 · SCH02', email: 'elena.martinez@example.org' },
+  { label: 'Rachel Stone', sub: 'Coach · All Schools', email: 'rachel.stone@example.org' },
+  { label: 'Monica Hill', sub: 'Admin · Principal · SCH01', email: 'monica.hill@example.org' },
+  { label: 'James Patel', sub: 'Admin · Asst Principal · SCH02', email: 'james.patel@example.org' },
+  { label: 'Dr. Jing Researcher', sub: 'Researcher · All Schools', email: 'researcher@example.org' },
 ]
 
 export function LoginPage() {
@@ -144,16 +149,19 @@ export function LoginPage() {
             <p className="text-xs text-gray-500 mb-3 text-center font-medium uppercase tracking-wide">
               Demo Accounts — all use password: <span className="font-mono text-gray-700">demo1234</span>
             </p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-1.5">
               {demoAccounts.map((acc) => (
                 <button
                   key={acc.email}
                   type="button"
                   onClick={() => fillDemo(acc.email)}
-                  className="text-left px-3 py-2 rounded-lg border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50 transition-colors cursor-pointer"
+                  className="text-left px-3 py-2 rounded-lg border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50 transition-colors cursor-pointer flex items-center justify-between gap-3"
                 >
-                  <p className="text-xs font-semibold text-gray-700">{acc.label}</p>
-                  <p className="text-xs text-gray-400 truncate">{acc.email}</p>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-gray-700">{acc.label}</p>
+                    <p className="text-xs text-gray-400">{acc.sub}</p>
+                  </div>
+                  <p className="text-xs text-gray-400 truncate shrink-0">{acc.email}</p>
                 </button>
               ))}
             </div>

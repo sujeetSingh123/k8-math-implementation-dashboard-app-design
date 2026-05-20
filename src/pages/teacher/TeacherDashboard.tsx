@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
 import { StatCard } from '../../components/ui/StatCard'
 import { Card } from '../../components/ui/Card'
+import { TierBreakdown } from './TierBreakdown'
 import { toast } from '../../store/useToastStore'
 import { roleColors } from '../../constants/roles'
 
@@ -91,6 +92,7 @@ export function TeacherDashboard() {
         <div className="cursor-pointer" onClick={handleCoachClick}><StatCard label="Messages" value={myCycle?.messages.length ?? 0} sub={unreadMessages > 0 ? `${unreadMessages} unread` : 'All read'} icon={<MessageSquare size={18} />} iconColor={roleColor} /></div>
         <div className="cursor-pointer" onClick={handleTrainingClick}><StatCard label="Training" value={`${attendedCount}/${mySessions.length}`} sub="Sessions attended" icon={<GraduationCap size={18} />} iconColor={roleColor} /></div>
       </div>
+      <TierBreakdown logs={myLogs} checks={myChecks} adaptations={myAdaptations} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <div className="flex items-center justify-between mb-3">

@@ -6,9 +6,10 @@ import {
 } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { roleColors, roleLabels } from '../../constants/roles'
+import { usePermissions } from '../../hooks/usePermissions'
 import type { Role } from '../../types'
 
-type NavItem = { label: string; path: string; icon: React.ReactNode; badge?: string }
+type NavItem = { label: string; path: string; icon: React.ReactNode; badge?: string; permission?: string }
 type NavSection = { section: string; items: NavItem[] }
 
 function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] {
@@ -18,11 +19,11 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
       {
         section: 'My Work',
         items: [
-          { label: 'Daily Log', path: '/teacher/log', icon: <ClipboardList size={16} /> },
-          { label: 'Fidelity Check', path: '/teacher/fidelity', icon: <CheckSquare size={16} /> },
-          { label: 'Adaptations', path: '/teacher/adaptations', icon: <BookOpen size={16} /> },
-          { label: 'Coaching', path: '/teacher/coaching', icon: <MessageSquare size={16} />, badge: unreadCounts.coaching > 0 ? String(unreadCounts.coaching) : undefined },
-          { label: 'Student Data', path: '/teacher/student-data', icon: <BarChart size={16} /> },
+          { label: 'Daily Log', path: '/teacher/log', icon: <ClipboardList size={16} />, permission: 'p_edit_logs' },
+          { label: 'Fidelity Check', path: '/teacher/fidelity', icon: <CheckSquare size={16} />, permission: 'p_view_fidelity' },
+          { label: 'Adaptations', path: '/teacher/adaptations', icon: <BookOpen size={16} />, permission: 'p_edit_logs' },
+          { label: 'Coaching', path: '/teacher/coaching', icon: <MessageSquare size={16} />, badge: unreadCounts.coaching > 0 ? String(unreadCounts.coaching) : undefined, permission: 'p_respond_coaching' },
+          { label: 'Student Data', path: '/teacher/student-data', icon: <BarChart size={16} />, permission: 'p_view_student_data' },
         ],
       },
       {
@@ -35,7 +36,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
       {
         section: 'Insights',
         items: [
-          { label: 'My Dashboard', path: '/teacher/dashboard', icon: <LayoutDashboard size={16} /> },
+          { label: 'My Dashboard', path: '/teacher/dashboard', icon: <LayoutDashboard size={16} />, permission: 'p_view_reports' },
         ],
       },
     ]
@@ -45,8 +46,8 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
       {
         section: 'Caseload',
         items: [
-          { label: 'My Teachers', path: '/coach/caseload', icon: <Users size={16} /> },
-          { label: 'Feedback Queue', path: '/coach/feedback', icon: <Inbox size={16} />, badge: feedbackBadge },
+          { label: 'My Teachers', path: '/coach/caseload', icon: <Users size={16} />, permission: 'p_view_users' },
+          { label: 'Feedback Queue', path: '/coach/feedback', icon: <Inbox size={16} />, badge: feedbackBadge, permission: 'p_respond_coaching' },
         ],
       },
       {
@@ -58,7 +59,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
       {
         section: 'Insights',
         items: [
-          { label: 'Coach Dashboard', path: '/coach/dashboard', icon: <LayoutDashboard size={16} /> },
+          { label: 'Coach Dashboard', path: '/coach/dashboard', icon: <LayoutDashboard size={16} />, permission: 'p_view_reports' },
         ],
       },
     ]
@@ -68,23 +69,23 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
       {
         section: 'Overview',
         items: [
-          { label: 'School Overview', path: '/admin/overview', icon: <Building2 size={16} /> },
-          { label: 'MTSS Monitoring', path: '/admin/mtss', icon: <Activity size={16} /> },
+          { label: 'School Overview', path: '/admin/overview', icon: <Building2 size={16} />, permission: 'p_view_reports' },
+          { label: 'MTSS Monitoring', path: '/admin/mtss', icon: <Activity size={16} />, permission: 'p_view_fidelity' },
         ],
       },
       {
         section: 'Management',
         items: [
-          { label: 'Organization', path: '/admin/organization', icon: <Users size={16} /> },
-          { label: 'Roles & Permissions', path: '/admin/roles', icon: <Shield size={16} /> },
-          { label: 'PD Planning', path: '/admin/pd-planning', icon: <CalendarDays size={16} /> },
+          { label: 'Organization', path: '/admin/organization', icon: <Users size={16} />, permission: 'p_view_users' },
+          { label: 'Roles & Permissions', path: '/admin/roles', icon: <Shield size={16} />, permission: 'p_assign_roles' },
+          { label: 'PD Planning', path: '/admin/pd-planning', icon: <CalendarDays size={16} />, permission: 'p_manage_org' },
         ],
       },
       {
         section: 'Resources',
         items: [
           { label: 'Resource Library', path: '/admin/library', icon: <Library size={16} /> },
-          { label: 'Manage Resources', path: '/admin/resources', icon: <Library size={16} /> },
+          { label: 'Manage Resources', path: '/admin/resources', icon: <Library size={16} />, permission: 'p_manage_org' },
         ],
       },
     ]
@@ -93,15 +94,15 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
     {
       section: 'Analytics',
       items: [
-        { label: 'Research Analytics', path: '/researcher/analytics', icon: <BarChart2 size={16} /> },
-        { label: 'Longitudinal View', path: '/researcher/longitudinal', icon: <TrendingUp size={16} /> },
-        { label: 'DSAII Pathway', path: '/researcher/dsaii', icon: <GitBranch size={16} /> },
+        { label: 'Research Analytics', path: '/researcher/analytics', icon: <BarChart2 size={16} />, permission: 'p_view_logs' },
+        { label: 'Longitudinal View', path: '/researcher/longitudinal', icon: <TrendingUp size={16} />, permission: 'p_view_student_data' },
+        { label: 'DSAII Pathway', path: '/researcher/dsaii', icon: <GitBranch size={16} />, permission: 'p_view_reports' },
       ],
     },
     {
       section: 'Data',
       items: [
-        { label: 'Export Data', path: '/researcher/export', icon: <Download size={16} /> },
+        { label: 'Export Data', path: '/researcher/export', icon: <Download size={16} />, permission: 'p_export_data' },
         { label: 'Resource Library', path: '/researcher/library', icon: <Library size={16} /> },
       ],
     },
@@ -115,6 +116,7 @@ interface SidebarProps {
 export function Sidebar({ onNavigate }: SidebarProps) {
   const { currentRole, currentUser, logout, notifications, feedbackItems } = useAppStore()
   const navigate = useNavigate()
+  const has = usePermissions()
   const roleColor = roleColors[currentRole]
   const unreadCount = notifications.filter((n) => n.userId === currentUser.id && !n.readAt).length
 
@@ -126,7 +128,10 @@ export function Sidebar({ onNavigate }: SidebarProps) {
     (f) => !f.resolved && f.coachId === currentUser.id,
   ).length
 
-  const nav = getNav(currentRole, { coaching: coachingUnread, feedback: pendingFeedback })
+  const rawNav = getNav(currentRole, { coaching: coachingUnread, feedback: pendingFeedback })
+  const nav = rawNav
+    .map(section => ({ ...section, items: section.items.filter(item => !item.permission || has(item.permission)) }))
+    .filter(section => section.items.length > 0)
 
   const handleLogout = () => {
     logout()

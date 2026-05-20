@@ -24,6 +24,7 @@ import { LongitudinalView } from './pages/researcher/LongitudinalView'
 import { DataExport } from './pages/researcher/DataExport'
 import { DSAIIPathway } from './pages/researcher/DSAIIPathway'
 import { useAppStore } from './store/useAppStore'
+import { PermissionGate } from './components/ui/PermissionGate'
 
 function DefaultRedirect() {
   const { isAuthenticated, currentRole } = useAppStore()
@@ -50,29 +51,29 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<DefaultRedirect />} />
-        <Route path="/teacher/log" element={<ProtectedLayout><DailyLog /></ProtectedLayout>} />
-        <Route path="/teacher/fidelity" element={<ProtectedLayout><FidelityCheck /></ProtectedLayout>} />
-        <Route path="/teacher/adaptations" element={<ProtectedLayout><AdaptationForm /></ProtectedLayout>} />
-        <Route path="/teacher/coaching" element={<ProtectedLayout><CoachingThread /></ProtectedLayout>} />
+        <Route path="/teacher/log" element={<ProtectedLayout><PermissionGate permissionId="p_edit_logs"><DailyLog /></PermissionGate></ProtectedLayout>} />
+        <Route path="/teacher/fidelity" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><FidelityCheck /></PermissionGate></ProtectedLayout>} />
+        <Route path="/teacher/adaptations" element={<ProtectedLayout><PermissionGate permissionId="p_edit_logs"><AdaptationForm /></PermissionGate></ProtectedLayout>} />
+        <Route path="/teacher/coaching" element={<ProtectedLayout><PermissionGate permissionId="p_respond_coaching"><CoachingThread /></PermissionGate></ProtectedLayout>} />
         <Route path="/teacher/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
         <Route path="/teacher/training" element={<ProtectedLayout><TrainingHistory /></ProtectedLayout>} />
-        <Route path="/teacher/dashboard" element={<ProtectedLayout><TeacherDashboard /></ProtectedLayout>} />
-        <Route path="/teacher/student-data" element={<ProtectedLayout><StudentData /></ProtectedLayout>} />
-        <Route path="/coach/caseload" element={<ProtectedLayout><TeacherCaseload /></ProtectedLayout>} />
-        <Route path="/coach/feedback" element={<ProtectedLayout><FeedbackQueue /></ProtectedLayout>} />
-        <Route path="/coach/dashboard" element={<ProtectedLayout><CoachDashboard /></ProtectedLayout>} />
+        <Route path="/teacher/dashboard" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><TeacherDashboard /></PermissionGate></ProtectedLayout>} />
+        <Route path="/teacher/student-data" element={<ProtectedLayout><PermissionGate permissionId="p_view_student_data"><StudentData /></PermissionGate></ProtectedLayout>} />
+        <Route path="/coach/caseload" element={<ProtectedLayout><PermissionGate permissionId="p_view_users"><TeacherCaseload /></PermissionGate></ProtectedLayout>} />
+        <Route path="/coach/feedback" element={<ProtectedLayout><PermissionGate permissionId="p_respond_coaching"><FeedbackQueue /></PermissionGate></ProtectedLayout>} />
+        <Route path="/coach/dashboard" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><CoachDashboard /></PermissionGate></ProtectedLayout>} />
         <Route path="/coach/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
-        <Route path="/admin/overview" element={<ProtectedLayout><SchoolOverview /></ProtectedLayout>} />
-        <Route path="/admin/mtss" element={<ProtectedLayout><MTSSMonitoring /></ProtectedLayout>} />
-        <Route path="/admin/roles" element={<ProtectedLayout><RolesPermissions /></ProtectedLayout>} />
-        <Route path="/admin/organization" element={<ProtectedLayout><Organization /></ProtectedLayout>} />
-        <Route path="/admin/pd-planning" element={<ProtectedLayout><PDPlanning /></ProtectedLayout>} />
+        <Route path="/admin/overview" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><SchoolOverview /></PermissionGate></ProtectedLayout>} />
+        <Route path="/admin/mtss" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><MTSSMonitoring /></PermissionGate></ProtectedLayout>} />
+        <Route path="/admin/roles" element={<ProtectedLayout><PermissionGate permissionId="p_assign_roles"><RolesPermissions /></PermissionGate></ProtectedLayout>} />
+        <Route path="/admin/organization" element={<ProtectedLayout><PermissionGate permissionId="p_view_users"><Organization /></PermissionGate></ProtectedLayout>} />
+        <Route path="/admin/pd-planning" element={<ProtectedLayout><PermissionGate permissionId="p_manage_org"><PDPlanning /></PermissionGate></ProtectedLayout>} />
         <Route path="/admin/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
-        <Route path="/admin/resources" element={<ProtectedLayout><ResourceManagement /></ProtectedLayout>} />
-        <Route path="/researcher/analytics" element={<ProtectedLayout><ResearchAnalytics /></ProtectedLayout>} />
-        <Route path="/researcher/longitudinal" element={<ProtectedLayout><LongitudinalView /></ProtectedLayout>} />
-        <Route path="/researcher/export" element={<ProtectedLayout><DataExport /></ProtectedLayout>} />
-        <Route path="/researcher/dsaii" element={<ProtectedLayout><DSAIIPathway /></ProtectedLayout>} />
+        <Route path="/admin/resources" element={<ProtectedLayout><PermissionGate permissionId="p_manage_org"><ResourceManagement /></PermissionGate></ProtectedLayout>} />
+        <Route path="/researcher/analytics" element={<ProtectedLayout><PermissionGate permissionId="p_view_logs"><ResearchAnalytics /></PermissionGate></ProtectedLayout>} />
+        <Route path="/researcher/longitudinal" element={<ProtectedLayout><PermissionGate permissionId="p_view_student_data"><LongitudinalView /></PermissionGate></ProtectedLayout>} />
+        <Route path="/researcher/export" element={<ProtectedLayout><PermissionGate permissionId="p_export_data"><DataExport /></PermissionGate></ProtectedLayout>} />
+        <Route path="/researcher/dsaii" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><DSAIIPathway /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
         <Route path="*" element={<DefaultRedirect />} />
       </Routes>
