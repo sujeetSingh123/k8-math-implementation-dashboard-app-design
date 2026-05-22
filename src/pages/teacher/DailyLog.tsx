@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
-import { AlertTriangle, Upload, Save, Paperclip } from 'lucide-react'
+import { Upload, Save, Paperclip } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
@@ -43,7 +43,6 @@ export function DailyLog() {
 
   const myLogs = implementationLogs.filter(l => l.teacherId === currentUser.id).sort((a, b) => b.date.localeCompare(a.date))
   const lastLog = myLogs[0]
-  const daysSinceLog = lastLog ? Math.floor((Date.now() - new Date(lastLog.date).getTime()) / 86400000) : 99
 
   const { register, handleSubmit, reset } = useForm<LogForm>({
     defaultValues: {
@@ -107,13 +106,7 @@ export function DailyLog() {
 
   return (
     <div className="w-full max-w-2xl space-y-4">
-      {daysSinceLog >= 2 && (
-        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-amber-800">
-          <AlertTriangle size={18} className="flex-shrink-0 mt-0.5" />
-          <p className="text-sm font-medium">Implementation log missing for {daysSinceLog} days</p>
-        </div>
-      )}
-      {lastLog && <p className="text-xs text-gray-400">Pre-filled from your last entry on {lastLog.date}</p>}
+{lastLog && <p className="text-xs text-gray-400">Pre-filled from your last entry on {lastLog.date}</p>}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Card>
