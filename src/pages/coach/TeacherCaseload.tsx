@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MessageSquare, Eye, Flag, Users } from 'lucide-react'
+import { MessageSquare, Eye, Flag, Users, ChevronRight } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
@@ -11,6 +11,7 @@ import { toast } from '../../store/useToastStore'
 import { users } from '../../data/mockData'
 import { roleColors } from '../../constants/roles'
 import type { ImplementationLog } from '../../types'
+import { LogDetailView } from './LogDetailView'
 
 const roleColor = roleColors.coach
 
@@ -25,6 +26,7 @@ export function TeacherCaseload() {
   const navigate = useNavigate()
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [logsModal, setLogsModal] = useState<{ name: string; logs: ImplementationLog[] } | null>(null)
+  const [selectedLog, setSelectedLog] = useState<ImplementationLog | null>(null)
 
   const myTeachers = users.filter(u => u.role === 'teacher' && u.coachId === currentUser.id)
 
@@ -155,28 +157,42 @@ export function TeacherCaseload() {
       </Card>
 
       {logsModal && (
-        <Modal open onClose={() => setLogsModal(null)} title={`${logsModal.name} — Recent Logs`} size="lg">
-          <div className="space-y-2">
-            {logsModal.logs.length === 0 ? <p className="text-sm text-gray-400 text-center py-4">No logs found.</p> : logsModal.logs.map(log => (
-              <div key={log.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-xs font-semibold text-gray-700">{log.date}</p>
-                    <Badge color={log.lessonCompletion === 'fully' ? 'green' : log.lessonCompletion === 'partially' ? 'amber' : 'red'}>
-                      {log.lessonCompletion.replace('_', ' ')}
-                    </Badge>
-                    {log.adaptationOccurred && <Badge color="blue">Adaptation</Badge>}
+        <Modal open onClose={() => { setLogsModal(null); setSelectedLog(null) }}
+          title={selectedLog ? `${logsModal.name} — Log Detail` : `${logsModal.name} — Recent Logs`} size="lg">
+          {selectedLog ? (
+            <LogDetailView
+              log={selectedLog}
+              adaptation={adaptations.find(a => a.logId === selectedLog.id)}
+              fidelityCheck={fidelityChecks.find(f => f.logId === selectedLog.id)}
+              onBack={() => setSelectedLog(null)}
+            />
+          ) : (
+            <div className="space-y-2">
+              {logsModal.logs.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-4">No logs found.</p>
+              ) : logsModal.logs.map(log => (
+                <button key={log.id} onClick={() => setSelectedLog(log)}
+                  className="w-full flex items-center gap-3 p-3 bg-gray-50 rounded-xl text-left hover:bg-gray-100 cursor-pointer transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-xs font-semibold text-gray-700">{log.date}</p>
+                      <Badge color={log.lessonCompletion === 'fully' ? 'green' : log.lessonCompletion === 'partially' ? 'amber' : 'red'}>
+                        {log.lessonCompletion.replace('_', ' ')}
+                      </Badge>
+                      {log.adaptationOccurred && <Badge color="blue">Adaptation</Badge>}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-0.5">{log.instructionalRoutine} · {log.ebpComponent} · {log.durationMinutes}min</p>
                   </div>
-                  <p className="text-xs text-gray-500 mt-0.5">{log.instructionalRoutine} · {log.ebpComponent} · {log.durationMinutes}min</p>
-                </div>
+                  <ChevronRight size={14} className="text-gray-400 flex-shrink-0" />
+                </button>
+              ))}
+              <div className="pt-2">
+                <Button variant="secondary" roleColor={roleColor} size="sm" onClick={() => { toast.info('Full log export coming soon.'); setLogsModal(null) }}>
+                  Export Logs
+                </Button>
               </div>
-            ))}
-            <div className="pt-2">
-              <Button variant="secondary" roleColor={roleColor} size="sm" onClick={() => { toast.info('Full log export coming soon.'); setLogsModal(null) }}>
-                Export Logs
-              </Button>
             </div>
-          </div>
+          )}
         </Modal>
       )}
     </div>
