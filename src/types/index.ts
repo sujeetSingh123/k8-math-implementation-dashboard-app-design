@@ -20,6 +20,7 @@ export type ImplementationLog = {
   teacherId: string
   schoolId: string
   date: string
+  startTime?: string
   instructionalRoutine: string
   ebpComponent: string
   implementationStrategy: string
@@ -147,6 +148,7 @@ export type StudentDataRecord = {
   dataType: 'Class Average' | 'Progress Monitoring' | 'Benchmark Score'
   value: number
   tier: string
+  logId?: string
 }
 
 export type PDSession = {

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MessageSquare, Eye, Flag, Users, ChevronRight } from 'lucide-react'
+import { MessageSquare, Eye, Flag, Users, ChevronRight, Info } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
@@ -10,8 +10,9 @@ import { Button } from '../../components/ui/Button'
 import { toast } from '../../store/useToastStore'
 import { users } from '../../data/mockData'
 import { roleColors } from '../../constants/roles'
-import type { ImplementationLog } from '../../types'
+import type { ImplementationLog, User } from '../../types'
 import { LogDetailView } from './LogDetailView'
+import { TeacherDetailModal } from './TeacherDetailModal'
 
 const roleColor = roleColors.coach
 
@@ -27,6 +28,7 @@ export function TeacherCaseload() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [logsModal, setLogsModal] = useState<{ name: string; logs: ImplementationLog[] } | null>(null)
   const [selectedLog, setSelectedLog] = useState<ImplementationLog | null>(null)
+  const [detailTeacher, setDetailTeacher] = useState<User | null>(null)
 
   const myTeachers = users.filter(u => u.role === 'teacher' && u.coachId === currentUser.id)
 
@@ -107,6 +109,7 @@ export function TeacherCaseload() {
                     <div className="flex gap-1 items-center" onClick={e => e.stopPropagation()}>
                       <button onClick={() => handleMessage(d.teacher.name)} className="p-1.5 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-500 cursor-pointer"><MessageSquare size={14} /></button>
                       <button onClick={() => handleViewLogs(d.teacher.name, d.logs)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 cursor-pointer"><Eye size={14} /></button>
+                      <button onClick={() => setDetailTeacher(d.teacher)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-500 cursor-pointer"><Info size={14} /></button>
                       <button onClick={() => handleFlag(d.teacher.id, d.teacher.name)} className={`p-1.5 rounded-lg cursor-pointer ${flaggedTeachers.includes(d.teacher.id) ? 'text-red-500 bg-red-50' : 'hover:bg-gray-100 text-gray-400 hover:text-red-500'}`}><Flag size={14} /></button>
                     </div>
                   </div>
@@ -129,6 +132,7 @@ export function TeacherCaseload() {
                     <div className="flex gap-1" onClick={e => e.stopPropagation()}>
                       <button onClick={() => handleMessage(d.teacher.name)} className="p-1.5 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-500 cursor-pointer transition-colors" title="Message"><MessageSquare size={14} /></button>
                       <button onClick={() => handleViewLogs(d.teacher.name, d.logs)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 cursor-pointer transition-colors" title="View Logs"><Eye size={14} /></button>
+                      <button onClick={() => setDetailTeacher(d.teacher)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-500 cursor-pointer transition-colors" title="Details"><Info size={14} /></button>
                       <button onClick={() => handleFlag(d.teacher.id, d.teacher.name)} className={`p-1.5 rounded-lg cursor-pointer transition-colors ${flaggedTeachers.includes(d.teacher.id) ? 'text-red-500 bg-red-50' : 'hover:bg-gray-100 text-gray-400 hover:text-red-500'}`} title="Flag"><Flag size={14} /></button>
                     </div>
                   </div>
@@ -144,9 +148,10 @@ export function TeacherCaseload() {
                         <Bar dataKey="score" fill={roleColor} radius={[4, 4, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
-                    <div className="flex gap-2 mt-3">
+                    <div className="flex gap-2 mt-3 flex-wrap">
                       <Button size="sm" roleColor={roleColor} onClick={() => handleMessage(d.teacher.name)}><MessageSquare size={12}/>Message</Button>
                       <Button size="sm" variant="secondary" roleColor={roleColor} onClick={() => handleViewLogs(d.teacher.name, d.logs)}><Eye size={12}/>View Logs</Button>
+                      <Button size="sm" variant="secondary" roleColor={roleColor} onClick={() => setDetailTeacher(d.teacher)}><Info size={12}/>Details</Button>
                     </div>
                   </div>
                 )}
@@ -155,6 +160,10 @@ export function TeacherCaseload() {
           </div>
         )}
       </Card>
+
+      {detailTeacher && (
+        <TeacherDetailModal teacher={detailTeacher} onClose={() => setDetailTeacher(null)} />
+      )}
 
       {logsModal && (
         <Modal open onClose={() => { setLogsModal(null); setSelectedLog(null) }}

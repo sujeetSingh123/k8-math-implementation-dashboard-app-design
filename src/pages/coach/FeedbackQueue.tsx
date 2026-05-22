@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, Send, Inbox, Plus, Clock } from 'lucide-react'
+import { ChevronDown, ChevronUp, Send, Inbox, Plus, Clock, Info } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Modal } from '../../components/ui/Modal'
@@ -7,7 +7,9 @@ import { PageHeader } from '../../components/ui/PageHeader'
 import { useAppStore } from '../../store/useAppStore'
 import { toast } from '../../store/useToastStore'
 import { roleColors } from '../../constants/roles'
-import type { CoachingAction } from '../../types'
+import { users } from '../../data/mockData'
+import { TeacherDetailModal } from './TeacherDetailModal'
+import type { CoachingAction, User } from '../../types'
 
 const roleColor = roleColors.coach
 
@@ -42,6 +44,12 @@ export function FeedbackQueue() {
   const [showResolved, setShowResolved] = useState(false)
   const [actionModal, setActionModal]   = useState<{ id: string; cycleId: string; teacherName: string } | null>(null)
   const [actionText, setActionText]     = useState('')
+  const [detailTeacher, setDetailTeacher] = useState<User | null>(null)
+
+  const openDetails = (teacherId: string) => {
+    const teacher = users.find(u => u.id === teacherId)
+    if (teacher) setDetailTeacher(teacher)
+  }
 
   const updateReply = (id: string, val: string) =>
     setReplies(prev => ({ ...prev, [id]: val }))
@@ -152,6 +160,9 @@ export function FeedbackQueue() {
                 <Button variant="secondary" roleColor={roleColor} size="sm" onClick={() => openActionPlan(item.id, item.cycleId, item.teacherName, item.question)}>
                   <Plus size={13} />Add to Action Plan
                 </Button>
+                <Button variant="secondary" roleColor={roleColor} size="sm" onClick={() => openDetails(item.teacherId)}>
+                  <Info size={13} />View Details
+                </Button>
               </div>
             </Card>
           )
@@ -175,6 +186,9 @@ export function FeedbackQueue() {
                         <p className="text-xs font-medium text-gray-700">{item.teacherName}</p>
                         <p className="text-xs text-gray-400 truncate">{item.question}</p>
                       </div>
+                      <button onClick={() => openDetails(item.teacherId)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-500 cursor-pointer transition-colors flex-shrink-0" title="View Details">
+                        <Info size={14} />
+                      </button>
                     </div>
                     {item.reply && <p className="text-xs text-gray-500 mt-2 pl-9 italic">"{item.reply}"</p>}
                   </Card>
@@ -184,6 +198,10 @@ export function FeedbackQueue() {
           </div>
         )}
       </div>
+
+      {detailTeacher && (
+        <TeacherDetailModal teacher={detailTeacher} onClose={() => setDetailTeacher(null)} />
+      )}
 
       {actionModal && (
         <Modal open onClose={() => setActionModal(null)} title="Add to Action Plan">

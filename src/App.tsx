@@ -9,6 +9,7 @@ import { CoachingThread } from './pages/teacher/CoachingThread'
 import { ResourceLibrary } from './pages/teacher/ResourceLibrary'
 import { TrainingHistory } from './pages/teacher/TrainingHistory'
 import { TeacherDashboard } from './pages/teacher/TeacherDashboard'
+import { MyLogs } from './pages/teacher/MyLogs'
 import { StudentData } from './pages/teacher/StudentData'
 import { TeacherCaseload } from './pages/coach/TeacherCaseload'
 import { FeedbackQueue } from './pages/coach/FeedbackQueue'
@@ -52,6 +53,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<DefaultRedirect />} />
         <Route path="/teacher/log" element={<ProtectedLayout><PermissionGate permissionId="p_edit_logs"><DailyLog /></PermissionGate></ProtectedLayout>} />
+        <Route path="/teacher/logs" element={<ProtectedLayout><PermissionGate permissionId="p_edit_logs"><MyLogs /></PermissionGate></ProtectedLayout>} />
         <Route path="/teacher/fidelity" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><FidelityCheck /></PermissionGate></ProtectedLayout>} />
         <Route path="/teacher/adaptations" element={<ProtectedLayout><PermissionGate permissionId="p_edit_logs"><AdaptationForm /></PermissionGate></ProtectedLayout>} />
         <Route path="/teacher/coaching" element={<ProtectedLayout><PermissionGate permissionId="p_respond_coaching"><CoachingThread /></PermissionGate></ProtectedLayout>} />

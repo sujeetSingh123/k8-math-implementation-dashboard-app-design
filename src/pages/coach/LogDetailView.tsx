@@ -24,6 +24,7 @@ export function LogDetailView({ log, adaptation, fidelityCheck, onBack }: Props)
       <div className="bg-gray-50 rounded-xl p-3 space-y-3">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-sm font-semibold text-gray-800">{log.date}</span>
+          {log.startTime && <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md">{log.startTime}</span>}
           <Badge color={completionColor}>{log.lessonCompletion.replace('_', ' ')}</Badge>
           <Badge color="blue">{log.tier}</Badge>
           {log.adaptationOccurred && <Badge color="purple">Adaptation</Badge>}
