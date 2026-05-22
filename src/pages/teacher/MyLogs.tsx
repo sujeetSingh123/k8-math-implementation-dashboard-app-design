@@ -25,7 +25,7 @@ const FILTERS: { value: CompletionFilter; label: string }[] = [
 ]
 
 export function MyLogs() {
-  const { currentUser, implementationLogs, adaptations, addStudentDataRecord } = useAppStore()
+  const { currentUser, implementationLogs, adaptations, studentDataRecords, addStudentDataRecord } = useAppStore()
   const [filter, setFilter] = useState<CompletionFilter>('all')
   const [dataModal, setDataModal] = useState<ImplementationLog | null>(null)
   const [dataType, setDataType] = useState('Class Average')
@@ -120,6 +120,19 @@ export function MyLogs() {
                     {' · '}{adapt.plannedVsReactive}
                   </div>
                 )}
+                {(() => {
+                  const logData = studentDataRecords.filter(r => r.logId === log.id)
+                  if (logData.length === 0) return null
+                  return (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {logData.map(r => (
+                        <span key={r.id} className="text-xs bg-blue-50 text-blue-700 border border-blue-100 rounded-md px-2 py-0.5">
+                          {r.dataType}: <span className="font-semibold">{r.value}</span>
+                        </span>
+                      ))}
+                    </div>
+                  )
+                })()}
               </Card>
             )
           })}

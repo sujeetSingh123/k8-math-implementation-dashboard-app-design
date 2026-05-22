@@ -1,7 +1,7 @@
 import { ArrowLeft } from 'lucide-react'
 import { Badge } from '../../components/ui/Badge'
 import { roleColors } from '../../constants/roles'
-import type { Adaptation, FidelityCheck, ImplementationLog } from '../../types'
+import type { Adaptation, FidelityCheck, ImplementationLog, StudentDataRecord } from '../../types'
 
 const roleColor = roleColors.coach
 
@@ -9,10 +9,11 @@ type Props = {
   log: ImplementationLog
   adaptation: Adaptation | undefined
   fidelityCheck: FidelityCheck | undefined
+  studentDataRecords: StudentDataRecord[]
   onBack: () => void
 }
 
-export function LogDetailView({ log, adaptation, fidelityCheck, onBack }: Props) {
+export function LogDetailView({ log, adaptation, fidelityCheck, studentDataRecords, onBack }: Props) {
   const completionColor = log.lessonCompletion === 'fully' ? 'green' : log.lessonCompletion === 'partially' ? 'amber' : 'red'
 
   return (
@@ -77,6 +78,23 @@ export function LogDetailView({ log, adaptation, fidelityCheck, onBack }: Props)
           {fidelityCheck.reflectionNotes && (
             <p className="text-xs text-gray-500 italic px-1">"{fidelityCheck.reflectionNotes}"</p>
           )}
+        </div>
+      )}
+
+      {studentDataRecords.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Student Data</p>
+          <div className="bg-gray-50 rounded-xl p-3 space-y-1.5">
+            {studentDataRecords.map(r => (
+              <div key={r.id} className="flex items-center justify-between text-xs">
+                <span className="text-gray-500">{r.dataType}</span>
+                <div className="flex items-center gap-2">
+                  <Badge color="blue">{r.tier}</Badge>
+                  <span className="font-semibold text-gray-700">{r.value}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

@@ -23,7 +23,7 @@ function getStatus(avgFidelity: number): { label: string; color: 'green' | 'ambe
 }
 
 export function TeacherCaseload() {
-  const { currentUser, implementationLogs, fidelityChecks, adaptations, coachingCycles, flaggedTeachers, toggleFlag } = useAppStore()
+  const { currentUser, implementationLogs, fidelityChecks, adaptations, coachingCycles, flaggedTeachers, toggleFlag, studentDataRecords } = useAppStore()
   const navigate = useNavigate()
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [logsModal, setLogsModal] = useState<{ name: string; logs: ImplementationLog[] } | null>(null)
@@ -173,6 +173,7 @@ export function TeacherCaseload() {
               log={selectedLog}
               adaptation={adaptations.find(a => a.logId === selectedLog.id)}
               fidelityCheck={fidelityChecks.find(f => f.logId === selectedLog.id)}
+              studentDataRecords={studentDataRecords.filter(r => r.logId === selectedLog.id)}
               onBack={() => setSelectedLog(null)}
             />
           ) : (
