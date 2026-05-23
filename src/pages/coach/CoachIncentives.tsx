@@ -5,7 +5,7 @@ import { StatCard } from '../../components/ui/StatCard'
 import { useAppStore } from '../../store/useAppStore'
 import { users } from '../../data/mockData'
 import { roleColors } from '../../constants/roles'
-import type { IncentiveCategory } from '../../types'
+import type { Incentive, IncentiveCategory } from '../../types'
 
 const CAT_COLORS: Record<IncentiveCategory, string> = {
   training: '#3B82F6',
@@ -21,7 +21,7 @@ const CAT_LABELS: Record<IncentiveCategory, string> = {
 
 const PERFORMANCE_COLOR = CAT_COLORS.performance
 
-function IncentiveList({ items }: { items: ReturnType<typeof useAppStore>['incentives'] }) {
+function IncentiveList({ items }: { items: Incentive[] }) {
   if (items.length === 0) return <p className="text-sm text-gray-400 text-center py-8">No incentives yet.</p>
   return (
     <div className="space-y-3">
