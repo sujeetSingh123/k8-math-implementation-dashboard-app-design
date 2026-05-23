@@ -19,6 +19,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
       {
         section: 'My Work',
         items: [
+          { label: 'Plan Session', path: '/teacher/planning', icon: <CalendarDays size={16} />, permission: 'p_edit_logs' },
           { label: 'Daily Log', path: '/teacher/log', icon: <ClipboardList size={16} />, permission: 'p_edit_logs' },
           { label: 'My Logs', path: '/teacher/logs', icon: <BookOpen size={16} />, permission: 'p_edit_logs' },
           { label: 'Coaching', path: '/teacher/coaching', icon: <MessageSquare size={16} />, badge: unreadCounts.coaching > 0 ? String(unreadCounts.coaching) : undefined, permission: 'p_respond_coaching' },

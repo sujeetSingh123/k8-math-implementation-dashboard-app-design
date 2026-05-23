@@ -14,7 +14,7 @@ const dimensions = [
   { key: 'adherence', label: 'Adherence', low: 'Not following protocol', high: 'Fully following' },
   { key: 'dosage', label: 'Dosage / Exposure', low: 'Far below target', high: 'Meets/exceeds target' },
   { key: 'quality', label: 'Quality of Delivery', low: 'Poor delivery', high: 'Exemplary delivery' },
-  { key: 'responsiveness', label: 'Participant Responsiveness', low: 'Low engagement', high: 'High engagement' },
+  { key: 'responsiveness', label: 'Student Responsiveness', low: 'Low engagement', high: 'High engagement' },
   { key: 'confidence', label: 'Implementation Confidence', low: 'Not confident', high: 'Very confident' },
 ] as const
 

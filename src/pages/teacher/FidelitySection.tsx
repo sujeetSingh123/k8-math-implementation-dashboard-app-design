@@ -7,7 +7,7 @@ const coreDims = [
   { key: 'adherence' as const, label: 'Adherence', low: 'Not following protocol', high: 'Fully following' },
   { key: 'dosage' as const, label: 'Dosage / Exposure', low: 'Far below target', high: 'Meets/exceeds target' },
   { key: 'quality' as const, label: 'Quality of Delivery', low: 'Poor delivery', high: 'Exemplary delivery' },
-  { key: 'responsiveness' as const, label: 'Participant Responsiveness', low: 'Low engagement', high: 'High engagement' },
+  { key: 'responsiveness' as const, label: 'Student Responsiveness', low: 'Low engagement', high: 'High engagement' },
   { key: 'confidence' as const, label: 'Implementation Confidence', low: 'Not confident', high: 'Very confident' },
 ]
 

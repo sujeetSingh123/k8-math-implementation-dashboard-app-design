@@ -24,6 +24,7 @@ type Props = {
 export function AdaptationSubForm({ occurred, onToggle, whatModified, setWhatModified, reasons, setReasons, register }: Props) {
   return (
     <div className="space-y-3">
+      <p className="text-sm font-semibold text-gray-800">Post-Instruction Reflections</p>
       <div>
         <label className="text-xs font-medium text-gray-600 block mb-1.5">Did an adaptation occur?</label>
         <div className="flex gap-4">

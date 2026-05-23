@@ -37,7 +37,7 @@ export function LogDetailView({ log, adaptation, fidelityCheck, studentDataRecor
           </div>
           <div>
             <p className="text-gray-400">EBP Component</p>
-            <p className="text-gray-700 font-medium">{log.ebpComponent}</p>
+            <p className="text-gray-700 font-medium">{log.ebpComponent.join(', ')}</p>
           </div>
           <div>
             <p className="text-gray-400">Strategy</p>

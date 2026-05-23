@@ -22,7 +22,7 @@ export type ImplementationLog = {
   date: string
   startTime?: string
   instructionalRoutine: string
-  ebpComponent: string
+  ebpComponent: string[]
   implementationStrategy: string
   tier: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED'
   durationMinutes: number
@@ -205,4 +205,20 @@ export type Resource = {
   accessRoles: Role[]
   uploadedAt: string
   fileName?: string
+}
+
+export type LessonPlan = {
+  id: string
+  teacherId: string
+  plannedDate: string
+  plannedTime?: string
+  instructionalRoutine: string
+  ebpComponent: string[]
+  implementationStrategy: string
+  tier: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED'
+  plannedDurationMinutes: number
+  goal?: string
+  status: 'upcoming' | 'logged' | 'missed'
+  logId?: string
+  createdAt: string
 }

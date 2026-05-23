@@ -16,6 +16,7 @@ import type {
   OrgMember,
   MockCredential,
   Resource,
+  LessonPlan,
 } from '../types'
 
 // ─── Schools ─────────────────────────────────────────────────────────────────
@@ -84,7 +85,7 @@ function makeLog(
     schoolId,
     date: daysAgo(daysBack),
     instructionalRoutine: routines[randomBetween(0, 4)],
-    ebpComponent: ebps[randomBetween(0, 4)],
+    ebpComponent: [ebps[randomBetween(0, 4)]],
     implementationStrategy: strategies[randomBetween(0, 3)],
     tier: tiers[randomBetween(0, 3)],
     durationMinutes: randomBetween(20, 60),
@@ -330,10 +331,10 @@ export const studentDataRecords: StudentDataRecord[] = [
 // ─── PD Sessions ──────────────────────────────────────────────────────────────
 export const pdSessions: PDSession[] = [
   { id: 'pd-1', title: 'Math MTSS Year-End Review', type: 'training', scheduledDate: daysAgo(-14), durationHours: 3, targetAudience: 'All Teachers', facilitator: 'Rachel Stone', location: 'District Office — Room 101', enrolledCount: 18, capacity: 25, status: 'upcoming', description: 'End-of-year review of MTSS implementation fidelity across all tiers. Teams will analyze district-wide data, identify trends, and set goals for the following school year.' },
-  { id: 'pd-2', title: 'CRA Lab: Representational Phase', type: 'lab', scheduledDate: daysAgo(-7), durationHours: 2.5, targetAudience: 'Tier 2 Teachers', facilitator: 'Rachel Stone', location: 'Lincoln K-8 School — Lab A', enrolledCount: 10, capacity: 12, status: 'upcoming', description: 'Hands-on lab exploring the pictorial/representational stage of the CRA sequence. Participants will practice drawing models and diagrams to bridge concrete manipulatives and abstract symbols.' },
+  { id: 'pd-2', title: 'CRA Lab: Representational Phase', type: 'lab', scheduledDate: daysAgo(-7), durationHours: 2.5, targetAudience: 'Tier 2 Teachers', facilitator: 'Rachel Stone', location: 'Lincoln K-8 School — Lab A', enrolledCount: 10, capacity: 12, status: 'upcoming', description: 'Hands-on lab exploring the pictorial/representational stage of the CRA sequence. Students will practice drawing models and diagrams to bridge concrete manipulatives and abstract symbols.' },
   { id: 'pd-3', title: 'Coaching Conversation Frameworks', type: 'coaching', scheduledDate: daysAgo(-3), durationHours: 2, targetAudience: 'Coaches', facilitator: 'Monica Hill', location: 'Virtual (Zoom)', enrolledCount: 4, capacity: 6, status: 'upcoming', description: 'Coaching session focused on structured conversation frameworks for observational feedback, goal-setting dialogues, and action planning with teachers.' },
   { id: 'pd-4', title: 'Data-Driven Decision Making Q3', type: 'training', scheduledDate: daysAgo(15), durationHours: 2, targetAudience: 'All Teachers', facilitator: 'Rachel Stone', location: 'Washington Middle School — Cafeteria', enrolledCount: 22, capacity: 25, status: 'completed', description: 'Training on interpreting Q3 progress monitoring data to make Tier placement decisions. Covered data decision trees, cut scores, and documentation requirements for Tier 2 and Tier 3 adjustments.' },
-  { id: 'pd-5', title: 'Fidelity Self-Assessment Practices', type: 'coaching', scheduledDate: daysAgo(30), durationHours: 1.5, targetAudience: 'All Teachers', facilitator: 'Rachel Stone', location: 'Lincoln K-8 School — Library', enrolledCount: 14, capacity: 20, status: 'completed', description: 'Coaching session on using the five-dimension fidelity rubric for self-reflection and goal-setting. Participants calibrated ratings against video examples and identified one growth area for the next cycle.' },
+  { id: 'pd-5', title: 'Fidelity Self-Assessment Practices', type: 'coaching', scheduledDate: daysAgo(30), durationHours: 1.5, targetAudience: 'All Teachers', facilitator: 'Rachel Stone', location: 'Lincoln K-8 School — Library', enrolledCount: 14, capacity: 20, status: 'completed', description: 'Coaching session on using the five-dimension fidelity rubric for self-reflection and goal-setting. Students calibrated ratings against video examples and identified one growth area for the next cycle.' },
   { id: 'pd-6', title: 'Adaptation Documentation (FRAME-IS)', type: 'training', scheduledDate: daysAgo(45), durationHours: 2, targetAudience: 'All Staff', facilitator: 'Monica Hill', location: 'District Office — Room 204', enrolledCount: 30, capacity: 30, status: 'completed', description: 'Training on the FRAME-IS framework for classifying, documenting, and analyzing instructional adaptations. Covered the six modification categories, fidelity implications, and how to log adaptations in the system.' },
 ]
 
@@ -487,4 +488,43 @@ export const orgMembers: OrgMember[] = [
   { id: 'A002', name: 'James Patel', email: 'james.patel@example.org', initials: 'JP', role: 'admin', schoolId: 'SCH02', department: 'Assistant Principal', status: 'active', joinedAt: '2021-08-01' },
   { id: 'C001', name: 'Rachel Stone', email: 'rachel.stone@example.org', initials: 'RS', role: 'coach', schoolId: 'SCH01', department: 'Implementation Coach', status: 'active', joinedAt: '2020-08-01' },
   { id: 'R001', name: 'Dr. Jing Researcher', email: 'researcher@example.org', initials: 'JR', role: 'researcher', schoolId: 'SCH01', department: 'Research Team', status: 'active', joinedAt: '2022-03-14' },
+]
+
+// ─── Lesson Plans ──────────────────────────────────────────────────────────────
+export const lessonPlans: LessonPlan[] = [
+  {
+    id: 'plan-1', teacherId: 'T001', plannedDate: '2026-05-24', plannedTime: '09:00',
+    instructionalRoutine: 'Number Sense Warm-up', ebpComponent: ['CRA'],
+    implementationStrategy: 'Think-aloud', tier: 'Tier 1', plannedDurationMinutes: 45,
+    goal: 'Focus on concrete phase — use base-10 blocks throughout',
+    status: 'upcoming', createdAt: '2026-05-22T10:00:00Z',
+  },
+  {
+    id: 'plan-2', teacherId: 'T001', plannedDate: '2026-05-26', plannedTime: '10:30',
+    instructionalRoutine: 'Word Problem Routine', ebpComponent: ['Schema-Based Instruction', 'Worked Examples'],
+    implementationStrategy: 'Worked examples', tier: 'Tier 2', plannedDurationMinutes: 30,
+    goal: 'Introduce equal groups schema with small group of 3 students',
+    status: 'upcoming', createdAt: '2026-05-22T10:05:00Z',
+  },
+  {
+    id: 'plan-3', teacherId: 'T001', plannedDate: '2026-05-28', plannedTime: '08:45',
+    instructionalRoutine: 'Math Fluency Practice', ebpComponent: ['Explicit Instruction', 'Distributed Practice'],
+    implementationStrategy: 'Peer tutoring', tier: 'Tier 1', plannedDurationMinutes: 20,
+    goal: 'Practice multiplication facts 6–9 with partner drill',
+    status: 'upcoming', createdAt: '2026-05-22T10:10:00Z',
+  },
+  {
+    id: 'plan-4', teacherId: 'T001', plannedDate: '2026-05-20', plannedTime: '09:00',
+    instructionalRoutine: 'Number Sense Warm-up', ebpComponent: ['CRA'],
+    implementationStrategy: 'Think-aloud', tier: 'Tier 1', plannedDurationMinutes: 45,
+    goal: 'Transition from concrete to representational phase',
+    status: 'logged', logId: 'log-T001-8', createdAt: '2026-05-19T09:00:00Z',
+  },
+  {
+    id: 'plan-5', teacherId: 'T001', plannedDate: '2026-05-21', plannedTime: '11:00',
+    instructionalRoutine: 'Error Analysis', ebpComponent: ['Metacognitive Strategies'],
+    implementationStrategy: 'Think-aloud', tier: 'Tier 2', plannedDurationMinutes: 30,
+    goal: 'Help students identify common subtraction errors',
+    status: 'missed', createdAt: '2026-05-20T08:00:00Z',
+  },
 ]

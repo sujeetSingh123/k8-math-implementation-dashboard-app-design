@@ -191,7 +191,7 @@ export function TeacherCaseload() {
                       </Badge>
                       {log.adaptationOccurred && <Badge color="blue">Adaptation</Badge>}
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5">{log.instructionalRoutine} · {log.ebpComponent} · {log.durationMinutes}min</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{log.instructionalRoutine} · {log.ebpComponent.join(', ')} · {log.durationMinutes}min</p>
                   </div>
                   <ChevronRight size={14} className="text-gray-400 flex-shrink-0" />
                 </button>

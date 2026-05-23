@@ -19,7 +19,6 @@ type LogForm = {
   date: string
   startTime: string
   instructionalRoutine: string
-  ebpComponent: string
   implementationStrategy: string
   durationMinutes: number
   lessonCompletion: 'fully' | 'partially' | 'not_completed'
@@ -30,8 +29,12 @@ type LogForm = {
 }
 
 export function DailyLog() {
-  const { currentUser, implementationLogs, addLog, addAdaptation, addFidelityCheck } = useAppStore()
-  const [tierChips, setTierChips] = useState<string[]>([])
+  const { currentUser, implementationLogs, addLog, addAdaptation, addFidelityCheck, pendingPlan, setPendingPlan, updateLessonPlan } = useAppStore()
+  const myLogs = implementationLogs.filter(l => l.teacherId === currentUser.id).sort((a, b) => b.date.localeCompare(a.date))
+  const lastLog = myLogs[0]
+
+  const [tierChips, setTierChips] = useState<string[]>(() => pendingPlan ? [pendingPlan.tier] : [])
+  const [ebpChips, setEbpChips] = useState<string[]>(() => pendingPlan ? pendingPlan.ebpComponent : lastLog?.ebpComponent ?? ['CRA'])
   const [whatModified, setWhatModified] = useState<string[]>([])
   const [reasons, setReasons] = useState<string[]>([])
   const [adaptationOccurred, setAdaptationOccurred] = useState(false)
@@ -41,15 +44,21 @@ export function DailyLog() {
   const [artifactFile, setArtifactFile] = useState<string | null>(null)
   const artifactRef = useRef<HTMLInputElement>(null)
 
-  const myLogs = implementationLogs.filter(l => l.teacherId === currentUser.id).sort((a, b) => b.date.localeCompare(a.date))
-  const lastLog = myLogs[0]
-
+  const fromPlan = pendingPlan !== null
   const { register, handleSubmit, reset } = useForm<LogForm>({
-    defaultValues: {
+    defaultValues: fromPlan ? {
+      date: pendingPlan!.plannedDate,
+      startTime: pendingPlan!.plannedTime ?? '',
+      instructionalRoutine: pendingPlan!.instructionalRoutine,
+      implementationStrategy: pendingPlan!.implementationStrategy,
+      durationMinutes: pendingPlan!.plannedDurationMinutes,
+      lessonCompletion: 'fully',
+      plannedVsReactive: 'planned',
+      fidelityType: 'consistent',
+    } : {
       date: new Date().toISOString().split('T')[0],
       startTime: '',
       instructionalRoutine: lastLog?.instructionalRoutine ?? 'Number Sense Warm-up',
-      ebpComponent: lastLog?.ebpComponent ?? 'CRA',
       implementationStrategy: lastLog?.implementationStrategy ?? 'Think-aloud',
       durationMinutes: lastLog?.durationMinutes ?? 45,
       lessonCompletion: 'fully',
@@ -64,7 +73,7 @@ export function DailyLog() {
     const newLog: ImplementationLog = {
       id: logId, teacherId: currentUser.id, schoolId: currentUser.schoolId,
       date: data.date, startTime: data.startTime || undefined,
-      instructionalRoutine: data.instructionalRoutine, ebpComponent: data.ebpComponent,
+      instructionalRoutine: data.instructionalRoutine, ebpComponent: ebpChips,
       implementationStrategy: data.implementationStrategy,
       tier: (tierChips[0] ?? 'Tier 1') as ImplementationLog['tier'],
       durationMinutes: Number(data.durationMinutes), lessonCompletion: data.lessonCompletion,
@@ -90,11 +99,17 @@ export function DailyLog() {
       addAdaptation(adaptation)
       toast.success('Log, fidelity check, and adaptation saved!')
     } else {
-      toast.success('Log and fidelity check saved!')
+      toast.success(`Log and fidelity check saved${fromPlan ? ' — plan marked complete!' : '!'}`)
+    }
+
+    if (fromPlan && pendingPlan) {
+      updateLessonPlan(pendingPlan.id, { status: 'logged', logId })
+      setPendingPlan(null)
     }
 
     reset()
     setTierChips([])
+    setEbpChips(['CRA'])
     setWhatModified([])
     setReasons([])
     setAdaptationOccurred(false)
@@ -106,11 +121,14 @@ export function DailyLog() {
 
   return (
     <div className="w-full max-w-2xl space-y-4">
-{lastLog && <p className="text-xs text-gray-400">Pre-filled from your last entry on {lastLog.date}</p>}
+{fromPlan
+  ? <p className="text-xs text-emerald-600 font-medium">Pre-filled from your plan for {pendingPlan!.plannedDate}</p>
+  : lastLog && <p className="text-xs text-gray-400">Pre-filled from your last entry on {lastLog.date}</p>
+}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Card>
-          <p className="text-sm font-semibold text-gray-800 mb-4">What you taught</p>
+          <p className="text-sm font-semibold text-gray-800 mb-4">Instructional Implementation</p>
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -125,12 +143,6 @@ export function DailyLog() {
                 <label className="text-xs font-medium text-gray-600 block mb-1.5">Instructional Routine</label>
                 <select {...register('instructionalRoutine', { required: true })} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300">
                   {instructionalRoutines.map(o => <option key={o}>{o}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-gray-600 block mb-1.5">EBP Component</label>
-                <select {...register('ebpComponent', { required: true })} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300">
-                  {ebpComponents.map(o => <option key={o}>{o}</option>)}
                 </select>
               </div>
               <div>
@@ -149,6 +161,10 @@ export function DailyLog() {
               <ChipSelector options={implementationTiers} value={tierChips} onChange={setTierChips} roleColor={roleColor} />
             </div>
             <div>
+              <label className="text-xs font-medium text-gray-600 block mb-1.5">EBP Component</label>
+              <ChipSelector options={ebpComponents} value={ebpChips} onChange={setEbpChips} roleColor={roleColor} multiSelect />
+            </div>
+            <div>
               <label className="text-xs font-medium text-gray-600 block mb-1.5">Lesson Completion</label>
               <div className="flex flex-wrap gap-3 sm:gap-4">
                 {([{ v: 'fully', l: 'Fully completed' }, { v: 'partially', l: 'Partially completed' }, { v: 'not_completed', l: 'Not completed' }]).map(({ v, l }) => (
@@ -162,16 +178,14 @@ export function DailyLog() {
               <label className="text-xs font-medium text-gray-600 block mb-1.5">Notes (optional)</label>
               <textarea {...register('notes')} rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300" placeholder="Any notes about today's lesson..." />
             </div>
+            <div className="border-t border-gray-100 pt-4">
+              <FidelitySection
+                scores={fidelity} onScore={(k, v) => setFidelity(prev => ({ ...prev, [k]: v }))}
+                extra={extra} onExtra={(k, v) => setExtra(prev => ({ ...prev, [k]: v }))}
+                notes={reflectionNotes} onNotes={setReflectionNotes}
+              />
+            </div>
           </div>
-        </Card>
-
-        <Card>
-          <p className="text-sm font-semibold text-gray-800 mb-4">How well you taught it</p>
-          <FidelitySection
-            scores={fidelity} onScore={(k, v) => setFidelity(prev => ({ ...prev, [k]: v }))}
-            extra={extra} onExtra={(k, v) => setExtra(prev => ({ ...prev, [k]: v }))}
-            notes={reflectionNotes} onNotes={setReflectionNotes}
-          />
         </Card>
 
         <Card>

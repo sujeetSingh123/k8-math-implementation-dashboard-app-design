@@ -9,7 +9,6 @@ import type {
   CoachingMessage,
   CoachingAction,
   FeedbackItem,
-
   TrainingAttendance,
   Notification,
   StudentDataRecord,
@@ -17,6 +16,7 @@ import type {
   RolePermissions,
   OrgMember,
   Resource,
+  LessonPlan,
 } from '../types'
 import {
   users,
@@ -33,6 +33,7 @@ import {
   studentDataRecords,
   pdSessions,
   resources,
+  lessonPlans,
 } from '../data/mockData'
 
 const defaultDeterminants: Record<string, number> = {
@@ -63,6 +64,8 @@ interface AppStore {
   pdSessions: PDSession[]
   determinants: Record<string, number>
   resources: Resource[]
+  lessonPlans: LessonPlan[]
+  pendingPlan: LessonPlan | null
 
   login: (email: string, password: string) => boolean
   logout: () => void
@@ -87,6 +90,10 @@ interface AppStore {
   addResource: (resource: Resource) => void
   updateResource: (id: string, updates: Partial<Resource>) => void
   deleteResource: (id: string) => void
+  addLessonPlan: (plan: LessonPlan) => void
+  deleteLessonPlan: (id: string) => void
+  updateLessonPlan: (id: string, updates: Partial<LessonPlan>) => void
+  setPendingPlan: (plan: LessonPlan | null) => void
 }
 
 const defaultUser = users[0]
@@ -109,6 +116,8 @@ export const useAppStore = create<AppStore>((set) => ({
   pdSessions,
   determinants: defaultDeterminants,
   resources,
+  lessonPlans,
+  pendingPlan: null,
 
   login: (email, password) => {
     const cred = mockCredentials.find(
@@ -301,4 +310,15 @@ export const useAppStore = create<AppStore>((set) => ({
 
   deleteResource: (id) =>
     set((state) => ({ resources: state.resources.filter((r) => r.id !== id) })),
+
+  addLessonPlan: (plan) =>
+    set((state) => ({ lessonPlans: [plan, ...state.lessonPlans] })),
+
+  deleteLessonPlan: (id) =>
+    set((state) => ({ lessonPlans: state.lessonPlans.filter((p) => p.id !== id) })),
+
+  updateLessonPlan: (id, updates) =>
+    set((state) => ({ lessonPlans: state.lessonPlans.map((p) => p.id === id ? { ...p, ...updates } : p) })),
+
+  setPendingPlan: (plan) => set({ pendingPlan: plan }),
 }))

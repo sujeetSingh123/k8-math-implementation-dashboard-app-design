@@ -106,7 +106,7 @@ export function MyLogs() {
                   </Button>
                 </div>
                 <p className="text-xs text-gray-500">
-                  {log.instructionalRoutine} · {log.ebpComponent} · {log.implementationStrategy} · {log.durationMinutes} min
+                  {log.instructionalRoutine} · {log.ebpComponent.join(', ')} · {log.implementationStrategy} · {log.durationMinutes} min
                 </p>
                 {log.notes && (
                   <p className="text-xs text-gray-400 italic mt-1">"{log.notes}"</p>
