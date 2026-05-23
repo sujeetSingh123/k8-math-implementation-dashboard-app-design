@@ -17,6 +17,8 @@ import type {
   OrgMember,
   Resource,
   LessonPlan,
+  Incentive,
+  BudgetAllocation,
 } from '../types'
 import {
   users,
@@ -34,6 +36,8 @@ import {
   pdSessions,
   resources,
   lessonPlans,
+  incentives,
+  budgetAllocations,
 } from '../data/mockData'
 
 const defaultDeterminants: Record<string, number> = {
@@ -66,6 +70,8 @@ interface AppStore {
   resources: Resource[]
   lessonPlans: LessonPlan[]
   pendingPlan: LessonPlan | null
+  incentives: Incentive[]
+  budgetAllocations: BudgetAllocation[]
 
   login: (email: string, password: string) => boolean
   logout: () => void
@@ -94,6 +100,7 @@ interface AppStore {
   deleteLessonPlan: (id: string) => void
   updateLessonPlan: (id: string, updates: Partial<LessonPlan>) => void
   setPendingPlan: (plan: LessonPlan | null) => void
+  awardIncentive: (data: Omit<Incentive, 'id' | 'awardedAt'>) => void
 }
 
 const defaultUser = users[0]
@@ -118,6 +125,8 @@ export const useAppStore = create<AppStore>((set) => ({
   resources,
   lessonPlans,
   pendingPlan: null,
+  incentives,
+  budgetAllocations,
 
   login: (email, password) => {
     const cred = mockCredentials.find(
@@ -321,4 +330,12 @@ export const useAppStore = create<AppStore>((set) => ({
     set((state) => ({ lessonPlans: state.lessonPlans.map((p) => p.id === id ? { ...p, ...updates } : p) })),
 
   setPendingPlan: (plan) => set({ pendingPlan: plan }),
+
+  awardIncentive: (data) =>
+    set((state) => ({
+      incentives: [
+        { id: `inc-${Date.now()}`, awardedAt: new Date().toISOString().split('T')[0], ...data },
+        ...state.incentives,
+      ],
+    })),
 }))

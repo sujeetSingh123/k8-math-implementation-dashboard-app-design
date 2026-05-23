@@ -222,3 +222,22 @@ export type LessonPlan = {
   logId?: string
   createdAt: string
 }
+
+export type IncentiveCategory = 'training' | 'performance' | 'logging'
+
+export type Incentive = {
+  id: string
+  recipientId: string
+  recipientName: string
+  recipientRole: 'teacher' | 'coach'
+  category: IncentiveCategory
+  amount: number
+  reason: string
+  awardedAt: string
+}
+
+export type BudgetAllocation = {
+  category: IncentiveCategory
+  label: string
+  allocated: number
+}

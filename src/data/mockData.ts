@@ -17,6 +17,8 @@ import type {
   MockCredential,
   Resource,
   LessonPlan,
+  Incentive,
+  BudgetAllocation,
 } from '../types'
 
 // ─── Schools ─────────────────────────────────────────────────────────────────
@@ -420,6 +422,31 @@ export const teacherFidelityTrends: Record<string, typeof monthlyFidelityTrend> 
   T004: monthlyFidelityTrend.map(m => ({ ...m, adherence: m.adherence - 1.0, dosage: m.dosage - 0.8 })),
 }
 
+export const schoolFidelityTrends: Record<string, typeof monthlyFidelityTrend> = {
+  SCH01: [
+    { month: 'Sep', adherence: 3.5, dosage: 3.7, quality: 3.4, responsiveness: 3.2, confidence: 3.6 },
+    { month: 'Oct', adherence: 3.8, dosage: 3.9, quality: 3.7, responsiveness: 3.5, confidence: 3.8 },
+    { month: 'Nov', adherence: 3.9, dosage: 4.0, quality: 3.8, responsiveness: 3.6, confidence: 4.0 },
+    { month: 'Dec', adherence: 3.7, dosage: 3.8, quality: 3.6, responsiveness: 3.4, confidence: 3.8 },
+    { month: 'Jan', adherence: 4.0, dosage: 4.1, quality: 3.9, responsiveness: 3.8, confidence: 4.1 },
+    { month: 'Feb', adherence: 4.2, dosage: 4.3, quality: 4.1, responsiveness: 4.0, confidence: 4.3 },
+    { month: 'Mar', adherence: 4.3, dosage: 4.4, quality: 4.2, responsiveness: 4.1, confidence: 4.4 },
+    { month: 'Apr', adherence: 4.4, dosage: 4.5, quality: 4.3, responsiveness: 4.2, confidence: 4.5 },
+    { month: 'May', adherence: 4.5, dosage: 4.6, quality: 4.4, responsiveness: 4.3, confidence: 4.6 },
+  ],
+  SCH02: [
+    { month: 'Sep', adherence: 2.8, dosage: 3.0, quality: 2.7, responsiveness: 2.5, confidence: 2.9 },
+    { month: 'Oct', adherence: 3.1, dosage: 3.2, quality: 3.0, responsiveness: 2.8, confidence: 3.1 },
+    { month: 'Nov', adherence: 3.2, dosage: 3.3, quality: 3.1, responsiveness: 2.9, confidence: 3.3 },
+    { month: 'Dec', adherence: 3.0, dosage: 3.1, quality: 2.9, responsiveness: 2.7, confidence: 3.1 },
+    { month: 'Jan', adherence: 3.3, dosage: 3.4, quality: 3.2, responsiveness: 3.1, confidence: 3.4 },
+    { month: 'Feb', adherence: 3.5, dosage: 3.6, quality: 3.4, responsiveness: 3.3, confidence: 3.6 },
+    { month: 'Mar', adherence: 3.6, dosage: 3.7, quality: 3.5, responsiveness: 3.4, confidence: 3.7 },
+    { month: 'Apr', adherence: 3.7, dosage: 3.8, quality: 3.6, responsiveness: 3.5, confidence: 3.8 },
+    { month: 'May', adherence: 3.8, dosage: 3.9, quality: 3.7, responsiveness: 3.6, confidence: 3.9 },
+  ],
+}
+
 // ─── Mock Credentials ─────────────────────────────────────────────────────────
 export const mockCredentials: MockCredential[] = [
   { email: 'anna.carter@example.org', password: 'demo1234', userId: 'T001' },
@@ -527,4 +554,25 @@ export const lessonPlans: LessonPlan[] = [
     goal: 'Help students identify common subtraction errors',
     status: 'missed', createdAt: '2026-05-20T08:00:00Z',
   },
+]
+
+// ─── Budget Allocations ────────────────────────────────────────────────────────
+export const budgetAllocations: BudgetAllocation[] = [
+  { category: 'training', label: 'Training Incentives', allocated: 5000 },
+  { category: 'performance', label: 'Performance Incentives', allocated: 8000 },
+  { category: 'logging', label: 'Logging Incentives', allocated: 3000 },
+]
+
+// ─── Incentives ───────────────────────────────────────────────────────────────
+export const incentives: Incentive[] = [
+  { id: 'inc-1',  recipientId: 'T001', recipientName: 'Anna Carter',    recipientRole: 'teacher', category: 'logging',      amount: 75,  reason: '12 consecutive logs completed on time',                          awardedAt: '2026-04-15' },
+  { id: 'inc-2',  recipientId: 'T003', recipientName: 'Carla Nguyen',   recipientRole: 'teacher', category: 'performance',  amount: 200, reason: 'Avg fidelity ≥ 4.5 sustained over Q1',                          awardedAt: '2026-04-20' },
+  { id: 'inc-3',  recipientId: 'T001', recipientName: 'Anna Carter',    recipientRole: 'teacher', category: 'training',     amount: 100, reason: 'Completed CRA Lab and follow-up coaching',                      awardedAt: '2026-04-22' },
+  { id: 'inc-4',  recipientId: 'C001', recipientName: 'Rachel Stone',   recipientRole: 'coach',   category: 'performance',  amount: 250, reason: 'Caseload avg fidelity reached 4.2 — highest Q1 district score', awardedAt: '2026-04-28' },
+  { id: 'inc-5',  recipientId: 'T002', recipientName: 'Brian Lee',      recipientRole: 'teacher', category: 'logging',      amount: 50,  reason: 'Logged 8 sessions in April',                                    awardedAt: '2026-05-01' },
+  { id: 'inc-6',  recipientId: 'T005', recipientName: 'Elena Martinez', recipientRole: 'teacher', category: 'performance',  amount: 150, reason: 'Consistent fidelity improvement Mar–May',                       awardedAt: '2026-05-10' },
+  { id: 'inc-7',  recipientId: 'T003', recipientName: 'Carla Nguyen',   recipientRole: 'teacher', category: 'training',     amount: 150, reason: 'Completed all Q2 professional development modules',             awardedAt: '2026-05-15' },
+  { id: 'inc-8',  recipientId: 'C001', recipientName: 'Rachel Stone',   recipientRole: 'coach',   category: 'performance',  amount: 150, reason: '3 teachers completed CRA Lab with ≥ 90% fidelity this quarter', awardedAt: '2026-05-17' },
+  { id: 'inc-9',  recipientId: 'T004', recipientName: 'David Brooks',   recipientRole: 'teacher', category: 'logging',      amount: 50,  reason: 'Improved log submission rate this period',                       awardedAt: '2026-05-18' },
+  { id: 'inc-10', recipientId: 'C001', recipientName: 'Rachel Stone',   recipientRole: 'coach',   category: 'performance',  amount: 100, reason: 'Caseload avg fidelity improved 0.8 pts — district high growth',  awardedAt: '2026-05-20' },
 ]

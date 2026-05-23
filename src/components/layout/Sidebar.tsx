@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import {
   ClipboardList, BookOpen, MessageSquare, Library, GraduationCap,
   LayoutDashboard, Users, Inbox, TrendingUp, Building2, Activity, BarChart2,
-  Download, X, Shield, LogOut, BarChart, GitBranch, CalendarDays,
+  Download, X, Shield, LogOut, BarChart, GitBranch, CalendarDays, DollarSign, Award,
 } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { roleColors, roleLabels } from '../../constants/roles'
@@ -22,6 +22,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
           { label: 'Plan Session', path: '/teacher/planning', icon: <CalendarDays size={16} />, permission: 'p_edit_logs' },
           { label: 'Daily Log', path: '/teacher/log', icon: <ClipboardList size={16} />, permission: 'p_edit_logs' },
           { label: 'My Logs', path: '/teacher/logs', icon: <BookOpen size={16} />, permission: 'p_edit_logs' },
+          { label: 'Fidelity Trends', path: '/teacher/fidelity-trends', icon: <TrendingUp size={16} />, permission: 'p_view_fidelity' },
           { label: 'Coaching', path: '/teacher/coaching', icon: <MessageSquare size={16} />, badge: unreadCounts.coaching > 0 ? String(unreadCounts.coaching) : undefined, permission: 'p_respond_coaching' },
           { label: 'Student Data', path: '/teacher/student-data', icon: <BarChart size={16} />, permission: 'p_view_student_data' },
         ],
@@ -37,6 +38,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
         section: 'Insights',
         items: [
           { label: 'My Dashboard', path: '/teacher/dashboard', icon: <LayoutDashboard size={16} />, permission: 'p_view_reports' },
+          { label: 'My Incentives', path: '/teacher/incentives', icon: <Award size={16} />, permission: 'p_view_reports' },
         ],
       },
     ]
@@ -60,6 +62,8 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
         section: 'Insights',
         items: [
           { label: 'Coach Dashboard', path: '/coach/dashboard', icon: <LayoutDashboard size={16} />, permission: 'p_view_reports' },
+          { label: 'Fidelity Trends', path: '/coach/fidelity-trends', icon: <TrendingUp size={16} />, permission: 'p_view_fidelity' },
+          { label: 'Teacher Incentives', path: '/coach/incentives', icon: <Award size={16} />, permission: 'p_view_reports' },
         ],
       },
     ]
@@ -71,6 +75,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
         items: [
           { label: 'School Overview', path: '/admin/overview', icon: <Building2 size={16} />, permission: 'p_view_reports' },
           { label: 'MTSS Monitoring', path: '/admin/mtss', icon: <Activity size={16} />, permission: 'p_view_fidelity' },
+          { label: 'Fidelity Trends', path: '/admin/fidelity-trends', icon: <TrendingUp size={16} />, permission: 'p_view_fidelity' },
         ],
       },
       {
@@ -96,6 +101,8 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
       items: [
         { label: 'Research Analytics', path: '/researcher/analytics', icon: <BarChart2 size={16} />, permission: 'p_view_logs' },
         { label: 'Longitudinal View', path: '/researcher/longitudinal', icon: <TrendingUp size={16} />, permission: 'p_view_student_data' },
+        { label: 'Log Aggregation', path: '/researcher/log-aggregation', icon: <Activity size={16} />, permission: 'p_view_logs' },
+        { label: 'Fidelity Trends', path: '/researcher/fidelity-trends', icon: <TrendingUp size={16} />, permission: 'p_view_fidelity' },
         { label: 'DSAII Pathway', path: '/researcher/dsaii', icon: <GitBranch size={16} />, permission: 'p_view_reports' },
       ],
     },
@@ -104,6 +111,12 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
       items: [
         { label: 'Export Data', path: '/researcher/export', icon: <Download size={16} />, permission: 'p_export_data' },
         { label: 'Resource Library', path: '/researcher/library', icon: <Library size={16} /> },
+      ],
+    },
+    {
+      section: 'Budget',
+      items: [
+        { label: 'Budget & Incentives', path: '/researcher/budget', icon: <DollarSign size={16} />, permission: 'p_view_reports' },
       ],
     },
   ]

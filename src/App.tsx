@@ -23,8 +23,13 @@ import { PDPlanning } from './pages/admin/PDPlanning'
 import { ResourceManagement } from './pages/admin/ResourceManagement'
 import { ResearchAnalytics } from './pages/researcher/ResearchAnalytics'
 import { LongitudinalView } from './pages/researcher/LongitudinalView'
+import { LogAggregation } from './pages/researcher/LogAggregation'
 import { DataExport } from './pages/researcher/DataExport'
 import { DSAIIPathway } from './pages/researcher/DSAIIPathway'
+import { BudgetView } from './pages/researcher/BudgetView'
+import { MyIncentives } from './pages/teacher/MyIncentives'
+import { CoachIncentives } from './pages/coach/CoachIncentives'
+import { FidelityAdaptationView } from './pages/shared/FidelityAdaptationView'
 import { useAppStore } from './store/useAppStore'
 import { PermissionGate } from './components/ui/PermissionGate'
 
@@ -56,6 +61,7 @@ export default function App() {
         <Route path="/teacher/planning" element={<ProtectedLayout><PermissionGate permissionId="p_edit_logs"><PlanningSession /></PermissionGate></ProtectedLayout>} />
         <Route path="/teacher/log" element={<ProtectedLayout><PermissionGate permissionId="p_edit_logs"><DailyLog /></PermissionGate></ProtectedLayout>} />
         <Route path="/teacher/logs" element={<ProtectedLayout><PermissionGate permissionId="p_edit_logs"><MyLogs /></PermissionGate></ProtectedLayout>} />
+        <Route path="/teacher/fidelity-trends" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><FidelityAdaptationView /></PermissionGate></ProtectedLayout>} />
         <Route path="/teacher/fidelity" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><FidelityCheck /></PermissionGate></ProtectedLayout>} />
         <Route path="/teacher/adaptations" element={<ProtectedLayout><PermissionGate permissionId="p_edit_logs"><AdaptationForm /></PermissionGate></ProtectedLayout>} />
         <Route path="/teacher/coaching" element={<ProtectedLayout><PermissionGate permissionId="p_respond_coaching"><CoachingThread /></PermissionGate></ProtectedLayout>} />
@@ -63,11 +69,15 @@ export default function App() {
         <Route path="/teacher/training" element={<ProtectedLayout><TrainingHistory /></ProtectedLayout>} />
         <Route path="/teacher/dashboard" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><TeacherDashboard /></PermissionGate></ProtectedLayout>} />
         <Route path="/teacher/student-data" element={<ProtectedLayout><PermissionGate permissionId="p_view_student_data"><StudentData /></PermissionGate></ProtectedLayout>} />
+        <Route path="/teacher/incentives" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><MyIncentives /></PermissionGate></ProtectedLayout>} />
         <Route path="/coach/caseload" element={<ProtectedLayout><PermissionGate permissionId="p_view_users"><TeacherCaseload /></PermissionGate></ProtectedLayout>} />
         <Route path="/coach/feedback" element={<ProtectedLayout><PermissionGate permissionId="p_respond_coaching"><FeedbackQueue /></PermissionGate></ProtectedLayout>} />
         <Route path="/coach/dashboard" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><CoachDashboard /></PermissionGate></ProtectedLayout>} />
+        <Route path="/coach/fidelity-trends" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><FidelityAdaptationView /></PermissionGate></ProtectedLayout>} />
         <Route path="/coach/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
+        <Route path="/coach/incentives" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><CoachIncentives /></PermissionGate></ProtectedLayout>} />
         <Route path="/admin/overview" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><SchoolOverview /></PermissionGate></ProtectedLayout>} />
+        <Route path="/admin/fidelity-trends" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><FidelityAdaptationView /></PermissionGate></ProtectedLayout>} />
         <Route path="/admin/mtss" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><MTSSMonitoring /></PermissionGate></ProtectedLayout>} />
         <Route path="/admin/roles" element={<ProtectedLayout><PermissionGate permissionId="p_assign_roles"><RolesPermissions /></PermissionGate></ProtectedLayout>} />
         <Route path="/admin/organization" element={<ProtectedLayout><PermissionGate permissionId="p_view_users"><Organization /></PermissionGate></ProtectedLayout>} />
@@ -76,9 +86,12 @@ export default function App() {
         <Route path="/admin/resources" element={<ProtectedLayout><PermissionGate permissionId="p_manage_org"><ResourceManagement /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/analytics" element={<ProtectedLayout><PermissionGate permissionId="p_view_logs"><ResearchAnalytics /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/longitudinal" element={<ProtectedLayout><PermissionGate permissionId="p_view_student_data"><LongitudinalView /></PermissionGate></ProtectedLayout>} />
+        <Route path="/researcher/log-aggregation" element={<ProtectedLayout><PermissionGate permissionId="p_view_logs"><LogAggregation /></PermissionGate></ProtectedLayout>} />
+        <Route path="/researcher/fidelity-trends" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><FidelityAdaptationView /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/export" element={<ProtectedLayout><PermissionGate permissionId="p_export_data"><DataExport /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/dsaii" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><DSAIIPathway /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
+        <Route path="/researcher/budget" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><BudgetView /></PermissionGate></ProtectedLayout>} />
         <Route path="*" element={<DefaultRedirect />} />
       </Routes>
     </BrowserRouter>
