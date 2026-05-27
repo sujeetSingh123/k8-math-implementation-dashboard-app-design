@@ -79,7 +79,7 @@ export function DSAIIPathway() {
   const sortedRecords = [...studentDataRecords].sort((a, b) => a.date.localeCompare(b.date))
   const recentScores = sortedRecords.slice(-5)
   const avgScore = recentScores.length > 0
-    ? Math.round(recentScores.reduce((sum, r) => sum + r.value, 0) / recentScores.length)
+    ? Math.round(recentScores.reduce((sum, r) => sum + r.currentAvg, 0) / recentScores.length)
     : 0
   const scoreStatus = statusBadge(avgScore, 80, 65)
 

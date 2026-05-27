@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import {
   ClipboardList, BookOpen, MessageSquare, Library, GraduationCap,
   LayoutDashboard, Users, Inbox, TrendingUp, Building2, Activity, BarChart2,
-  Download, X, Shield, LogOut, BarChart, GitBranch, CalendarDays, DollarSign, Award,
+  Download, X, Shield, LogOut, BarChart, GitBranch, CalendarDays, DollarSign, Award, Globe,
 } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { roleColors, roleLabels } from '../../constants/roles'
@@ -14,6 +14,9 @@ type NavSection = { section: string; items: NavItem[] }
 
 function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] {
   const feedbackBadge = unreadCounts.feedback > 0 ? String(unreadCounts.feedback) : undefined
+  const msgBadge = unreadCounts.messages > 0 ? String(unreadCounts.messages) : undefined
+  const msgItem: NavItem = { label: 'Messages', path: '/messages', icon: <MessageSquare size={16} />, badge: msgBadge }
+
   if (role === 'teacher') {
     return [
       {
@@ -23,7 +26,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
           { label: 'Daily Log', path: '/teacher/log', icon: <ClipboardList size={16} />, permission: 'p_edit_logs' },
           { label: 'My Logs', path: '/teacher/logs', icon: <BookOpen size={16} />, permission: 'p_edit_logs' },
           { label: 'Fidelity Trends', path: '/teacher/fidelity-trends', icon: <TrendingUp size={16} />, permission: 'p_view_fidelity' },
-          { label: 'Coaching', path: '/teacher/coaching', icon: <MessageSquare size={16} />, badge: unreadCounts.coaching > 0 ? String(unreadCounts.coaching) : undefined, permission: 'p_respond_coaching' },
+          { label: 'Coaching', path: '/teacher/coaching', icon: <BookOpen size={16} />, badge: unreadCounts.coaching > 0 ? String(unreadCounts.coaching) : undefined, permission: 'p_respond_coaching' },
           { label: 'Student Data', path: '/teacher/student-data', icon: <BarChart size={16} />, permission: 'p_view_student_data' },
         ],
       },
@@ -41,6 +44,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
           { label: 'My Incentives', path: '/teacher/incentives', icon: <Award size={16} />, permission: 'p_view_reports' },
         ],
       },
+      { section: 'Communication', items: [msgItem] },
     ]
   }
   if (role === 'coach') {
@@ -66,6 +70,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
           { label: 'Teacher Incentives', path: '/coach/incentives', icon: <Award size={16} />, permission: 'p_view_reports' },
         ],
       },
+      { section: 'Communication', items: [msgItem] },
     ]
   }
   if (role === 'admin') {
@@ -93,6 +98,26 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
           { label: 'Manage Resources', path: '/admin/resources', icon: <Library size={16} />, permission: 'p_manage_org' },
         ],
       },
+      {
+        section: 'Incentives',
+        items: [
+          { label: 'My Incentives', path: '/admin/incentives', icon: <Award size={16} />, permission: 'p_view_reports' },
+        ],
+      },
+      { section: 'Communication', items: [msgItem] },
+    ]
+  }
+  if (role === 'super_admin') {
+    return [
+      {
+        section: 'District',
+        items: [
+          { label: 'Overview', path: '/super-admin/dashboard', icon: <Globe size={16} /> },
+          { label: 'Schools', path: '/super-admin/schools', icon: <Building2 size={16} /> },
+          { label: 'Users', path: '/super-admin/users', icon: <Users size={16} /> },
+        ],
+      },
+      { section: 'Communication', items: [msgItem] },
     ]
   }
   return [
@@ -119,6 +144,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
         { label: 'Budget & Incentives', path: '/researcher/budget', icon: <DollarSign size={16} />, permission: 'p_view_reports' },
       ],
     },
+    { section: 'Communication', items: [msgItem] },
   ]
 }
 
@@ -127,7 +153,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ onNavigate }: SidebarProps) {
-  const { currentRole, currentUser, logout, notifications, feedbackItems } = useAppStore()
+  const { currentRole, currentUser, logout, notifications, feedbackItems, conversations } = useAppStore()
   const navigate = useNavigate()
   const has = usePermissions()
   const roleColor = roleColors[currentRole]
@@ -141,7 +167,11 @@ export function Sidebar({ onNavigate }: SidebarProps) {
     (f) => !f.resolved && f.coachId === currentUser.id,
   ).length
 
-  const rawNav = getNav(currentRole, { coaching: coachingUnread, feedback: pendingFeedback })
+  const messageUnread = conversations
+    .filter((c) => c.participantIds.includes(currentUser.id))
+    .reduce((total, c) => total + c.messages.filter((m) => m.senderId !== currentUser.id && !m.readAt).length, 0)
+
+  const rawNav = getNav(currentRole, { coaching: coachingUnread, feedback: pendingFeedback, messages: messageUnread })
   const nav = rawNav
     .map(section => ({ ...section, items: section.items.filter(item => !item.permission || has(item.permission)) }))
     .filter(section => section.items.length > 0)

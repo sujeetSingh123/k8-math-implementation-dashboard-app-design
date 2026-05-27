@@ -1,4 +1,4 @@
-export type Role = 'teacher' | 'coach' | 'admin' | 'researcher'
+export type Role = 'teacher' | 'coach' | 'admin' | 'researcher' | 'super_admin'
 
 export type User = {
   id: string
@@ -132,22 +132,41 @@ export type Notification = {
   createdAt: string
 }
 
-export type StudentDataUpload = {
-  id: string
-  teacherId: string
-  date: string
-  dataType: string
-  value: number
-  tier: string
-}
+export type MeasureType =
+  | 'CBM-Math Concepts & Applications'
+  | 'Unit Assessment'
+  | 'CBM-Math Computation'
+  | 'Goal-Specific Progress Monitoring'
+  | 'IEP Math Goal Probe'
+  | 'Intervention Skill Probe'
+  | 'Intensive Intervention Probe'
+
+export type DataSource = 'Teacher upload' | 'Research team entry' | 'Data system import'
+export type UploadStatus = 'Submitted' | 'Needs review' | 'Verified'
 
 export type StudentDataRecord = {
   id: string
   teacherId: string
   date: string
-  dataType: 'Class Average' | 'Progress Monitoring' | 'Benchmark Score'
-  value: number
-  tier: string
+  week?: number
+  grade?: string
+  instructionalSetting: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED'
+  measureType: MeasureType
+  studentsCount?: number
+  baselineAvg?: number
+  currentAvg: number
+  growth?: number
+  medianPct?: number
+  atOrAboveBenchmark?: number
+  belowBenchmark?: number
+  interventionGroupAvg?: number
+  comparisonGroupAvg?: number
+  goalPct?: number
+  metGoal?: boolean
+  dataSource?: DataSource
+  uploadStatus?: UploadStatus
+  researchExportId?: string
+  notes?: string
   logId?: string
 }
 
@@ -220,6 +239,32 @@ export type LessonPlan = {
   goal?: string
   status: 'upcoming' | 'logged' | 'missed'
   logId?: string
+  createdAt: string
+}
+
+export type LogComment = {
+  id: string
+  logId: string
+  authorId: string
+  authorName: string
+  authorRole: Role
+  body: string
+  createdAt: string
+}
+
+export type DirectMessage = {
+  id: string
+  conversationId: string
+  senderId: string
+  body: string
+  createdAt: string
+  readAt?: string
+}
+
+export type Conversation = {
+  id: string
+  participantIds: string[]
+  messages: DirectMessage[]
   createdAt: string
 }
 

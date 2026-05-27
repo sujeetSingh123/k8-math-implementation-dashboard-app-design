@@ -14,6 +14,7 @@ const roleDefaults: Record<string, string> = {
   coach: '/coach/dashboard',
   admin: '/admin/overview',
   researcher: '/researcher/analytics',
+  super_admin: '/super-admin/dashboard',
 }
 
 const demoAccounts = [
@@ -26,6 +27,7 @@ const demoAccounts = [
   { label: 'Monica Hill', sub: 'Admin · Principal · SCH01', email: 'monica.hill@example.org' },
   { label: 'James Patel', sub: 'Admin · Asst Principal · SCH02', email: 'james.patel@example.org' },
   { label: 'Dr. Jing Researcher', sub: 'Researcher · All Schools', email: 'researcher@example.org' },
+  { label: 'Alex Super', sub: 'Super Admin · District Office', email: 'superadmin@example.org' },
 ]
 
 export function LoginPage() {

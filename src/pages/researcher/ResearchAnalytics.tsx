@@ -1,15 +1,18 @@
 import { useState } from 'react'
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts'
-import { Shield, Database, BookOpen, CheckCircle } from 'lucide-react'
+import { Shield, Database, BookOpen, CheckCircle, MessageSquare } from 'lucide-react'
 import { StatCard } from '../../components/ui/StatCard'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
 import { Table } from '../../components/ui/Table'
 import { Modal } from '../../components/ui/Modal'
 import { Button } from '../../components/ui/Button'
+import { LogDetailModal } from '../shared/LogDetailModal'
 import { toast } from '../../store/useToastStore'
 import { monthlyFidelityTrend } from '../../data/mockData'
 import { roleColors } from '../../constants/roles'
+import { useAppStore } from '../../store/useAppStore'
+import type { ImplementationLog } from '../../types'
 
 const roleColor = roleColors.researcher
 
@@ -69,7 +72,9 @@ const siteData: SiteRow[] = [
 ]
 
 export function ResearchAnalytics() {
+  const { implementationLogs } = useAppStore()
   const [siteModal, setSiteModal] = useState<SiteRow | null>(null)
+  const [selectedLog, setSelectedLog] = useState<ImplementationLog | null>(null)
 
   const trendData = monthlyFidelityTrend.map(m => ({ month: m.month, adherence: m.adherence }))
 
@@ -93,18 +98,10 @@ export function ResearchAnalytics() {
         <p className="text-xs sm:text-sm">All data is de-identified. No individual teachers or students are identifiable. Click for IRB details.</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-        <div className="cursor-pointer" onClick={() => toast.info('3 active sites: Lincoln, Washington, and Jefferson Elementary.')}>
-          <StatCard label="Sites in Study" value="3" sub="Active sites" icon={<Database size={18} />} iconColor={roleColor} />
-        </div>
-        <div className="cursor-pointer" onClick={() => toast.info('60 log entries across all 3 sites. 78% average completion rate.')}>
-          <StatCard label="Log Entries" value="60" sub="All sites" icon={<BookOpen size={18} />} iconColor={roleColor} />
-        </div>
-        <div className="cursor-pointer" onClick={() => toast.info('25 FRAME-IS adaptation records — 72% classified as fidelity-consistent.')}>
-          <StatCard label="Adaptations" value="25" sub="FRAME-IS records" icon={<BookOpen size={18} />} iconColor={roleColor} />
-        </div>
-        <div className="cursor-pointer" onClick={() => toast.info('82% overall data completeness. Site C (74%) is below the 80% threshold.')}>
-          <StatCard label="Completeness" value="82%" sub="All measures" icon={<CheckCircle size={18} />} iconColor={roleColor} />
-        </div>
+        <div className="cursor-pointer" onClick={() => toast.info('3 active sites: Lincoln, Washington, and Jefferson Elementary.')}><StatCard label="Sites in Study" value="3" sub="Active sites" icon={<Database size={18} />} iconColor={roleColor} /></div>
+        <div className="cursor-pointer" onClick={() => toast.info('60 log entries across all 3 sites. 78% average completion rate.')}><StatCard label="Log Entries" value="60" sub="All sites" icon={<BookOpen size={18} />} iconColor={roleColor} /></div>
+        <div className="cursor-pointer" onClick={() => toast.info('25 FRAME-IS adaptation records — 72% classified as fidelity-consistent.')}><StatCard label="Adaptations" value="25" sub="FRAME-IS records" icon={<BookOpen size={18} />} iconColor={roleColor} /></div>
+        <div className="cursor-pointer" onClick={() => toast.info('82% overall data completeness. Site C (74%) is below the 80% threshold.')}><StatCard label="Completeness" value="82%" sub="All measures" icon={<CheckCircle size={18} />} iconColor={roleColor} /></div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
@@ -143,6 +140,25 @@ export function ResearchAnalytics() {
           onRowClick={row => setSiteModal(row as unknown as SiteRow)}
         />
       </Card>
+
+      <Card padding="none">
+        <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-2">
+          <MessageSquare size={14} style={{ color: roleColor }} />
+          <h2 className="text-sm font-semibold text-gray-800">Recent Implementation Logs</h2>
+        </div>
+        {implementationLogs.slice(0, 6).map(log => (
+          <button key={log.id} onClick={() => setSelectedLog(log)} className="w-full px-4 py-2.5 text-left hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-50 last:border-0 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-gray-700 truncate">{log.teacherId} · {log.date} · {log.instructionalRoutine}</p>
+            </div>
+            <div className="flex gap-1 flex-shrink-0">
+              <Badge color={log.adaptationOccurred ? 'purple' : 'blue'}>{log.tier}</Badge>
+              <Badge color={log.lessonCompletion === 'fully' ? 'green' : log.lessonCompletion === 'partially' ? 'amber' : 'red'}>{log.lessonCompletion.replace('_', ' ')}</Badge>
+            </div>
+          </button>
+        ))}
+      </Card>
+      {selectedLog && <LogDetailModal log={selectedLog} onClose={() => setSelectedLog(null)} />}
 
       {siteModal && (
         <Modal open onClose={() => setSiteModal(null)} title={`${siteModal.site} — Research Detail`} size="lg">

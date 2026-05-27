@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react'
-import { DollarSign, Plus } from 'lucide-react'
+import { DollarSign, Plus, BarChart2 } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
 import { useAppStore } from '../../store/useAppStore'
-import { users, schools } from '../../data/mockData'
 import { roleColors } from '../../constants/roles'
 import { IncentiveModal } from './IncentiveModal'
+import { EarningsBreakdown } from './EarningsBreakdown'
+import { calcTeacherBreakdown, calcCoachBreakdown, calcAdminBreakdown } from '../../utils/incentiveCalc'
 import type { IncentiveCategory } from '../../types'
 
 const roleColor = roleColors.researcher
@@ -23,14 +24,23 @@ const CAT_LABELS: Record<IncentiveCategory, string> = {
 }
 
 export function BudgetView() {
-  const { implementationLogs, fidelityChecks, trainingAttendances, incentives, budgetAllocations, awardIncentive } = useAppStore()
+  const { users, schools, implementationLogs, fidelityChecks, trainingAttendances, incentives, budgetAllocations, awardIncentive } = useAppStore()
   const [showModal, setShowModal] = useState(false)
   const [preselectedId, setPreselectedId] = useState<string | undefined>()
   const [preselectedRole, setPreselectedRole] = useState<'teacher' | 'coach'>('teacher')
+  const [tab, setTab] = useState<'awards' | 'formula'>('formula')
 
-  const teachers = useMemo(() => users.filter(u => u.role === 'teacher'), [])
-  const coaches = useMemo(() => users.filter(u => u.role === 'coach'), [])
-  const schoolName = useMemo(() => Object.fromEntries(schools.map(s => [s.id, s.name.replace(' School', '').replace(' Middle', '')])), [])
+  const teachers = useMemo(() => users.filter(u => u.role === 'teacher'), [users])
+  const coaches = useMemo(() => users.filter(u => u.role === 'coach'), [users])
+  const admins = useMemo(() => users.filter(u => u.role === 'admin'), [users])
+  const schoolName = useMemo(() => Object.fromEntries(schools.map(s => [s.id, s.name.replace(' School', '').replace(' Middle', '')])), [schools])
+
+  const formulaTotal = useMemo(() => {
+    const t = teachers.reduce((s, u) => s + calcTeacherBreakdown(u, implementationLogs).total, 0)
+    const c = coaches.reduce((s, u) => s + calcCoachBreakdown(u, users, implementationLogs).total, 0)
+    const a = admins.reduce((s, u) => s + calcAdminBreakdown(u, users, implementationLogs).total, 0)
+    return t + c + a
+  }, [teachers, coaches, admins, users, implementationLogs])
 
   const teacherIncentives = useMemo(() => incentives.filter(i => i.recipientRole === 'teacher'), [incentives])
   const coachIncentives = useMemo(() => incentives.filter(i => i.recipientRole === 'coach'), [incentives])
@@ -54,6 +64,9 @@ export function BudgetView() {
     totalAwards: coachIncentives.filter(i => i.recipientId === c.id).reduce((s, i) => s + i.amount, 0),
     count: coachIncentives.filter(i => i.recipientId === c.id).length,
   })), [coaches, coachIncentives])
+
+  const tabBtnCls = (active: boolean) =>
+    `px-4 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${active ? 'text-white' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`
 
   const recentAwards = useMemo(() => [...incentives].sort((a, b) => b.awardedAt.localeCompare(a.awardedAt)).slice(0, 8), [incentives])
   const totalBudget = budgetAllocations.reduce((s, a) => s + a.allocated, 0)
@@ -114,13 +127,24 @@ export function BudgetView() {
       {/* Summary stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard label="Total Budget" value={`$${totalBudget.toLocaleString()}`} color={roleColor} />
-        <StatCard label="Total Spent" value={`$${totalSpent.toLocaleString()}`} color={roleColor} />
-        <StatCard label="Remaining" value={`$${(totalBudget - totalSpent).toLocaleString()}`} color="#10B981" />
+        <StatCard label="Formula Total" value={`$${formulaTotal.toLocaleString()}`} sub="Projected semester" color={roleColor} />
+        <StatCard label="Manually Awarded" value={`$${totalSpent.toLocaleString()}`} color={roleColor} />
         <StatCard label="Awards Given" value={String(incentives.length)} color={roleColor} />
       </div>
 
-      {/* Teacher tracker + Recent awards */}
-      <div className="grid lg:grid-cols-2 gap-4">
+      {/* Tab switcher */}
+      <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-xl w-fit">
+        <button className={tabBtnCls(tab === 'formula')} style={tab === 'formula' ? { backgroundColor: roleColor } : {}} onClick={() => setTab('formula')}>
+          <span className="flex items-center gap-1.5"><BarChart2 size={14} /> Formula Earnings</span>
+        </button>
+        <button className={tabBtnCls(tab === 'awards')} style={tab === 'awards' ? { backgroundColor: roleColor } : {}} onClick={() => setTab('awards')}>
+          <span className="flex items-center gap-1.5"><DollarSign size={14} /> Manual Awards</span>
+        </button>
+      </div>
+
+      {tab === 'formula' && <EarningsBreakdown />}
+
+      {tab === 'awards' && (<><div className="grid lg:grid-cols-2 gap-4">
         <Card title="Teacher Incentive Tracker">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -213,6 +237,7 @@ export function BudgetView() {
           </table>
         </div>
       </Card>
+      </>)}
 
       {showModal && (
         <IncentiveModal

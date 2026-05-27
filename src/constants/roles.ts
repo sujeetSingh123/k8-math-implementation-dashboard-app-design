@@ -5,6 +5,7 @@ export const roleColors: Record<Role, string> = {
   coach: '#3B82F6',
   admin: '#F59E0B',
   researcher: '#8B5CF6',
+  super_admin: '#EF4444',
 }
 
 export const roleLabels: Record<Role, string> = {
@@ -12,6 +13,7 @@ export const roleLabels: Record<Role, string> = {
   coach: 'Coach',
   admin: 'Administrator',
   researcher: 'Researcher',
+  super_admin: 'Super Admin',
 }
 
 export const sessionTypeColors: Record<'coaching' | 'lab' | 'training', string> = {

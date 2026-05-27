@@ -21,6 +21,7 @@ import { RolesPermissions } from './pages/admin/RolesPermissions'
 import { Organization } from './pages/admin/Organization'
 import { PDPlanning } from './pages/admin/PDPlanning'
 import { ResourceManagement } from './pages/admin/ResourceManagement'
+import { AdminIncentives } from './pages/admin/AdminIncentives'
 import { ResearchAnalytics } from './pages/researcher/ResearchAnalytics'
 import { LongitudinalView } from './pages/researcher/LongitudinalView'
 import { LogAggregation } from './pages/researcher/LogAggregation'
@@ -30,6 +31,10 @@ import { BudgetView } from './pages/researcher/BudgetView'
 import { MyIncentives } from './pages/teacher/MyIncentives'
 import { CoachIncentives } from './pages/coach/CoachIncentives'
 import { FidelityAdaptationView } from './pages/shared/FidelityAdaptationView'
+import { MessagesPage } from './pages/shared/MessagesPage'
+import { SuperAdminDashboard } from './pages/super_admin/SuperAdminDashboard'
+import { SchoolManagement } from './pages/super_admin/SchoolManagement'
+import { UserManagement } from './pages/super_admin/UserManagement'
 import { useAppStore } from './store/useAppStore'
 import { PermissionGate } from './components/ui/PermissionGate'
 
@@ -41,6 +46,7 @@ function DefaultRedirect() {
     coach: '/coach/dashboard',
     admin: '/admin/overview',
     researcher: '/researcher/analytics',
+    super_admin: '/super-admin/dashboard',
   }
   return <Navigate to={defaults[currentRole] ?? '/teacher/dashboard'} replace />
 }
@@ -84,6 +90,7 @@ export default function App() {
         <Route path="/admin/pd-planning" element={<ProtectedLayout><PermissionGate permissionId="p_manage_org"><PDPlanning /></PermissionGate></ProtectedLayout>} />
         <Route path="/admin/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
         <Route path="/admin/resources" element={<ProtectedLayout><PermissionGate permissionId="p_manage_org"><ResourceManagement /></PermissionGate></ProtectedLayout>} />
+        <Route path="/admin/incentives" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><AdminIncentives /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/analytics" element={<ProtectedLayout><PermissionGate permissionId="p_view_logs"><ResearchAnalytics /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/longitudinal" element={<ProtectedLayout><PermissionGate permissionId="p_view_student_data"><LongitudinalView /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/log-aggregation" element={<ProtectedLayout><PermissionGate permissionId="p_view_logs"><LogAggregation /></PermissionGate></ProtectedLayout>} />
@@ -92,6 +99,10 @@ export default function App() {
         <Route path="/researcher/dsaii" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><DSAIIPathway /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
         <Route path="/researcher/budget" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><BudgetView /></PermissionGate></ProtectedLayout>} />
+        <Route path="/messages" element={<ProtectedLayout><MessagesPage /></ProtectedLayout>} />
+        <Route path="/super-admin/dashboard" element={<ProtectedLayout><SuperAdminDashboard /></ProtectedLayout>} />
+        <Route path="/super-admin/schools" element={<ProtectedLayout><SchoolManagement /></ProtectedLayout>} />
+        <Route path="/super-admin/users" element={<ProtectedLayout><UserManagement /></ProtectedLayout>} />
         <Route path="*" element={<DefaultRedirect />} />
       </Routes>
     </BrowserRouter>

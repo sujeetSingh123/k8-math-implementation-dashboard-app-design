@@ -1,5 +1,6 @@
 import { ArrowLeft } from 'lucide-react'
 import { Badge } from '../../components/ui/Badge'
+import { LogComments } from '../../components/ui/LogComments'
 import { roleColors } from '../../constants/roles'
 import type { Adaptation, FidelityCheck, ImplementationLog, StudentDataRecord } from '../../types'
 
@@ -84,13 +85,27 @@ export function LogDetailView({ log, adaptation, fidelityCheck, studentDataRecor
       {studentDataRecords.length > 0 && (
         <div className="space-y-2">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Student Data</p>
-          <div className="bg-gray-50 rounded-xl p-3 space-y-1.5">
+          <div className="bg-gray-50 rounded-xl p-3 space-y-2">
             {studentDataRecords.map(r => (
-              <div key={r.id} className="flex items-center justify-between text-xs">
-                <span className="text-gray-500">{r.dataType}</span>
-                <div className="flex items-center gap-2">
-                  <Badge color="blue">{r.tier}</Badge>
-                  <span className="font-semibold text-gray-700">{r.value}</span>
+              <div key={r.id} className="text-xs">
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-gray-700 font-medium truncate max-w-[180px]">{r.measureType}</span>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <Badge color={r.instructionalSetting === 'Tier 1' ? 'green' : r.instructionalSetting === 'Tier 2' ? 'blue' : r.instructionalSetting === 'Tier 3' ? 'purple' : 'red'}>
+                      {r.instructionalSetting}
+                    </Badge>
+                    <span className="font-semibold text-gray-800">{r.currentAvg}%</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 text-gray-400">
+                  {r.baselineAvg != null && <span>Baseline: {r.baselineAvg}%</span>}
+                  {r.growth != null && (
+                    <span className={r.growth >= 0 ? 'text-emerald-600' : 'text-red-500'}>
+                      {r.growth >= 0 ? '+' : ''}{r.growth}% growth
+                    </span>
+                  )}
+                  {r.studentsCount != null && <span>{r.studentsCount} students</span>}
+                  {r.metGoal != null && <span className={r.metGoal ? 'text-emerald-600' : 'text-amber-500'}>{r.metGoal ? '✓ Goal met' : 'Goal pending'}</span>}
                 </div>
               </div>
             ))}
@@ -121,6 +136,10 @@ export function LogDetailView({ log, adaptation, fidelityCheck, studentDataRecor
           </div>
         </div>
       )}
+
+      <div className="border-t border-gray-100 pt-4">
+        <LogComments logId={log.id} />
+      </div>
     </div>
   )
 }

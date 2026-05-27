@@ -19,6 +19,8 @@ import type {
   LessonPlan,
   Incentive,
   BudgetAllocation,
+  Conversation,
+  LogComment,
 } from '../types'
 
 // ─── Schools ─────────────────────────────────────────────────────────────────
@@ -38,6 +40,7 @@ export const users: User[] = [
   { id: 'A002', name: 'James Patel', initials: 'JP', role: 'admin', schoolId: 'SCH02' },
   { id: 'C001', name: 'Rachel Stone', initials: 'RS', role: 'coach', schoolId: 'SCH01' },
   { id: 'R001', name: 'Dr. Jing Researcher', initials: 'JR', role: 'researcher', schoolId: 'SCH01' },
+  { id: 'SA001', name: 'Alex Super', initials: 'AS', role: 'super_admin', schoolId: 'DISTRICT' },
 ]
 
 export const usersByRole: Record<string, User> = {
@@ -45,6 +48,7 @@ export const usersByRole: Record<string, User> = {
   admin: users[5],
   coach: users[7],
   researcher: users[8],
+  super_admin: users[9],
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -308,26 +312,45 @@ export const trainingAttendances: TrainingAttendance[] = [
 
 // ─── Student Data Records ─────────────────────────────────────────────────────
 export const studentDataRecords: StudentDataRecord[] = [
-  { id: 'sdr-1',  teacherId: 'T001', date: daysAgo(60), dataType: 'Benchmark Score',      value: 68, tier: 'Tier 1', logId: 'log-T001-8' },
-  { id: 'sdr-2',  teacherId: 'T001', date: daysAgo(50), dataType: 'Progress Monitoring',  value: 71, tier: 'Tier 2', logId: 'log-T001-7' },
-  { id: 'sdr-3',  teacherId: 'T001', date: daysAgo(42), dataType: 'Class Average',        value: 74, tier: 'Tier 1', logId: 'log-T001-6' },
-  { id: 'sdr-4',  teacherId: 'T001', date: daysAgo(35), dataType: 'Progress Monitoring',  value: 76, tier: 'Tier 2', logId: 'log-T001-5' },
-  { id: 'sdr-5',  teacherId: 'T001', date: daysAgo(28), dataType: 'Benchmark Score',      value: 79, tier: 'Tier 1', logId: 'log-T001-4' },
-  { id: 'sdr-6',  teacherId: 'T001', date: daysAgo(21), dataType: 'Class Average',        value: 81, tier: 'Tier 1', logId: 'log-T001-3' },
-  { id: 'sdr-7',  teacherId: 'T001', date: daysAgo(14), dataType: 'Progress Monitoring',  value: 83, tier: 'Tier 3', logId: 'log-T001-2' },
-  { id: 'sdr-8',  teacherId: 'T001', date: daysAgo(7),  dataType: 'Class Average',        value: 85, tier: 'Tier 1', logId: 'log-T001-1' },
-  { id: 'sdr-9',  teacherId: 'T002', date: daysAgo(55), dataType: 'Benchmark Score',      value: 62, tier: 'Tier 2', logId: 'log-T002-7' },
-  { id: 'sdr-10', teacherId: 'T002', date: daysAgo(40), dataType: 'Progress Monitoring',  value: 65, tier: 'Tier 2', logId: 'log-T002-5' },
-  { id: 'sdr-11', teacherId: 'T002', date: daysAgo(25), dataType: 'Class Average',        value: 67, tier: 'Tier 1', logId: 'log-T002-3' },
-  { id: 'sdr-12', teacherId: 'T002', date: daysAgo(10), dataType: 'Progress Monitoring',  value: 70, tier: 'Tier 3', logId: 'log-T002-1' },
-  { id: 'sdr-13', teacherId: 'T003', date: daysAgo(45), dataType: 'Benchmark Score',      value: 88, tier: 'Tier 1', logId: 'log-T003-6' },
-  { id: 'sdr-14', teacherId: 'T003', date: daysAgo(30), dataType: 'Class Average',        value: 91, tier: 'Tier 1', logId: 'log-T003-4' },
-  { id: 'sdr-15', teacherId: 'T003', date: daysAgo(15), dataType: 'Progress Monitoring',  value: 93, tier: 'Tier 2', logId: 'log-T003-2' },
-  { id: 'sdr-16', teacherId: 'T004', date: daysAgo(50), dataType: 'Benchmark Score',      value: 55, tier: 'Tier 2', logId: 'log-T004-7' },
-  { id: 'sdr-17', teacherId: 'T004', date: daysAgo(35), dataType: 'Progress Monitoring',  value: 52, tier: 'Tier 3', logId: 'log-T004-5' },
-  { id: 'sdr-18', teacherId: 'T004', date: daysAgo(20), dataType: 'Class Average',        value: 58, tier: 'Tier 1', logId: 'log-T004-2' },
-  { id: 'sdr-19', teacherId: 'T005', date: daysAgo(45), dataType: 'Class Average',        value: 75, tier: 'Tier 1', logId: 'log-T005-6' },
-  { id: 'sdr-20', teacherId: 'T005', date: daysAgo(15), dataType: 'Progress Monitoring',  value: 79, tier: 'Tier 2', logId: 'log-T005-2' },
+  // T001 (Anna) — Lincoln K-8, Grade 4
+  { id: 'sdr-1',  teacherId: 'T001', date: daysAgo(77), week: 1,  grade: '4', instructionalSetting: 'Tier 1', measureType: 'CBM-Math Concepts & Applications', studentsCount: 22, baselineAvg: 64, currentAvg: 64, growth: 0,   medianPct: 62, atOrAboveBenchmark: 55, belowBenchmark: 45, goalPct: 80, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified', logId: 'log-T001-8' },
+  { id: 'sdr-2',  teacherId: 'T001', date: daysAgo(63), week: 3,  grade: '4', instructionalSetting: 'Tier 1', measureType: 'CBM-Math Concepts & Applications', studentsCount: 22, baselineAvg: 64, currentAvg: 69, growth: 5,   medianPct: 67, atOrAboveBenchmark: 64, belowBenchmark: 36, goalPct: 80, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified', logId: 'log-T001-7' },
+  { id: 'sdr-3',  teacherId: 'T001', date: daysAgo(49), week: 5,  grade: '4', instructionalSetting: 'Tier 1', measureType: 'CBM-Math Concepts & Applications', studentsCount: 22, baselineAvg: 64, currentAvg: 74, growth: 10,  medianPct: 72, atOrAboveBenchmark: 73, belowBenchmark: 27, goalPct: 80, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified', logId: 'log-T001-6' },
+  { id: 'sdr-4',  teacherId: 'T001', date: daysAgo(35), week: 7,  grade: '4', instructionalSetting: 'Tier 1', measureType: 'Unit Assessment',                  studentsCount: 22, baselineAvg: 64, currentAvg: 79, growth: 15,  medianPct: 77, atOrAboveBenchmark: 77, belowBenchmark: 23, goalPct: 80, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified', logId: 'log-T001-5' },
+  { id: 'sdr-5',  teacherId: 'T001', date: daysAgo(21), week: 9,  grade: '4', instructionalSetting: 'Tier 1', measureType: 'Unit Assessment',                  studentsCount: 22, baselineAvg: 64, currentAvg: 83, growth: 19,  medianPct: 81, atOrAboveBenchmark: 82, belowBenchmark: 18, goalPct: 80, metGoal: true,  dataSource: 'Teacher upload', uploadStatus: 'Verified', logId: 'log-T001-4' },
+  { id: 'sdr-6',  teacherId: 'T001', date: daysAgo(7),  week: 11, grade: '4', instructionalSetting: 'Tier 1', measureType: 'CBM-Math Concepts & Applications', studentsCount: 22, baselineAvg: 64, currentAvg: 86, growth: 22,  medianPct: 84, atOrAboveBenchmark: 86, belowBenchmark: 14, goalPct: 80, metGoal: true,  dataSource: 'Teacher upload', uploadStatus: 'Submitted', logId: 'log-T001-1' },
+  // T001 Tier 2 group
+  { id: 'sdr-7',  teacherId: 'T001', date: daysAgo(49), week: 5,  grade: '4', instructionalSetting: 'Tier 2', measureType: 'Goal-Specific Progress Monitoring', studentsCount: 6,  baselineAvg: 48, currentAvg: 56, growth: 8,   medianPct: 54, atOrAboveBenchmark: 50, belowBenchmark: 50, interventionGroupAvg: 56, comparisonGroupAvg: 74, goalPct: 70, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified', logId: 'log-T001-3' },
+  { id: 'sdr-8',  teacherId: 'T001', date: daysAgo(14), week: 10, grade: '4', instructionalSetting: 'Tier 2', measureType: 'Goal-Specific Progress Monitoring', studentsCount: 6,  baselineAvg: 48, currentAvg: 63, growth: 15,  medianPct: 61, atOrAboveBenchmark: 67, belowBenchmark: 33, interventionGroupAvg: 63, comparisonGroupAvg: 81, goalPct: 70, metGoal: true,  dataSource: 'Teacher upload', uploadStatus: 'Verified', logId: 'log-T001-2' },
+
+  // T002 (Brian) — Lincoln K-8, Grade 5
+  { id: 'sdr-9',  teacherId: 'T002', date: daysAgo(77), week: 1,  grade: '5', instructionalSetting: 'Tier 1', measureType: 'CBM-Math Computation',             studentsCount: 19, baselineAvg: 58, currentAvg: 58, growth: 0,   medianPct: 55, atOrAboveBenchmark: 47, belowBenchmark: 53, goalPct: 75, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified', logId: 'log-T002-7' },
+  { id: 'sdr-10', teacherId: 'T002', date: daysAgo(56), week: 4,  grade: '5', instructionalSetting: 'Tier 1', measureType: 'CBM-Math Computation',             studentsCount: 19, baselineAvg: 58, currentAvg: 62, growth: 4,   medianPct: 60, atOrAboveBenchmark: 53, belowBenchmark: 47, goalPct: 75, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified', logId: 'log-T002-5' },
+  { id: 'sdr-11', teacherId: 'T002', date: daysAgo(35), week: 7,  grade: '5', instructionalSetting: 'Tier 1', measureType: 'Unit Assessment',                  studentsCount: 19, baselineAvg: 58, currentAvg: 65, growth: 7,   medianPct: 63, atOrAboveBenchmark: 58, belowBenchmark: 42, goalPct: 75, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Needs review', logId: 'log-T002-3' },
+  { id: 'sdr-12', teacherId: 'T002', date: daysAgo(14), week: 10, grade: '5', instructionalSetting: 'Tier 1', measureType: 'CBM-Math Computation',             studentsCount: 19, baselineAvg: 58, currentAvg: 68, growth: 10,  medianPct: 66, atOrAboveBenchmark: 63, belowBenchmark: 37, goalPct: 75, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Submitted',    logId: 'log-T002-1' },
+  // T002 Tier 3
+  { id: 'sdr-13', teacherId: 'T002', date: daysAgo(42), week: 6,  grade: '5', instructionalSetting: 'Tier 3', measureType: 'Intensive Intervention Probe',     studentsCount: 3,  baselineAvg: 32, currentAvg: 39, growth: 7,   medianPct: 37, atOrAboveBenchmark: 33, belowBenchmark: 67, interventionGroupAvg: 39, goalPct: 60, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified' },
+
+  // T003 (Carla) — Lincoln K-8, Grade 3
+  { id: 'sdr-14', teacherId: 'T003', date: daysAgo(77), week: 1,  grade: '3', instructionalSetting: 'Tier 1', measureType: 'CBM-Math Concepts & Applications', studentsCount: 21, baselineAvg: 72, currentAvg: 72, growth: 0,   medianPct: 70, atOrAboveBenchmark: 71, belowBenchmark: 29, goalPct: 85, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified', logId: 'log-T003-6' },
+  { id: 'sdr-15', teacherId: 'T003', date: daysAgo(49), week: 5,  grade: '3', instructionalSetting: 'Tier 1', measureType: 'CBM-Math Concepts & Applications', studentsCount: 21, baselineAvg: 72, currentAvg: 81, growth: 9,   medianPct: 79, atOrAboveBenchmark: 81, belowBenchmark: 19, goalPct: 85, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified', logId: 'log-T003-4' },
+  { id: 'sdr-16', teacherId: 'T003', date: daysAgo(21), week: 9,  grade: '3', instructionalSetting: 'Tier 1', measureType: 'Unit Assessment',                  studentsCount: 21, baselineAvg: 72, currentAvg: 89, growth: 17,  medianPct: 87, atOrAboveBenchmark: 90, belowBenchmark: 10, goalPct: 85, metGoal: true,  dataSource: 'Teacher upload', uploadStatus: 'Verified', logId: 'log-T003-2' },
+  // T003 Tier 2
+  { id: 'sdr-17', teacherId: 'T003', date: daysAgo(35), week: 7,  grade: '3', instructionalSetting: 'Tier 2', measureType: 'Goal-Specific Progress Monitoring', studentsCount: 4,  baselineAvg: 52, currentAvg: 67, growth: 15,  medianPct: 65, atOrAboveBenchmark: 75, belowBenchmark: 25, interventionGroupAvg: 67, comparisonGroupAvg: 89, goalPct: 72, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified' },
+
+  // T004 (David) — Washington Middle, Grade 6
+  { id: 'sdr-18', teacherId: 'T004', date: daysAgo(77), week: 1,  grade: '6', instructionalSetting: 'Tier 1', measureType: 'CBM-Math Computation',             studentsCount: 24, baselineAvg: 51, currentAvg: 51, growth: 0,   medianPct: 49, atOrAboveBenchmark: 42, belowBenchmark: 58, goalPct: 70, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified', logId: 'log-T004-7' },
+  { id: 'sdr-19', teacherId: 'T004', date: daysAgo(49), week: 5,  grade: '6', instructionalSetting: 'Tier 1', measureType: 'CBM-Math Computation',             studentsCount: 24, baselineAvg: 51, currentAvg: 55, growth: 4,   medianPct: 53, atOrAboveBenchmark: 46, belowBenchmark: 54, goalPct: 70, metGoal: false, dataSource: 'Research team entry', uploadStatus: 'Needs review', logId: 'log-T004-5' },
+  { id: 'sdr-20', teacherId: 'T004', date: daysAgo(21), week: 9,  grade: '6', instructionalSetting: 'Tier 1', measureType: 'Unit Assessment',                  studentsCount: 24, baselineAvg: 51, currentAvg: 59, growth: 8,   medianPct: 57, atOrAboveBenchmark: 50, belowBenchmark: 50, goalPct: 70, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Submitted',    logId: 'log-T004-2' },
+  // T004 SPED
+  { id: 'sdr-21', teacherId: 'T004', date: daysAgo(42), week: 6,  grade: '6', instructionalSetting: 'SPED',   measureType: 'IEP Math Goal Probe',              studentsCount: 4,  baselineAvg: 28, currentAvg: 36, growth: 8,   medianPct: 34, atOrAboveBenchmark: 25, belowBenchmark: 75, interventionGroupAvg: 36, goalPct: 55, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified' },
+
+  // T005 (Elena) — Washington Middle, Grade 7
+  { id: 'sdr-22', teacherId: 'T005', date: daysAgo(77), week: 1,  grade: '7', instructionalSetting: 'Tier 1', measureType: 'CBM-Math Concepts & Applications', studentsCount: 20, baselineAvg: 67, currentAvg: 67, growth: 0,   medianPct: 65, atOrAboveBenchmark: 60, belowBenchmark: 40, goalPct: 80, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified', logId: 'log-T005-6' },
+  { id: 'sdr-23', teacherId: 'T005', date: daysAgo(49), week: 5,  grade: '7', instructionalSetting: 'Tier 1', measureType: 'CBM-Math Concepts & Applications', studentsCount: 20, baselineAvg: 67, currentAvg: 74, growth: 7,   medianPct: 72, atOrAboveBenchmark: 70, belowBenchmark: 30, goalPct: 80, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified' },
+  { id: 'sdr-24', teacherId: 'T005', date: daysAgo(21), week: 9,  grade: '7', instructionalSetting: 'Tier 1', measureType: 'Unit Assessment',                  studentsCount: 20, baselineAvg: 67, currentAvg: 79, growth: 12,  medianPct: 77, atOrAboveBenchmark: 75, belowBenchmark: 25, goalPct: 80, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Submitted',    logId: 'log-T005-2' },
+  // T005 Tier 2
+  { id: 'sdr-25', teacherId: 'T005', date: daysAgo(35), week: 7,  grade: '7', instructionalSetting: 'Tier 2', measureType: 'Intervention Skill Probe',         studentsCount: 5,  baselineAvg: 44, currentAvg: 54, growth: 10,  medianPct: 52, atOrAboveBenchmark: 60, belowBenchmark: 40, interventionGroupAvg: 54, comparisonGroupAvg: 74, goalPct: 68, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified' },
 ]
 
 // ─── PD Sessions ──────────────────────────────────────────────────────────────
@@ -462,6 +485,8 @@ export const mockCredentials: MockCredential[] = [
   { email: 'coach@demo.com', password: 'demo1234', userId: 'C001' },
   { email: 'admin@demo.com', password: 'demo1234', userId: 'A001' },
   { email: 'researcher@demo.com', password: 'demo1234', userId: 'R001' },
+  { email: 'superadmin@example.org', password: 'demo1234', userId: 'SA001' },
+  { email: 'superadmin@demo.com', password: 'demo1234', userId: 'SA001' },
 ]
 
 // ─── Permissions ──────────────────────────────────────────────────────────────
@@ -502,6 +527,10 @@ export const rolePermissions: RolePermissions[] = [
     role: 'researcher',
     permissionIds: ['p_view_logs', 'p_view_fidelity', 'p_export_data', 'p_view_student_data', 'p_view_reports', 'p_generate_reports'],
   },
+  {
+    role: 'super_admin',
+    permissionIds: permissions.map(p => p.id),
+  },
 ]
 
 // ─── Organization Members ─────────────────────────────────────────────────────
@@ -515,6 +544,7 @@ export const orgMembers: OrgMember[] = [
   { id: 'A002', name: 'James Patel', email: 'james.patel@example.org', initials: 'JP', role: 'admin', schoolId: 'SCH02', department: 'Assistant Principal', status: 'active', joinedAt: '2021-08-01' },
   { id: 'C001', name: 'Rachel Stone', email: 'rachel.stone@example.org', initials: 'RS', role: 'coach', schoolId: 'SCH01', department: 'Implementation Coach', status: 'active', joinedAt: '2020-08-01' },
   { id: 'R001', name: 'Dr. Jing Researcher', email: 'researcher@example.org', initials: 'JR', role: 'researcher', schoolId: 'SCH01', department: 'Research Team', status: 'active', joinedAt: '2022-03-14' },
+  { id: 'SA001', name: 'Alex Super', email: 'superadmin@example.org', initials: 'AS', role: 'super_admin', schoolId: 'DISTRICT', department: 'District Office', status: 'active', joinedAt: '2020-01-01' },
 ]
 
 // ─── Lesson Plans ──────────────────────────────────────────────────────────────
@@ -553,6 +583,67 @@ export const lessonPlans: LessonPlan[] = [
     implementationStrategy: 'Think-aloud', tier: 'Tier 2', plannedDurationMinutes: 30,
     goal: 'Help students identify common subtraction errors',
     status: 'missed', createdAt: '2026-05-20T08:00:00Z',
+  },
+]
+
+// ─── Log Comments ─────────────────────────────────────────────────────────────
+export const logComments: LogComment[] = [
+  { id: 'lc-1', logId: 'log-T001-1', authorId: 'C001', authorName: 'Rachel Stone',        authorRole: 'coach',      body: 'Strong concrete phase this session, Anna. The base-10 block work looked excellent.',                                        createdAt: '2026-05-22T10:00:00Z' },
+  { id: 'lc-2', logId: 'log-T001-1', authorId: 'T001', authorName: 'Anna Carter',          authorRole: 'teacher',    body: 'Thanks Rachel! Students were noticeably more engaged — I think the smaller group size helped.',                            createdAt: '2026-05-22T11:30:00Z' },
+  { id: 'lc-3', logId: 'log-T001-2', authorId: 'C001', authorName: 'Rachel Stone',        authorRole: 'coach',      body: "Dosage was a bit short this session — let's talk about pacing in our next coaching meeting.",                            createdAt: '2026-05-20T09:15:00Z' },
+  { id: 'lc-4', logId: 'log-T001-3', authorId: 'R001', authorName: 'Dr. Jing Researcher', authorRole: 'researcher', body: 'Interesting adaptation here. The schema-based approach aligns closely with our FRAME-IS study hypothesis.',               createdAt: '2026-05-19T14:00:00Z' },
+  { id: 'lc-5', logId: 'log-T001-3', authorId: 'T001', authorName: 'Anna Carter',          authorRole: 'teacher',    body: 'Happy to share more detail! The students really responded well to the visual schema cards.',                              createdAt: '2026-05-19T15:10:00Z' },
+  { id: 'lc-6', logId: 'log-T002-1', authorId: 'C001', authorName: 'Rachel Stone',        authorRole: 'coach',      body: 'Brian, great improvement in lesson completion rate! Explicit modeling really shows in your fidelity scores.',             createdAt: '2026-05-21T08:00:00Z' },
+  { id: 'lc-7', logId: 'log-T003-2', authorId: 'R001', authorName: 'Dr. Jing Researcher', authorRole: 'researcher', body: 'Carla, your Tier 3 adaptation documentation is exactly what the study needs. Thank you for the level of detail.',       createdAt: '2026-05-18T15:00:00Z' },
+  { id: 'lc-8', logId: 'log-T003-2', authorId: 'C001', authorName: 'Rachel Stone',        authorRole: 'coach',      body: 'Agreed — Carla this is a model entry. Would you mind sharing this approach with the rest of the caseload team?',       createdAt: '2026-05-18T16:30:00Z' },
+]
+
+// ─── Conversations ────────────────────────────────────────────────────────────
+export const conversations: Conversation[] = [
+  {
+    id: 'conv-1', participantIds: ['T001', 'C001'], createdAt: '2026-05-20T09:00:00Z',
+    messages: [
+      { id: 'dm-1',  conversationId: 'conv-1', senderId: 'C001', body: 'Hi Anna! How did the CRA lesson go today?',                                     createdAt: '2026-05-20T09:00:00Z', readAt: '2026-05-20T09:05:00Z' },
+      { id: 'dm-2',  conversationId: 'conv-1', senderId: 'T001', body: 'It went really well! Students responded well to the concrete phase.',            createdAt: '2026-05-20T09:10:00Z', readAt: '2026-05-20T09:15:00Z' },
+      { id: 'dm-3',  conversationId: 'conv-1', senderId: 'C001', body: 'Great to hear! Did you manage to complete the full lesson on time?',             createdAt: '2026-05-21T08:30:00Z' },
+    ],
+  },
+  {
+    id: 'conv-2', participantIds: ['T002', 'C001'], createdAt: '2026-05-21T10:00:00Z',
+    messages: [
+      { id: 'dm-4',  conversationId: 'conv-2', senderId: 'T002', body: 'Rachel, I have a question about Tier 2 grouping for next week.',                createdAt: '2026-05-21T10:00:00Z', readAt: '2026-05-21T10:05:00Z' },
+      { id: 'dm-5',  conversationId: 'conv-2', senderId: 'C001', body: 'Of course! What are you thinking about?',                                        createdAt: '2026-05-21T10:30:00Z', readAt: '2026-05-21T11:00:00Z' },
+      { id: 'dm-6',  conversationId: 'conv-2', senderId: 'T002', body: 'I want to split the 5 students by error type — is that okay per MTSS guidelines?', createdAt: '2026-05-21T11:05:00Z' },
+    ],
+  },
+  {
+    id: 'conv-3', participantIds: ['C001', 'A001'], createdAt: '2026-05-22T14:00:00Z',
+    messages: [
+      { id: 'dm-7',  conversationId: 'conv-3', senderId: 'A001', body: 'Rachel, can you share the Q2 fidelity summary for Lincoln K-8?',                createdAt: '2026-05-22T14:00:00Z', readAt: '2026-05-22T14:10:00Z' },
+      { id: 'dm-8',  conversationId: 'conv-3', senderId: 'C001', body: "Sure! I'll have it ready by end of day.",                                        createdAt: '2026-05-22T14:15:00Z', readAt: '2026-05-22T14:30:00Z' },
+      { id: 'dm-9',  conversationId: 'conv-3', senderId: 'A001', body: 'Perfect, thank you. Please include the per-teacher breakdown too.',              createdAt: '2026-05-22T14:32:00Z' },
+    ],
+  },
+  {
+    id: 'conv-4', participantIds: ['R001', 'A001'], createdAt: '2026-05-22T16:00:00Z',
+    messages: [
+      { id: 'dm-10', conversationId: 'conv-4', senderId: 'R001', body: "Monica, I'd like to schedule a data review meeting. Are you available next week?", createdAt: '2026-05-22T16:00:00Z', readAt: '2026-05-22T16:20:00Z' },
+      { id: 'dm-11', conversationId: 'conv-4', senderId: 'A001', body: 'Absolutely! Tuesday or Thursday works for me.',                                  createdAt: '2026-05-22T16:30:00Z', readAt: '2026-05-22T16:35:00Z' },
+      { id: 'dm-12', conversationId: 'conv-4', senderId: 'R001', body: "Let's do Tuesday at 2pm. I'll send the calendar invite.",                        createdAt: '2026-05-22T16:45:00Z', readAt: '2026-05-22T16:50:00Z' },
+    ],
+  },
+  {
+    id: 'conv-5', participantIds: ['T003', 'A001'], createdAt: '2026-05-23T08:00:00Z',
+    messages: [
+      { id: 'dm-13', conversationId: 'conv-5', senderId: 'T003', body: 'Monica, could I request a classroom aide for my Tier 3 group on Wednesdays?',   createdAt: '2026-05-23T08:00:00Z', readAt: '2026-05-23T08:30:00Z' },
+      { id: 'dm-14', conversationId: 'conv-5', senderId: 'A001', body: "Good idea, Carla. Let me check staffing. I'll get back to you by Friday.",      createdAt: '2026-05-23T09:00:00Z' },
+    ],
+  },
+  {
+    id: 'conv-6', participantIds: ['T001', 'R001'], createdAt: '2026-05-23T10:00:00Z',
+    messages: [
+      { id: 'dm-15', conversationId: 'conv-6', senderId: 'R001', body: 'Anna, your implementation logs have been really detailed — would you be open to a brief interview for our study?', createdAt: '2026-05-23T10:00:00Z' },
+    ],
   },
 ]
 

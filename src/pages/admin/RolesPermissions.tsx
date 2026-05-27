@@ -10,6 +10,7 @@ const roleDescriptions: Record<Role, string> = {
   coach: 'Instructional coaches supporting teachers',
   admin: 'School and district administrators',
   researcher: 'External researchers and data analysts',
+  super_admin: 'District-level super administrators',
 }
 
 const permissionGates: Record<string, string> = {

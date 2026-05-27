@@ -1,116 +1,57 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useState, useMemo } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts'
-import { TrendingUp, TrendingDown, BarChart2, Upload, Plus } from 'lucide-react'
+import { TrendingUp, TrendingDown, BarChart2, Plus, CheckCircle, AlertCircle } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { Card } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
 import { Button } from '../../components/ui/Button'
-import { Modal } from '../../components/ui/Modal'
 import { Badge } from '../../components/ui/Badge'
-import { toast } from '../../store/useToastStore'
 import { roleColors } from '../../constants/roles'
-import type { StudentDataRecord } from '../../types'
+import { StudentDataUploadModal } from './StudentDataUploadModal'
 
 const roleColor = roleColors.teacher
-
-type DataTypeOption = StudentDataRecord['dataType']
-const DATA_TYPES: DataTypeOption[] = ['Class Average', 'Progress Monitoring', 'Benchmark Score']
-const DATA_TYPE_COLORS: Record<DataTypeOption, string> = {
-  'Class Average': '#10B981',
-  'Progress Monitoring': '#3B82F6',
-  'Benchmark Score': '#F59E0B',
-}
 
 const tierBadge: Record<string, 'blue' | 'green' | 'purple' | 'red'> = {
   'Tier 1': 'green', 'Tier 2': 'blue', 'Tier 3': 'purple', 'SPED': 'red',
 }
 
-type FormData = {
-  dataType: DataTypeOption
-  value: number
-  date: string
-  tier: string
-}
-
-function DataUploadModal({ onClose }: { onClose: () => void }) {
-  const { currentUser, addStudentDataRecord } = useAppStore()
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-    defaultValues: { dataType: 'Class Average', value: 0, date: new Date().toISOString().split('T')[0], tier: 'Tier 1' },
-  })
-
-  const onSubmit = (data: FormData) => {
-    const record: StudentDataRecord = {
-      id: `sdr-new-${Date.now()}`,
-      teacherId: currentUser.id,
-      date: data.date,
-      dataType: data.dataType,
-      value: Number(data.value),
-      tier: data.tier,
-    }
-    addStudentDataRecord(record)
-    toast.success('Student data record saved!')
-    onClose()
-  }
-
-  return (
-    <Modal open onClose={onClose} title="Upload Student Data">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <label className="text-xs font-medium text-gray-600 block mb-1">Data Type</label>
-          <select {...register('dataType', { required: true })} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300">
-            {DATA_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="text-xs font-medium text-gray-600 block mb-1">Tier</label>
-          <select {...register('tier', { required: true })} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300">
-            {['Tier 1', 'Tier 2', 'Tier 3', 'SPED'].map(t => <option key={t} value={t}>{t}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="text-xs font-medium text-gray-600 block mb-1">Score (0–100)</label>
-          <input type="number" min={0} max={100} step={0.1}
-            {...register('value', { required: true, min: 0, max: 100 })}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300" />
-          {errors.value && <p className="text-xs text-red-500 mt-1">Enter a score between 0 and 100.</p>}
-        </div>
-        <div>
-          <label className="text-xs font-medium text-gray-600 block mb-1">Date</label>
-          <input type="date" {...register('date', { required: true })}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300" />
-        </div>
-        <div className="flex gap-2 pt-1">
-          <Button roleColor={roleColor} type="submit"><Upload size={14} />Save Record</Button>
-          <Button variant="ghost" roleColor={roleColor} onClick={onClose}>Cancel</Button>
-        </div>
-      </form>
-    </Modal>
-  )
-}
+const statusColor = (s?: string) =>
+  s === 'Verified' ? 'green' : s === 'Submitted' ? 'blue' : 'amber'
 
 export function StudentData() {
   const { currentUser, studentDataRecords } = useAppStore()
   const [uploadOpen, setUploadOpen] = useState(false)
+  const [tierFilter, setTierFilter] = useState<string>('all')
 
-  const myRecords = studentDataRecords
-    .filter(r => r.teacherId === currentUser.id)
-    .sort((a, b) => a.date.localeCompare(b.date))
+  const myRecords = useMemo(() =>
+    studentDataRecords
+      .filter(r => r.teacherId === currentUser.id)
+      .sort((a, b) => a.date.localeCompare(b.date)),
+    [studentDataRecords, currentUser.id]
+  )
 
-  const latestScore = myRecords.length > 0 ? myRecords[myRecords.length - 1].value : null
-  const prevScore = myRecords.length > 1 ? myRecords[myRecords.length - 2].value : null
-  const trend = latestScore !== null && prevScore !== null ? latestScore - prevScore : null
+  const filtered = tierFilter === 'all' ? myRecords : myRecords.filter(r => r.instructionalSetting === tierFilter)
 
-  const chartData = myRecords.map(r => ({
-    date: new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    [r.dataType]: r.value,
-  })).reduce<Record<string, string | number>[]>((acc, curr) => {
-    const existing = acc.find(d => d.date === curr.date)
-    if (existing) { return acc.map(d => d.date === curr.date ? { ...d, ...curr } : d) }
-    return [...acc, curr]
-  }, [])
+  const latest = filtered.length > 0 ? filtered[filtered.length - 1] : null
+  const prev = filtered.length > 1 ? filtered[filtered.length - 2] : null
+  const trend = latest && prev ? latest.currentAvg - prev.currentAvg : null
+  const avgGrowth = myRecords.length > 0 ? +(myRecords.reduce((s, r) => s + (r.growth ?? 0), 0) / myRecords.length).toFixed(1) : 0
+  const goalsMet = myRecords.filter(r => r.metGoal).length
 
-  const recent = [...myRecords].reverse().slice(0, 10)
+  const chartData = useMemo(() => {
+    const byDate: Record<string, Record<string, number>> = {}
+    filtered.forEach(r => {
+      const label = new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      if (!byDate[label]) byDate[label] = { date: label as unknown as number }
+      byDate[label][r.instructionalSetting] = r.currentAvg
+    })
+    return Object.values(byDate)
+  }, [filtered])
+
+  const recent = [...myRecords].reverse().slice(0, 12)
+
+  const tiers = ['Tier 1', 'Tier 2', 'Tier 3', 'SPED'] as const
+  const tierLineColors: Record<string, string> = { 'Tier 1': '#10B981', 'Tier 2': '#3B82F6', 'Tier 3': '#8B5CF6', 'SPED': '#EF4444' }
 
   return (
     <div className="space-y-4">
@@ -121,31 +62,32 @@ export function StudentData() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard
-          label="Latest Score"
-          value={latestScore !== null ? latestScore.toString() : '—'}
-          sub={myRecords.length > 0 ? myRecords[myRecords.length - 1].dataType : 'No data yet'}
-          icon={<BarChart2 size={18} />} iconColor={roleColor}
-        />
-        <StatCard
-          label="Score Trend"
-          value={trend !== null ? `${trend > 0 ? '+' : ''}${trend.toFixed(1)}` : '—'}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <StatCard label="Current Avg %" value={latest ? `${latest.currentAvg}%` : '—'}
+          sub={latest ? latest.instructionalSetting : 'No data yet'}
+          icon={<BarChart2 size={18} />} iconColor={roleColor} />
+        <StatCard label="Trend" value={trend !== null ? `${trend > 0 ? '+' : ''}${trend.toFixed(1)}%` : '—'}
           sub="vs previous entry"
           icon={trend !== null && trend >= 0 ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
-          iconColor={trend !== null && trend >= 0 ? '#10B981' : '#EF4444'}
-        />
-        <StatCard
-          label="Entries Logged"
-          value={myRecords.length}
-          sub="Total data points"
-          icon={<Upload size={18} />} iconColor={roleColor}
-        />
+          iconColor={trend !== null && trend >= 0 ? '#10B981' : '#EF4444'} />
+        <StatCard label="Avg Growth" value={`+${avgGrowth}%`} sub="from baseline" iconColor={roleColor} />
+        <StatCard label="Goals Met" value={String(goalsMet)} sub={`of ${myRecords.length} records`}
+          icon={<CheckCircle size={18} />} iconColor="#10B981" />
+      </div>
+
+      <div className="flex gap-1.5 flex-wrap">
+        {(['all', ...tiers] as string[]).map(t => (
+          <button key={t} onClick={() => setTierFilter(t)}
+            className={`text-xs px-3 py-1.5 rounded-lg font-medium cursor-pointer transition-colors ${tierFilter !== t ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'text-white'}`}
+            style={tierFilter === t ? { backgroundColor: roleColor } : {}}>
+            {t === 'all' ? 'All Tiers' : t}
+          </button>
+        ))}
       </div>
 
       <Card>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-gray-800">Score Over Time</h2>
+          <h2 className="text-sm font-semibold text-gray-800">Current Avg % Over Time</h2>
         </div>
         {chartData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-gray-400">
@@ -157,11 +99,12 @@ export function StudentData() {
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
               <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} width={25} />
+              <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} width={28} />
               <Tooltip />
               <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
-              {DATA_TYPES.map(dt => (
-                <Line key={dt} type="monotone" dataKey={dt} stroke={DATA_TYPE_COLORS[dt]} strokeWidth={2} dot={false} connectNulls />
+              {tiers.map(t => (
+                <Line key={t} type="monotone" dataKey={t} stroke={tierLineColors[t]}
+                  strokeWidth={2} dot={false} connectNulls />
               ))}
             </LineChart>
           </ResponsiveContainer>
@@ -170,29 +113,65 @@ export function StudentData() {
 
       <Card padding="none">
         <div className="px-4 py-3 border-b border-gray-100">
-          <h2 className="text-sm font-semibold text-gray-800">Recent Uploads</h2>
+          <h2 className="text-sm font-semibold text-gray-800">Recent Records</h2>
         </div>
         {recent.length === 0 ? (
           <p className="text-sm text-gray-400 text-center py-8">No records yet.</p>
         ) : (
-          <div className="divide-y divide-gray-50">
-            {recent.map(r => (
-              <div key={r.id} className="flex items-center justify-between px-4 py-3 text-sm">
-                <div>
-                  <p className="font-medium text-gray-800">{r.dataType}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{r.date}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Badge color={tierBadge[r.tier] ?? 'gray'}>{r.tier}</Badge>
-                  <span className="font-bold text-gray-800">{r.value}</span>
-                </div>
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="text-left px-4 py-2 text-gray-400 font-semibold uppercase">Date / Wk</th>
+                  <th className="text-left px-3 py-2 text-gray-400 font-semibold uppercase hidden sm:table-cell">Measure</th>
+                  <th className="text-center px-3 py-2 text-gray-400 font-semibold uppercase">Tier</th>
+                  <th className="text-right px-3 py-2 text-gray-400 font-semibold uppercase">Baseline</th>
+                  <th className="text-right px-3 py-2 text-gray-400 font-semibold uppercase">Current</th>
+                  <th className="text-right px-3 py-2 text-gray-400 font-semibold uppercase hidden sm:table-cell">Growth</th>
+                  <th className="text-center px-3 py-2 text-gray-400 font-semibold uppercase hidden md:table-cell">Goal</th>
+                  <th className="text-center px-3 py-2 text-gray-400 font-semibold uppercase">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {recent.map(r => (
+                  <tr key={r.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-2.5">
+                      <p className="text-gray-800 font-medium">{r.date}</p>
+                      {r.week && <p className="text-gray-400">Wk {r.week}{r.grade ? ` · Gr ${r.grade}` : ''}</p>}
+                    </td>
+                    <td className="px-3 py-2.5 text-gray-500 hidden sm:table-cell max-w-[160px] truncate">{r.measureType}</td>
+                    <td className="px-3 py-2.5 text-center">
+                      <Badge color={tierBadge[r.instructionalSetting] ?? 'blue'}>{r.instructionalSetting}</Badge>
+                    </td>
+                    <td className="px-3 py-2.5 text-right text-gray-500">{r.baselineAvg != null ? `${r.baselineAvg}%` : '—'}</td>
+                    <td className="px-3 py-2.5 text-right font-bold text-gray-800">{r.currentAvg}%</td>
+                    <td className="px-3 py-2.5 text-right hidden sm:table-cell">
+                      {r.growth != null
+                        ? <span className={r.growth >= 0 ? 'text-emerald-600' : 'text-red-500'}>{r.growth >= 0 ? '+' : ''}{r.growth}%</span>
+                        : '—'}
+                    </td>
+                    <td className="px-3 py-2.5 text-center hidden md:table-cell">
+                      {r.goalPct != null && (
+                        <span className="flex items-center justify-center gap-1">
+                          {r.metGoal
+                            ? <CheckCircle size={12} className="text-emerald-500" />
+                            : <AlertCircle size={12} className="text-amber-400" />}
+                          {r.goalPct}%
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2.5 text-center">
+                      {r.uploadStatus && <Badge color={statusColor(r.uploadStatus)}>{r.uploadStatus}</Badge>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </Card>
 
-      {uploadOpen && <DataUploadModal onClose={() => setUploadOpen(false)} />}
+      {uploadOpen && <StudentDataUploadModal onClose={() => setUploadOpen(false)} />}
     </div>
   )
 }

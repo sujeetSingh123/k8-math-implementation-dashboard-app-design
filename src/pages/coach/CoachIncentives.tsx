@@ -1,78 +1,29 @@
 import { useMemo } from 'react'
-import { Award } from 'lucide-react'
+import { Award, Users, TrendingUp } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
+import { Badge } from '../../components/ui/Badge'
 import { useAppStore } from '../../store/useAppStore'
-import { users } from '../../data/mockData'
 import { roleColors } from '../../constants/roles'
-import type { Incentive, IncentiveCategory } from '../../types'
-
-const CAT_COLORS: Record<IncentiveCategory, string> = {
-  training: '#3B82F6',
-  performance: '#10B981',
-  logging: '#F59E0B',
-}
-
-const CAT_LABELS: Record<IncentiveCategory, string> = {
-  training: 'Training',
-  performance: 'Performance',
-  logging: 'Logging',
-}
-
-const PERFORMANCE_COLOR = CAT_COLORS.performance
-
-function IncentiveList({ items }: { items: Incentive[] }) {
-  if (items.length === 0) return <p className="text-sm text-gray-400 text-center py-8">No incentives yet.</p>
-  return (
-    <div className="space-y-3">
-      {items.map(inc => (
-        <div key={inc.id} className="flex items-start justify-between gap-3 pb-3 border-b border-gray-50 last:border-0 last:pb-0">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-              <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: CAT_COLORS[inc.category] }}>
-                {CAT_LABELS[inc.category]}
-              </span>
-              {'recipientRole' in inc && inc.recipientRole === 'teacher' && (
-                <span className="text-sm font-medium text-gray-800">{inc.recipientName.split(' ')[0]}</span>
-              )}
-              <span className="text-xs text-gray-400">{inc.awardedAt}</span>
-            </div>
-            <p className="text-sm text-gray-600">{inc.reason}</p>
-          </div>
-          <span className="text-base font-bold text-gray-800 flex-shrink-0">${inc.amount}</span>
-        </div>
-      ))}
-    </div>
-  )
-}
+import { calcCoachBreakdown, calcTeacherBreakdown, rateTierLabel, calcLogRate } from '../../utils/incentiveCalc'
 
 export function CoachIncentives() {
-  const { currentUser, incentives } = useAppStore()
+  const { currentUser, users, implementationLogs } = useAppStore()
   const roleColor = roleColors[currentUser.role]
 
-  const myTeachers = useMemo(() => users.filter(u => u.role === 'teacher' && u.coachId === currentUser.id), [currentUser.id])
-  const teacherIdSet = useMemo(() => new Set(myTeachers.map(t => t.id)), [myTeachers])
+  const teachers = useMemo(() => users.filter(u => u.role === 'teacher' && u.coachId === currentUser.id), [users, currentUser.id])
 
-  const myIncentives = useMemo(() =>
-    incentives.filter(i => i.recipientId === currentUser.id && i.recipientRole === 'coach').sort((a, b) => b.awardedAt.localeCompare(a.awardedAt)),
-    [incentives, currentUser.id],
+  const coachCalc = useMemo(
+    () => calcCoachBreakdown(currentUser, users, implementationLogs),
+    [currentUser, users, implementationLogs],
   )
 
-  const caseloadIncentives = useMemo(() =>
-    incentives.filter(i => i.recipientRole === 'teacher' && teacherIdSet.has(i.recipientId)).sort((a, b) => b.awardedAt.localeCompare(a.awardedAt)),
-    [incentives, teacherIdSet],
+  const teacherCalcs = useMemo(
+    () => teachers.map(t => ({ ...calcTeacherBreakdown(t, implementationLogs), logRate: calcLogRate(implementationLogs, t.id) })),
+    [teachers, implementationLogs],
   )
 
-  const myTotal = myIncentives.reduce((s, i) => s + i.amount, 0)
-
-  const teacherTotals = useMemo(() =>
-    myTeachers.map(t => ({
-      ...t,
-      total: caseloadIncentives.filter(i => i.recipientId === t.id).reduce((s, i) => s + i.amount, 0),
-      count: caseloadIncentives.filter(i => i.recipientId === t.id).length,
-    })).sort((a, b) => b.total - a.total),
-    [myTeachers, caseloadIncentives],
-  )
+  const tierColor = (r: number) => r >= 81 ? 'green' : r >= 71 ? 'blue' : r >= 60 ? 'amber' : 'red'
 
   return (
     <div className="space-y-5">
@@ -82,61 +33,89 @@ export function CoachIncentives() {
         </div>
         <div>
           <h2 className="text-lg font-bold text-gray-900">Incentives</h2>
-          <p className="text-sm text-gray-500">Your earned incentives + {myTeachers.length} caseload teacher{myTeachers.length !== 1 ? 's' : ''}</p>
+          <p className="text-sm text-gray-500">Your semester earnings · {teachers.length} teachers in caseload</p>
         </div>
       </div>
 
-      {/* My earned incentives */}
-      <div>
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">My Incentives</p>
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <StatCard label="Total Earned" value={`$${myTotal.toLocaleString()}`} color={roleColor} />
-          <StatCard label="Performance Incentives" value={`$${myTotal.toLocaleString()}`} color={PERFORMANCE_COLOR} />
-        </div>
-        <Card title="My Incentive History">
-          <IncentiveList items={myIncentives} />
-        </Card>
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+        <StatCard label="Semester Total" value={`$${coachCalc.total}`} sub="Calculated" icon={<Award size={18} />} iconColor={roleColor} />
+        <StatCard label="Base Pay" value="$100" sub="Participation" icon={<Award size={18} />} iconColor={roleColor} />
+        <StatCard label="Log Rate Bonus" value={`$${coachCalc.rateBonus}`} sub={`${coachCalc.avgLogRate}% avg rate`} icon={<TrendingUp size={18} />} iconColor={roleColor} />
       </div>
 
-      {/* Caseload teacher incentives */}
-      <div>
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Caseload Teacher Incentives</p>
-        <div className="grid lg:grid-cols-2 gap-4">
-          <Card title="Per-Teacher Summary">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left py-2 text-xs font-semibold text-gray-400 uppercase">Teacher</th>
-                    <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase">Awards</th>
-                    <th className="text-right py-2 text-xs font-semibold text-gray-400 uppercase">Total</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {teacherTotals.map(t => (
-                    <tr key={t.id} className="hover:bg-gray-50">
-                      <td className="py-2.5">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full text-white text-xs font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: roleColor }}>
-                            {t.initials}
-                          </div>
-                          <span className="font-medium text-gray-800">{t.name}</span>
-                        </div>
-                      </td>
-                      <td className="py-2.5 text-center text-gray-600">{t.count}</td>
-                      <td className="py-2.5 text-right font-semibold text-gray-800">${t.total}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      {/* My breakdown */}
+      <Card title="My Semester Breakdown">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between py-2.5 border-b border-gray-50">
+            <div>
+              <p className="text-sm font-medium text-gray-800">Base Participation Incentive</p>
+              <p className="text-xs text-gray-400">Per semester</p>
             </div>
-          </Card>
+            <span className="text-base font-bold text-gray-900">$100</span>
+          </div>
 
-          <Card title="Recent Teacher Awards">
-            <IncentiveList items={caseloadIncentives.slice(0, 6)} />
-          </Card>
+          <div className="flex items-center justify-between py-2.5 border-b border-gray-50">
+            <div className="flex items-center gap-2">
+              <div>
+                <p className="text-sm font-medium text-gray-800">Caseload Average Log Rate</p>
+                <p className="text-xs text-gray-400">{rateTierLabel(coachCalc.avgLogRate, 'coach')}</p>
+              </div>
+              <Badge color={tierColor(coachCalc.avgLogRate)}>{coachCalc.avgLogRate}%</Badge>
+            </div>
+            <span className="text-base font-bold text-gray-900">${coachCalc.rateBonus}</span>
+          </div>
+
+          <div className="flex items-center justify-between pt-2">
+            <p className="text-sm font-bold text-gray-900">Semester Total</p>
+            <span className="text-xl font-bold" style={{ color: roleColor }}>${coachCalc.total}</span>
+          </div>
         </div>
-      </div>
+        <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-500">
+          <p><strong>Log Rate Tiers (all-teacher avg):</strong> 81–100% → +$30 · 71–80% → +$20 · 60–70% → +$10</p>
+        </div>
+      </Card>
+
+      {/* Caseload teacher earnings */}
+      <Card title="Caseload Teacher Earnings">
+        <div className="flex items-center gap-2 mb-3">
+          <Users size={14} style={{ color: roleColor }} />
+          <span className="text-xs text-gray-500">Individual teacher semester projections</span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-100">
+                <th className="text-left py-2 text-xs font-semibold text-gray-400 uppercase">Teacher</th>
+                <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase">Log Rate</th>
+                <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">2-Wk Periods</th>
+                <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Base</th>
+                <th className="text-right py-2 text-xs font-semibold text-gray-400 uppercase">Total</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {teacherCalcs.map(t => (
+                <tr key={t.userId} className="hover:bg-gray-50">
+                  <td className="py-2.5 font-medium text-gray-800">{t.name}</td>
+                  <td className="py-2.5 text-center">
+                    <Badge color={tierColor(t.logRate)}>{t.logRate}%</Badge>
+                  </td>
+                  <td className="py-2.5 text-center text-gray-600 hidden sm:table-cell">{t.twoWeekPerfect} × $5</td>
+                  <td className="py-2.5 text-center text-gray-600 hidden sm:table-cell">$50</td>
+                  <td className="py-2.5 text-right font-bold text-gray-800">${t.total}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="border-t border-gray-200">
+                <td colSpan={4} className="py-2 text-xs font-semibold text-gray-400 uppercase">Caseload Total</td>
+                <td className="py-2 text-right font-bold text-gray-900">
+                  ${teacherCalcs.reduce((s, t) => s + t.total, 0)}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </Card>
     </div>
   )
 }

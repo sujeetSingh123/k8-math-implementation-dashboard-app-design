@@ -2,6 +2,8 @@ import { create } from 'zustand'
 import type {
   Role,
   User,
+  School,
+  MockCredential,
   ImplementationLog,
   Adaptation,
   FidelityCheck,
@@ -19,9 +21,13 @@ import type {
   LessonPlan,
   Incentive,
   BudgetAllocation,
+  Conversation,
+  DirectMessage,
+  LogComment,
 } from '../types'
 import {
-  users,
+  users as initialUsers,
+  schools as initialSchools,
   implementationLogs,
   adaptations,
   fidelityChecks,
@@ -29,7 +35,7 @@ import {
   feedbackItems,
   trainingAttendances,
   notifications,
-  mockCredentials,
+  mockCredentials as initialCredentials,
   rolePermissions,
   orgMembers,
   studentDataRecords,
@@ -38,7 +44,11 @@ import {
   lessonPlans,
   incentives,
   budgetAllocations,
+  conversations,
+  logComments,
 } from '../data/mockData'
+
+const defaultUser = initialUsers.find(u => u.id === 'T001')!
 
 const defaultDeterminants: Record<string, number> = {
   'Leadership Support': 72,
@@ -53,6 +63,9 @@ interface AppStore {
   isAuthenticated: boolean
   currentRole: Role
   currentUser: User
+  users: User[]
+  schools: School[]
+  credentials: MockCredential[]
   notifications: Notification[]
   implementationLogs: ImplementationLog[]
   adaptations: Adaptation[]
@@ -72,9 +85,13 @@ interface AppStore {
   pendingPlan: LessonPlan | null
   incentives: Incentive[]
   budgetAllocations: BudgetAllocation[]
+  conversations: Conversation[]
+  logComments: LogComment[]
 
   login: (email: string, password: string) => boolean
   logout: () => void
+  addSchool: (school: School) => void
+  addUser: (user: User, email: string) => void
   addLog: (log: ImplementationLog) => void
   addAdaptation: (adaptation: Adaptation) => void
   addFidelityCheck: (check: FidelityCheck) => void
@@ -101,14 +118,19 @@ interface AppStore {
   updateLessonPlan: (id: string, updates: Partial<LessonPlan>) => void
   setPendingPlan: (plan: LessonPlan | null) => void
   awardIncentive: (data: Omit<Incentive, 'id' | 'awardedAt'>) => void
+  sendDirectMessage: (conversationId: string, body: string, senderId: string) => void
+  startConversation: (userId1: string, userId2: string) => string
+  markConversationRead: (conversationId: string, userId: string) => void
+  addLogComment: (comment: LogComment) => void
 }
 
-const defaultUser = users[0]
-
-export const useAppStore = create<AppStore>((set) => ({
+export const useAppStore = create<AppStore>((set, get) => ({
   isAuthenticated: false,
   currentRole: 'teacher',
   currentUser: defaultUser,
+  users: initialUsers,
+  schools: initialSchools,
+  credentials: initialCredentials,
   notifications,
   implementationLogs,
   adaptations,
@@ -127,9 +149,12 @@ export const useAppStore = create<AppStore>((set) => ({
   pendingPlan: null,
   incentives,
   budgetAllocations,
+  conversations,
+  logComments,
 
   login: (email, password) => {
-    const cred = mockCredentials.find(
+    const { credentials, users } = get()
+    const cred = credentials.find(
       (c) => c.email.toLowerCase() === email.toLowerCase() && c.password === password,
     )
     if (!cred) return false
@@ -141,6 +166,31 @@ export const useAppStore = create<AppStore>((set) => ({
 
   logout: () =>
     set({ isAuthenticated: false, currentUser: defaultUser, currentRole: 'teacher' }),
+
+  addSchool: (school) =>
+    set((state) => ({ schools: [...state.schools, school] })),
+
+  addUser: (user, email) =>
+    set((state) => ({
+      users: [...state.users, user],
+      orgMembers: [
+        ...state.orgMembers,
+        {
+          id: user.id,
+          name: user.name,
+          email,
+          initials: user.initials,
+          role: user.role,
+          schoolId: user.schoolId,
+          status: 'active' as const,
+          joinedAt: new Date().toISOString().split('T')[0],
+        },
+      ],
+      credentials: [
+        ...state.credentials,
+        { email, password: 'demo1234', userId: user.id },
+      ],
+    })),
 
   addLog: (log) =>
     set((state) => {
@@ -338,4 +388,49 @@ export const useAppStore = create<AppStore>((set) => ({
         ...state.incentives,
       ],
     })),
+
+  sendDirectMessage: (conversationId, body, senderId) =>
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id !== conversationId ? c : {
+          ...c,
+          messages: [...c.messages, {
+            id: `dm-${Date.now()}`,
+            conversationId,
+            senderId,
+            body,
+            createdAt: new Date().toISOString(),
+          } satisfies DirectMessage],
+        }
+      ),
+    })),
+
+  startConversation: (userId1, userId2) => {
+    const existing = get().conversations.find(
+      (c) => c.participantIds.includes(userId1) && c.participantIds.includes(userId2)
+    )
+    if (existing) return existing.id
+    const id = `conv-${Date.now()}`
+    set((state) => ({
+      conversations: [...state.conversations, {
+        id, participantIds: [userId1, userId2], messages: [], createdAt: new Date().toISOString(),
+      } satisfies Conversation],
+    }))
+    return id
+  },
+
+  markConversationRead: (conversationId, userId) =>
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id !== conversationId ? c : {
+          ...c,
+          messages: c.messages.map((m) =>
+            m.senderId === userId || m.readAt ? m : { ...m, readAt: new Date().toISOString() }
+          ),
+        }
+      ),
+    })),
+
+  addLogComment: (comment) =>
+    set((state) => ({ logComments: [...state.logComments, comment] })),
 }))

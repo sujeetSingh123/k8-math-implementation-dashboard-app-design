@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { BarChart2, ClipboardList, Upload, Paperclip, X } from 'lucide-react'
+import { BarChart2, ClipboardList, Upload, Paperclip, X, MessageSquare } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button'
 import { Modal } from '../../components/ui/Modal'
 import { toast } from '../../store/useToastStore'
 import { roleColors } from '../../constants/roles'
+import { LogDetailModal } from '../shared/LogDetailModal'
 import type { ImplementationLog } from '../../types'
 
 const roleColor = roleColors.teacher
@@ -28,7 +29,8 @@ export function MyLogs() {
   const { currentUser, implementationLogs, adaptations, studentDataRecords, addStudentDataRecord } = useAppStore()
   const [filter, setFilter] = useState<CompletionFilter>('all')
   const [dataModal, setDataModal] = useState<ImplementationLog | null>(null)
-  const [dataType, setDataType] = useState('Class Average')
+  const [selectedLog, setSelectedLog] = useState<ImplementationLog | null>(null)
+  const [measureType, setMeasureType] = useState('CBM-Math Concepts & Applications')
   const [score, setScore] = useState('')
   const [attachedFile, setAttachedFile] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -40,7 +42,7 @@ export function MyLogs() {
 
   const openAdd = (log: ImplementationLog) => {
     setDataModal(log)
-    setDataType('Class Average')
+    setMeasureType('CBM-Math Concepts & Applications')
     setScore('')
     setAttachedFile(null)
   }
@@ -51,14 +53,16 @@ export function MyLogs() {
       id: `sdr-${Date.now()}`,
       teacherId: currentUser.id,
       date: dataModal.date,
-      dataType: dataType as 'Class Average' | 'Progress Monitoring' | 'Benchmark Score',
-      value: Number(score),
-      tier: dataModal.tier,
+      instructionalSetting: dataModal.tier as 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED',
+      measureType: measureType as import('../../types').MeasureType,
+      currentAvg: Number(score),
+      dataSource: 'Teacher upload',
+      uploadStatus: 'Submitted',
       logId: dataModal.id,
     })
     const msg = attachedFile
-      ? `${dataType} score recorded with file: ${attachedFile}`
-      : `${dataType} score recorded for ${dataModal.date}`
+      ? `${measureType} score recorded with file: ${attachedFile}`
+      : `${measureType} score recorded for ${dataModal.date}`
     toast.success(msg)
     setDataModal(null)
   }
@@ -101,9 +105,14 @@ export function MyLogs() {
                     <Badge color="blue">{log.tier}</Badge>
                     {log.adaptationOccurred && <Badge color="purple">Adapted</Badge>}
                   </div>
-                  <Button size="sm" variant="secondary" roleColor={roleColor} onClick={() => openAdd(log)}>
-                    <BarChart2 size={12} />Add Student Data
-                  </Button>
+                  <div className="flex gap-1.5">
+                    <Button size="sm" variant="secondary" roleColor={roleColor} onClick={() => openAdd(log)}>
+                      <BarChart2 size={12} />Add Data
+                    </Button>
+                    <Button size="sm" variant="secondary" roleColor={roleColor} onClick={() => setSelectedLog(log)}>
+                      <MessageSquare size={12} />Comments
+                    </Button>
+                  </div>
                 </div>
                 <p className="text-xs text-gray-500">
                   {log.instructionalRoutine} · {log.ebpComponent.join(', ')} · {log.implementationStrategy} · {log.durationMinutes} min
@@ -127,7 +136,8 @@ export function MyLogs() {
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {logData.map(r => (
                         <span key={r.id} className="text-xs bg-blue-50 text-blue-700 border border-blue-100 rounded-md px-2 py-0.5">
-                          {r.dataType}: <span className="font-semibold">{r.value}</span>
+                          {r.measureType}: <span className="font-semibold">{r.currentAvg}%</span>
+                          {r.growth != null && <span className={r.growth >= 0 ? ' text-emerald-600' : ' text-red-500'}> ({r.growth >= 0 ? '+' : ''}{r.growth}%)</span>}
                         </span>
                       ))}
                     </div>
@@ -139,6 +149,8 @@ export function MyLogs() {
         </div>
       )}
 
+      {selectedLog && <LogDetailModal log={selectedLog} onClose={() => setSelectedLog(null)} />}
+
       {dataModal && (
         <Modal open onClose={() => setDataModal(null)} title={`Add Student Data — ${dataModal.date}`}>
           <div className="space-y-4">
@@ -147,18 +159,22 @@ export function MyLogs() {
               {' · '}{dataModal.tier}{' · '}{dataModal.durationMinutes} min
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1.5">Data Type</label>
-              <select value={dataType} onChange={e => setDataType(e.target.value)}
+              <label className="text-xs font-medium text-gray-600 block mb-1.5">Measure Type</label>
+              <select value={measureType} onChange={e => setMeasureType(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300">
-                <option>Class Average</option>
-                <option>Progress Monitoring</option>
-                <option>Benchmark Score</option>
+                <option>CBM-Math Concepts &amp; Applications</option>
+                <option>Unit Assessment</option>
+                <option>CBM-Math Computation</option>
+                <option>Goal-Specific Progress Monitoring</option>
+                <option>IEP Math Goal Probe</option>
+                <option>Intervention Skill Probe</option>
+                <option>Intensive Intervention Probe</option>
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1.5">Score / Value</label>
+              <label className="text-xs font-medium text-gray-600 block mb-1.5">Current Class Avg %</label>
               <input type="number" value={score} onChange={e => setScore(e.target.value)}
-                placeholder="Enter score…"
+                placeholder="Enter score (0–100)…" min={0} max={100} step={0.1}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300" />
             </div>
             <div>

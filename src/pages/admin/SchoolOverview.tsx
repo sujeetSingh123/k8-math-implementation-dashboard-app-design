@@ -9,6 +9,7 @@ import { Modal } from '../../components/ui/Modal'
 import { Button } from '../../components/ui/Button'
 import { toast } from '../../store/useToastStore'
 import { roleColors } from '../../constants/roles'
+import { useAppStore } from '../../store/useAppStore'
 
 const roleColor = roleColors.admin
 
@@ -21,11 +22,16 @@ type SchoolRow = {
   mtssStatus: 'Sustaining' | 'Implementing' | 'Needs Support'
 }
 
-const schoolData: SchoolRow[] = [
+const allSchoolData: SchoolRow[] = [
   { school: 'Lincoln Elementary', teachers: 12, logRate: '78%', avgFidelity: '3.9', adaptations: 18, mtssStatus: 'Sustaining' },
   { school: 'Washington Elementary', teachers: 9, logRate: '71%', avgFidelity: '3.7', adaptations: 14, mtssStatus: 'Implementing' },
   { school: 'Jefferson Elementary', teachers: 8, logRate: '65%', avgFidelity: '3.2', adaptations: 22, mtssStatus: 'Needs Support' },
 ]
+
+const schoolIdToRow: Record<string, SchoolRow> = {
+  SCH01: allSchoolData[0],
+  SCH02: allSchoolData[1],
+}
 
 const schoolDetail: Record<string, { trend: { month: string; fidelity: number }[]; notes: string }> = {
   'Lincoln Elementary': {
@@ -47,6 +53,9 @@ const statusColors: Record<string, 'green' | 'blue' | 'amber'> = {
 }
 
 export function SchoolOverview() {
+  const { currentUser, schools } = useAppStore()
+  const mySchool = schools.find(s => s.id === currentUser.schoolId)
+  const schoolData = mySchool ? [schoolIdToRow[mySchool.id] ?? allSchoolData[0]] : allSchoolData.slice(0, 1)
   const [selected, setSelected] = useState<SchoolRow | null>(null)
 
   const columns = [
@@ -70,22 +79,22 @@ export function SchoolOverview() {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-        <div className="cursor-pointer" onClick={() => toast.info('3 schools active in District 1 for 2025–26.')}>
-          <StatCard label="Schools" value="3" sub="All in District 1" icon={<Building2 size={18} />} iconColor={roleColor} />
+        <div className="cursor-pointer" onClick={() => toast.info(`${mySchool?.name ?? 'Your school'} — active for 2025–26.`)}>
+          <StatCard label="School" value={mySchool?.name ?? '—'} sub={mySchool?.id ?? ''} icon={<Building2 size={18} />} iconColor={roleColor} />
         </div>
-        <div className="cursor-pointer" onClick={() => toast.info('District log rate is up 3% vs. last month.')}>
-          <StatCard label="District Log Rate" value="74%" sub="+3% from last month" icon={<TrendingUp size={18} />} iconColor={roleColor} />
+        <div className="cursor-pointer" onClick={() => toast.info('Log rate is up 3% vs. last month.')}>
+          <StatCard label="Log Rate" value={schoolData[0]?.logRate ?? '—'} sub="+3% from last month" icon={<TrendingUp size={18} />} iconColor={roleColor} />
         </div>
         <div className="cursor-pointer" onClick={() => toast.info('87% of staff attended at least one PD session this year.')}>
-          <StatCard label="Training Participation" value="87%" sub="Across all schools" icon={<GraduationCap size={18} />} iconColor={roleColor} />
+          <StatCard label="Training" value="87%" sub="Participation rate" icon={<GraduationCap size={18} />} iconColor={roleColor} />
         </div>
-        <div className="cursor-pointer" onClick={() => toast.info('District average fidelity is 3.8 / 5.0 across all dimensions.')}>
-          <StatCard label="Avg Fidelity" value="3.8" sub="District-wide" icon={<CheckSquare size={18} />} iconColor={roleColor} />
+        <div className="cursor-pointer" onClick={() => toast.info(`Average fidelity: ${schoolData[0]?.avgFidelity ?? '—'} / 5.0`)}>
+          <StatCard label="Avg Fidelity" value={schoolData[0]?.avgFidelity ?? '—'} sub="School average" icon={<CheckSquare size={18} />} iconColor={roleColor} />
         </div>
       </div>
       <Card padding="none">
         <div className="px-4 sm:px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-800">School Summary</h2>
+          <h2 className="text-sm font-semibold text-gray-800">School Summary — {mySchool?.name ?? 'Your School'}</h2>
           <Button size="sm" variant="secondary" roleColor={roleColor} onClick={() => toast.info('Generating district report PDF…')}>
             Export Report
           </Button>
