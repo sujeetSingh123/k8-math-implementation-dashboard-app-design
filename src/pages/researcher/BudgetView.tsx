@@ -26,7 +26,7 @@ const CAT_LABELS: Record<IncentiveCategory, string> = {
 
 
 export function BudgetView() {
-  const { currentUser, users, schools, implementationLogs, incentives, budgetAllocations, awardIncentive } = useAppStore()
+  const { currentUser, users, implementationLogs, incentives, budgetAllocations, awardIncentive } = useAppStore()
   const [showModal, setShowModal] = useState(false)
   const [preselectedId, setPreselectedId] = useState<string | undefined>()
   const [preselectedRole, setPreselectedRole] = useState<'teacher' | 'coach'>('teacher')

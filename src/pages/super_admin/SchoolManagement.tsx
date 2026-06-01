@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Building2, Plus, Users } from 'lucide-react'
+import { Building2, Plus } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'

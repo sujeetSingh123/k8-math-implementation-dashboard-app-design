@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Award, CheckCircle, TrendingUp, Calendar, Clock } from 'lucide-react'
+import { Award, CheckCircle, TrendingUp, Clock } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
 import { Badge } from '../../components/ui/Badge'
