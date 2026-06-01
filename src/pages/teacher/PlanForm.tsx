@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { Button } from '../../components/ui/Button'
 import { ChipSelector } from '../../components/ui/ChipSelector'
 import { roleColors } from '../../constants/roles'
-import { instructionalRoutines, ebpComponents, implementationStrategies, implementationTiers } from '../../data/mockData'
+import { instructionalRoutines, ebpComponents, implementationStrategies, implementationTiers, instructionalSettings } from '../../data/mockData'
 import type { LessonPlan } from '../../types'
 
 const roleColor = roleColors.teacher
@@ -25,6 +25,7 @@ type Props = {
 
 export function PlanForm({ teacherId, onSave, onCancel }: Props) {
   const [tierChips, setTierChips] = useState<string[]>(['Tier 1'])
+  const [settingChips, setSettingChips] = useState<string[]>(['General Education'])
   const [ebpChips, setEbpChips] = useState<string[]>([ebpComponents[0]])
   const { register, handleSubmit } = useForm<PlanFormData>({
     defaultValues: {
@@ -46,6 +47,7 @@ export function PlanForm({ teacherId, onSave, onCancel }: Props) {
       ebpComponent: ebpChips,
       implementationStrategy: data.implementationStrategy,
       tier: (tierChips[0] ?? 'Tier 1') as LessonPlan['tier'],
+      instructionalSetting: (settingChips[0] ?? 'General Education') as LessonPlan['instructionalSetting'],
       plannedDurationMinutes: Number(data.plannedDurationMinutes),
       goal: data.goal || undefined,
     })
@@ -80,8 +82,12 @@ export function PlanForm({ teacherId, onSave, onCancel }: Props) {
         </div>
       </div>
       <div>
-        <label className="text-xs font-medium text-gray-600 block mb-1.5">Tier</label>
+        <label className="text-xs font-medium text-gray-600 block mb-1.5">MTSS Tier</label>
         <ChipSelector options={implementationTiers} value={tierChips} onChange={setTierChips} roleColor={roleColor} />
+      </div>
+      <div>
+        <label className="text-xs font-medium text-gray-600 block mb-1.5">Instructional Setting</label>
+        <ChipSelector options={instructionalSettings} value={settingChips} onChange={setSettingChips} roleColor={roleColor} />
       </div>
       <div>
         <label className="text-xs font-medium text-gray-600 block mb-1.5">EBP Component</label>

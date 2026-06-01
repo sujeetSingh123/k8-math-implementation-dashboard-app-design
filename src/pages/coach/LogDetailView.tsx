@@ -91,8 +91,8 @@ export function LogDetailView({ log, adaptation, fidelityCheck, studentDataRecor
                 <div className="flex items-center justify-between mb-0.5">
                   <span className="text-gray-700 font-medium truncate max-w-[180px]">{r.measureType}</span>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <Badge color={r.instructionalSetting === 'Tier 1' ? 'green' : r.instructionalSetting === 'Tier 2' ? 'blue' : r.instructionalSetting === 'Tier 3' ? 'purple' : 'red'}>
-                      {r.instructionalSetting}
+                    <Badge color={r.mtssTier === 'Tier 1' ? 'green' : r.mtssTier === 'Tier 2' ? 'blue' : r.mtssTier === 'Tier 3' ? 'purple' : 'red'}>
+                      {r.mtssTier}
                     </Badge>
                     <span className="font-semibold text-gray-800">{r.currentAvg}%</span>
                   </div>

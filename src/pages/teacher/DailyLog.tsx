@@ -7,7 +7,7 @@ import { Button } from '../../components/ui/Button'
 import { ChipSelector } from '../../components/ui/ChipSelector'
 import { toast } from '../../store/useToastStore'
 import { roleColors } from '../../constants/roles'
-import { instructionalRoutines, ebpComponents, implementationStrategies, implementationTiers } from '../../data/mockData'
+import { instructionalRoutines, ebpComponents, implementationStrategies, implementationTiers, instructionalSettings } from '../../data/mockData'
 import { FidelitySection } from './FidelitySection'
 import { AdaptationSubForm } from './AdaptationSubForm'
 import type { CoreScores, ExtraScores } from './FidelitySection'
@@ -34,6 +34,7 @@ export function DailyLog() {
   const lastLog = myLogs[0]
 
   const [tierChips, setTierChips] = useState<string[]>(() => pendingPlan ? [pendingPlan.tier] : [])
+  const [settingChips, setSettingChips] = useState<string[]>(() => pendingPlan?.instructionalSetting ? [pendingPlan.instructionalSetting] : ['General Education'])
   const [ebpChips, setEbpChips] = useState<string[]>(() => pendingPlan ? pendingPlan.ebpComponent : lastLog?.ebpComponent ?? ['CRA'])
   const [whatModified, setWhatModified] = useState<string[]>([])
   const [reasons, setReasons] = useState<string[]>([])
@@ -76,6 +77,7 @@ export function DailyLog() {
       instructionalRoutine: data.instructionalRoutine, ebpComponent: ebpChips,
       implementationStrategy: data.implementationStrategy,
       tier: (tierChips[0] ?? 'Tier 1') as ImplementationLog['tier'],
+      instructionalSetting: (settingChips[0] ?? 'General Education') as ImplementationLog['instructionalSetting'],
       durationMinutes: Number(data.durationMinutes), lessonCompletion: data.lessonCompletion,
       adaptationOccurred, notes: data.notes,
     }
@@ -109,6 +111,7 @@ export function DailyLog() {
 
     reset()
     setTierChips([])
+    setSettingChips(['General Education'])
     setEbpChips(['CRA'])
     setWhatModified([])
     setReasons([])
@@ -157,8 +160,12 @@ export function DailyLog() {
               </div>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1.5">Tier</label>
+              <label className="text-xs font-medium text-gray-600 block mb-1.5">MTSS Tier</label>
               <ChipSelector options={implementationTiers} value={tierChips} onChange={setTierChips} roleColor={roleColor} />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-600 block mb-1.5">Instructional Setting</label>
+              <ChipSelector options={instructionalSettings} value={settingChips} onChange={setSettingChips} roleColor={roleColor} />
             </div>
             <div>
               <label className="text-xs font-medium text-gray-600 block mb-1.5">EBP Component</label>

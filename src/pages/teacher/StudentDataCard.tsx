@@ -36,7 +36,7 @@ export function StudentDataCard({ logId, defaultTier, defaultDate }: {
       id: `sdr-${Date.now()}`,
       teacherId: currentUser.id,
       date: defaultDate ?? new Date().toISOString().split('T')[0],
-      instructionalSetting: defaultTier ?? 'Tier 1',
+      mtssTier: defaultTier ?? 'Tier 1',
       measureType,
       currentAvg: Number(currentAvg),
       dataSource: 'Teacher upload',

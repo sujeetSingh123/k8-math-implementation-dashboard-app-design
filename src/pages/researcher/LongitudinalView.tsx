@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend,
   BarChart, Bar,
 } from 'recharts'
 import { TrendingUp } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
+import { Modal } from '../../components/ui/Modal'
 import { StatCard } from '../../components/ui/StatCard'
 import { monthlyFidelityTrend, schoolFidelityTrends, schools } from '../../data/mockData'
 import { roleColors } from '../../constants/roles'
@@ -57,6 +59,17 @@ const growth = +(districtLast - districtFirst).toFixed(2)
 const schoolKeys = Object.keys(schoolFidelityTrends)
 
 export function LongitudinalView() {
+  const [selectedSchoolId, setSelectedSchoolId] = useState<string | null>(null)
+
+  const selectedTrend = selectedSchoolId ? schoolFidelityTrends[selectedSchoolId] : null
+  const schoolTrendChartData = selectedTrend
+    ? monthlyFidelityTrend.map((m, i) => ({
+        month: m.month,
+        ...Object.fromEntries(dims.map(d => [d.charAt(0).toUpperCase() + d.slice(1), selectedTrend[i][d]])),
+        Composite: composite(selectedTrend[i]),
+      }))
+    : []
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
@@ -143,11 +156,11 @@ export function LongitudinalView() {
                   const comp = composite(last)
                   const g = +(composite(last) - composite(first)).toFixed(2)
                   return (
-                    <tr key={id} className="hover:bg-gray-50">
+                    <tr key={id} className="hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedSchoolId(id)}>
                       <td className="py-2.5 font-medium text-gray-800">
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: schoolMeta[id].color }} />
-                          {schoolMeta[id].name}
+                          <span className="hover:underline">{schoolMeta[id].name}</span>
                         </div>
                       </td>
                       <td className="py-2.5 text-center">
@@ -191,6 +204,34 @@ export function LongitudinalView() {
           </div>
         </Card>
       </div>
+
+      {selectedSchoolId && selectedTrend && (
+        <Modal open onClose={() => setSelectedSchoolId(null)} title={`${schoolMeta[selectedSchoolId].name} — Monthly Breakdown`} size="lg">
+          <div className="space-y-4">
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+              {dims.map(d => (
+                <div key={d} className="bg-gray-50 rounded-lg px-3 py-2 text-center">
+                  <p className="text-xs text-gray-400 capitalize">{d}</p>
+                  <p className="text-base font-bold" style={{ color: dimColors[d] }}>{selectedTrend[8][d].toFixed(1)}</p>
+                </div>
+              ))}
+            </div>
+            <ResponsiveContainer width="100%" height={220}>
+              <LineChart data={schoolTrendChartData} margin={{ top: 4, right: 16, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                <YAxis domain={[2, 5]} tick={{ fontSize: 11 }} />
+                <Tooltip formatter={(v) => typeof v === 'number' ? v.toFixed(2) : ''} contentStyle={{ borderRadius: 12, fontSize: 11 }} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                {dims.map(d => (
+                  <Line key={d} type="monotone" dataKey={d.charAt(0).toUpperCase() + d.slice(1)} stroke={dimColors[d]} strokeWidth={1.5} dot={false} />
+                ))}
+                <Line type="monotone" dataKey="Composite" stroke={roleColor} strokeWidth={2.5} strokeDasharray="5 3" dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </Modal>
+      )}
     </div>
   )
 }

@@ -1,11 +1,14 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Upload } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { Modal } from '../../components/ui/Modal'
 import { Button } from '../../components/ui/Button'
+import { ChipSelector } from '../../components/ui/ChipSelector'
 import { toast } from '../../store/useToastStore'
 import { roleColors } from '../../constants/roles'
-import type { StudentDataRecord, MeasureType, DataSource } from '../../types'
+import { implementationTiers, instructionalSettings } from '../../data/mockData'
+import type { StudentDataRecord, MeasureType, DataSource, InstructionalSetting } from '../../types'
 
 const roleColor = roleColors.teacher
 
@@ -25,8 +28,6 @@ type FormData = {
   date: string
   week: number
   grade: string
-  instructionalSetting: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED'
-  measureType: MeasureType
   studentsCount: number
   baselineAvg: number
   currentAvg: number
@@ -37,11 +38,11 @@ type FormData = {
   comparisonGroupAvg: string
   goalPct: string
   metGoal: boolean
-  dataSource: DataSource
   notes: string
 }
 
 const cls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300'
+const lbl = 'text-xs font-medium text-gray-600 block mb-1.5'
 
 export function StudentDataUploadModal({ onClose, logId, defaultTier, defaultDate }: {
   onClose: () => void
@@ -50,13 +51,17 @@ export function StudentDataUploadModal({ onClose, logId, defaultTier, defaultDat
   defaultDate?: string
 }) {
   const { currentUser, addStudentDataRecord } = useAppStore()
+
+  const [mtssTier, setMtssTier] = useState<string[]>([defaultTier ?? 'Tier 1'])
+  const [setting, setSetting] = useState<string[]>(['General Education'])
+  const [measureType, setMeasureType] = useState<string[]>(['CBM-Math Concepts & Applications'])
+  const [dataSource, setDataSource] = useState<string[]>(['Teacher upload'])
+
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     defaultValues: {
       date: defaultDate ?? new Date().toISOString().split('T')[0],
       week: 1,
       grade: '',
-      instructionalSetting: defaultTier ?? 'Tier 1',
-      measureType: 'CBM-Math Concepts & Applications',
       studentsCount: 0,
       baselineAvg: 0,
       currentAvg: 0,
@@ -67,20 +72,23 @@ export function StudentDataUploadModal({ onClose, logId, defaultTier, defaultDat
       comparisonGroupAvg: '',
       goalPct: '',
       metGoal: false,
-      dataSource: 'Teacher upload',
       notes: '',
     },
   })
 
   const onSubmit = (data: FormData) => {
+    const tier = (mtssTier[0] ?? 'Tier 1') as 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED'
+    const researchExportId = `EXP-${currentUser.schoolId}-${currentUser.id}-${tier.replace(' ', '')}-W${String(data.week).padStart(2, '0')}`
     const record: StudentDataRecord = {
       id: `sdr-${Date.now()}`,
       teacherId: currentUser.id,
+      schoolId: currentUser.schoolId,
       date: data.date,
       week: Number(data.week),
       grade: data.grade || undefined,
-      instructionalSetting: data.instructionalSetting,
-      measureType: data.measureType,
+      mtssTier: tier,
+      instructionalSetting: (setting[0] ?? 'General Education') as InstructionalSetting,
+      measureType: (measureType[0] ?? 'CBM-Math Concepts & Applications') as MeasureType,
       studentsCount: Number(data.studentsCount),
       baselineAvg: Number(data.baselineAvg),
       currentAvg: Number(data.currentAvg),
@@ -92,8 +100,9 @@ export function StudentDataUploadModal({ onClose, logId, defaultTier, defaultDat
       comparisonGroupAvg: data.comparisonGroupAvg !== '' ? Number(data.comparisonGroupAvg) : undefined,
       goalPct: data.goalPct !== '' ? Number(data.goalPct) : undefined,
       metGoal: data.metGoal,
-      dataSource: data.dataSource,
+      dataSource: (dataSource[0] ?? 'Teacher upload') as DataSource,
       uploadStatus: 'Submitted',
+      researchExportId,
       notes: data.notes || undefined,
       logId,
     }
@@ -104,99 +113,113 @@ export function StudentDataUploadModal({ onClose, logId, defaultTier, defaultDat
 
   return (
     <Modal open onClose={onClose} title="Upload Student Data">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+
+        {/* Date / Week / Grade */}
+        <div className="grid grid-cols-3 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">Date</label>
+            <label className={lbl}>Date</label>
             <input type="date" {...register('date', { required: true })} className={cls} />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">Week #</label>
+            <label className={lbl}>Week #</label>
             <input type="number" min={1} max={36} {...register('week', { required: true, min: 1, max: 36 })} className={cls} />
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">Grade</label>
+            <label className={lbl}>Grade</label>
             <input type="text" placeholder="e.g. 4" {...register('grade')} className={cls} />
           </div>
-          <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">Instructional Setting</label>
-            <select {...register('instructionalSetting', { required: true })} className={cls}>
-              {(['Tier 1', 'Tier 2', 'Tier 3', 'SPED'] as const).map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
         </div>
 
+        {/* MTSS Tier */}
         <div>
-          <label className="text-xs font-medium text-gray-600 block mb-1">Measure Type</label>
-          <select {...register('measureType', { required: true })} className={cls}>
-            {MEASURE_TYPES.map(m => <option key={m} value={m}>{m}</option>)}
-          </select>
+          <label className={lbl}>MTSS Tier</label>
+          <ChipSelector options={implementationTiers} value={mtssTier} onChange={setMtssTier} roleColor={roleColor} />
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
-          <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">Students</label>
-            <input type="number" min={0} {...register('studentsCount', { required: true })} className={cls} />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">Baseline Avg %</label>
-            <input type="number" min={0} max={100} step={0.1} {...register('baselineAvg', { required: true })} className={cls} />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">Current Avg %</label>
-            <input type="number" min={0} max={100} step={0.1} {...register('currentAvg', { required: true })} className={cls} />
-            {errors.currentAvg && <p className="text-xs text-red-500 mt-0.5">Required.</p>}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-3">
-          <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">Median %</label>
-            <input type="number" min={0} max={100} step={0.1} {...register('medianPct')} className={cls} />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">At/Above Benchmark %</label>
-            <input type="number" min={0} max={100} step={0.1} {...register('atOrAboveBenchmark')} className={cls} />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">Below Benchmark %</label>
-            <input type="number" min={0} max={100} step={0.1} {...register('belowBenchmark')} className={cls} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">Intervention Group Avg % <span className="text-gray-400">(optional)</span></label>
-            <input type="number" min={0} max={100} step={0.1} {...register('interventionGroupAvg')} className={cls} />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">Comparison Group Avg % <span className="text-gray-400">(optional)</span></label>
-            <input type="number" min={0} max={100} step={0.1} {...register('comparisonGroupAvg')} className={cls} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-3">
-          <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">Goal % <span className="text-gray-400">(opt)</span></label>
-            <input type="number" min={0} max={100} step={0.1} {...register('goalPct')} className={cls} />
-          </div>
-          <div className="flex items-center gap-2 pt-5">
-            <input type="checkbox" id="metGoal" {...register('metGoal')} className="w-4 h-4 accent-emerald-500" />
-            <label htmlFor="metGoal" className="text-sm text-gray-700">Met Goal</label>
-          </div>
-          <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">Data Source</label>
-            <select {...register('dataSource', { required: true })} className={cls}>
-              {DATA_SOURCES.map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </div>
-        </div>
-
+        {/* Instructional Setting */}
         <div>
-          <label className="text-xs font-medium text-gray-600 block mb-1">Notes <span className="text-gray-400">(optional)</span></label>
+          <label className={lbl}>Instructional Setting</label>
+          <ChipSelector options={instructionalSettings} value={setting} onChange={setSetting} roleColor={roleColor} />
+        </div>
+
+        {/* Measure Type */}
+        <div>
+          <label className={lbl}>Measure Type</label>
+          <ChipSelector options={MEASURE_TYPES} value={measureType} onChange={setMeasureType} roleColor={roleColor} />
+        </div>
+
+        {/* Core metrics */}
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Class Metrics</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={lbl}>Students Count</label>
+              <input type="number" min={0} {...register('studentsCount', { required: true })} className={cls} />
+            </div>
+            <div>
+              <label className={lbl}>Baseline Avg %</label>
+              <input type="number" min={0} max={100} step={0.1} {...register('baselineAvg', { required: true })} className={cls} />
+            </div>
+            <div>
+              <label className={lbl}>Current Avg %</label>
+              <input type="number" min={0} max={100} step={0.1} {...register('currentAvg', { required: true })} className={cls} />
+              {errors.currentAvg && <p className="text-xs text-red-500 mt-0.5">Required.</p>}
+            </div>
+            <div>
+              <label className={lbl}>Median %</label>
+              <input type="number" min={0} max={100} step={0.1} {...register('medianPct')} className={cls} />
+            </div>
+            <div>
+              <label className={lbl}>At / Above Benchmark %</label>
+              <input type="number" min={0} max={100} step={0.1} {...register('atOrAboveBenchmark')} className={cls} />
+            </div>
+            <div>
+              <label className={lbl}>Below Benchmark %</label>
+              <input type="number" min={0} max={100} step={0.1} {...register('belowBenchmark')} className={cls} />
+            </div>
+          </div>
+        </div>
+
+        {/* Group comparisons */}
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Group Comparisons <span className="font-normal normal-case text-gray-400">(optional)</span></p>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={lbl}>Intervention Group Avg %</label>
+              <input type="number" min={0} max={100} step={0.1} {...register('interventionGroupAvg')} className={cls} />
+            </div>
+            <div>
+              <label className={lbl}>Comparison Group Avg %</label>
+              <input type="number" min={0} max={100} step={0.1} {...register('comparisonGroupAvg')} className={cls} />
+            </div>
+          </div>
+        </div>
+
+        {/* Goal */}
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Goal</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={lbl}>Goal % <span className="font-normal text-gray-400">(optional)</span></label>
+              <input type="number" min={0} max={100} step={0.1} {...register('goalPct')} className={cls} />
+            </div>
+            <div className="flex items-center gap-2 pt-6">
+              <input type="checkbox" id="metGoal" {...register('metGoal')} className="w-4 h-4 accent-emerald-500" />
+              <label htmlFor="metGoal" className="text-sm text-gray-700">Met Goal</label>
+            </div>
+          </div>
+        </div>
+
+        {/* Data Source */}
+        <div>
+          <label className={lbl}>Data Source</label>
+          <ChipSelector options={DATA_SOURCES} value={dataSource} onChange={setDataSource} roleColor={roleColor} />
+        </div>
+
+        {/* Notes */}
+        <div>
+          <label className={lbl}>Notes <span className="font-normal text-gray-400">(optional)</span></label>
           <textarea rows={2} {...register('notes')} placeholder="Any observations or context…"
             className={`${cls} resize-none`} />
         </div>

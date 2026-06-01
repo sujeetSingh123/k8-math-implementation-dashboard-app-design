@@ -117,7 +117,9 @@ interface AppStore {
   deleteLessonPlan: (id: string) => void
   updateLessonPlan: (id: string, updates: Partial<LessonPlan>) => void
   setPendingPlan: (plan: LessonPlan | null) => void
-  awardIncentive: (data: Omit<Incentive, 'id' | 'awardedAt'>) => void
+  awardIncentive: (data: Omit<Incentive, 'id' | 'awardedAt' | 'status'>, approverId?: string) => void
+  approveIncentive: (id: string, approverId: string) => void
+  rejectIncentive: (id: string) => void
   sendDirectMessage: (conversationId: string, body: string, senderId: string) => void
   startConversation: (userId1: string, userId2: string) => string
   markConversationRead: (conversationId: string, userId: string) => void
@@ -381,13 +383,29 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   setPendingPlan: (plan) => set({ pendingPlan: plan }),
 
-  awardIncentive: (data) =>
+  awardIncentive: (data, approverId) =>
     set((state) => ({
       incentives: [
-        { id: `inc-${Date.now()}`, awardedAt: new Date().toISOString().split('T')[0], ...data },
+        {
+          id: `inc-${Date.now()}`,
+          awardedAt: new Date().toISOString().split('T')[0],
+          status: approverId ? 'approved' as const : 'pending' as const,
+          ...(approverId ? { approvedAt: new Date().toISOString(), approvedBy: approverId } : {}),
+          ...data,
+        },
         ...state.incentives,
       ],
     })),
+
+  approveIncentive: (id, approverId) =>
+    set((state) => ({
+      incentives: state.incentives.map((i) =>
+        i.id === id ? { ...i, status: 'approved' as const, approvedAt: new Date().toISOString(), approvedBy: approverId } : i
+      ),
+    })),
+
+  rejectIncentive: (id) =>
+    set((state) => ({ incentives: state.incentives.filter((i) => i.id !== id) })),
 
   sendDirectMessage: (conversationId, body, senderId) =>
     set((state) => ({

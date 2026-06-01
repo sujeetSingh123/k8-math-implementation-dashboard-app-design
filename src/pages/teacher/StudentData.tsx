@@ -6,8 +6,10 @@ import { Card } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
+import { Modal } from '../../components/ui/Modal'
 import { roleColors } from '../../constants/roles'
 import { StudentDataUploadModal } from './StudentDataUploadModal'
+import type { StudentDataRecord } from '../../types'
 
 const roleColor = roleColors.teacher
 
@@ -18,9 +20,63 @@ const tierBadge: Record<string, 'blue' | 'green' | 'purple' | 'red'> = {
 const statusColor = (s?: string) =>
   s === 'Verified' ? 'green' : s === 'Submitted' ? 'blue' : 'amber'
 
+function StudentDataDetailModal({ record, onClose }: { record: StudentDataRecord; onClose: () => void }) {
+  const stat = (label: string, value?: number | string | boolean | null) => {
+    if (value == null) return null
+    const display = typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value)
+    return (
+      <div className="bg-gray-50 rounded-lg px-3 py-2">
+        <p className="text-xs text-gray-400">{label}</p>
+        <p className="text-sm font-semibold text-gray-800">{display}</p>
+      </div>
+    )
+  }
+  return (
+    <Modal open onClose={onClose} title={record.measureType} size="lg">
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Badge color={tierBadge[record.mtssTier] ?? 'blue'}>{record.mtssTier}</Badge>
+          {record.instructionalSetting && <Badge color="blue">{record.instructionalSetting}</Badge>}
+          {record.uploadStatus && <Badge color={statusColor(record.uploadStatus)}>{record.uploadStatus}</Badge>}
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {stat('Date', record.date)}
+          {stat('Week', record.week)}
+          {stat('Grade', record.grade)}
+          {stat('Students', record.studentsCount)}
+          {stat('Data Source', record.dataSource)}
+          {stat('Research ID', record.researchExportId)}
+        </div>
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Performance</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {stat('Baseline Avg', record.baselineAvg != null ? `${record.baselineAvg}%` : null)}
+            {stat('Current Avg', `${record.currentAvg}%`)}
+            {stat('Growth', record.growth != null ? `${record.growth >= 0 ? '+' : ''}${record.growth}%` : null)}
+            {stat('Median', record.medianPct != null ? `${record.medianPct}%` : null)}
+            {stat('At/Above Benchmark', record.atOrAboveBenchmark != null ? `${record.atOrAboveBenchmark}%` : null)}
+            {stat('Below Benchmark', record.belowBenchmark != null ? `${record.belowBenchmark}%` : null)}
+            {stat('Goal', record.goalPct != null ? `${record.goalPct}%` : null)}
+            {stat('Met Goal', record.metGoal)}
+            {stat('Intervention Group', record.interventionGroupAvg != null ? `${record.interventionGroupAvg}%` : null)}
+            {stat('Comparison Group', record.comparisonGroupAvg != null ? `${record.comparisonGroupAvg}%` : null)}
+          </div>
+        </div>
+        {record.notes && (
+          <div className="bg-gray-50 rounded-lg px-3 py-2">
+            <p className="text-xs text-gray-400 mb-0.5">Notes</p>
+            <p className="text-sm text-gray-600">{record.notes}</p>
+          </div>
+        )}
+      </div>
+    </Modal>
+  )
+}
+
 export function StudentData() {
   const { currentUser, studentDataRecords } = useAppStore()
   const [uploadOpen, setUploadOpen] = useState(false)
+  const [selectedRecord, setSelectedRecord] = useState<StudentDataRecord | null>(null)
   const [tierFilter, setTierFilter] = useState<string>('all')
 
   const myRecords = useMemo(() =>
@@ -30,7 +86,7 @@ export function StudentData() {
     [studentDataRecords, currentUser.id]
   )
 
-  const filtered = tierFilter === 'all' ? myRecords : myRecords.filter(r => r.instructionalSetting === tierFilter)
+  const filtered = tierFilter === 'all' ? myRecords : myRecords.filter(r => r.mtssTier === tierFilter)
 
   const latest = filtered.length > 0 ? filtered[filtered.length - 1] : null
   const prev = filtered.length > 1 ? filtered[filtered.length - 2] : null
@@ -43,7 +99,7 @@ export function StudentData() {
     filtered.forEach(r => {
       const label = new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
       if (!byDate[label]) byDate[label] = { date: label as unknown as number }
-      byDate[label][r.instructionalSetting] = r.currentAvg
+      byDate[label][r.mtssTier] = r.currentAvg
     })
     return Object.values(byDate)
   }, [filtered])
@@ -134,14 +190,14 @@ export function StudentData() {
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {recent.map(r => (
-                  <tr key={r.id} className="hover:bg-gray-50">
+                  <tr key={r.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedRecord(r)}>
                     <td className="px-4 py-2.5">
                       <p className="text-gray-800 font-medium">{r.date}</p>
                       {r.week && <p className="text-gray-400">Wk {r.week}{r.grade ? ` · Gr ${r.grade}` : ''}</p>}
                     </td>
                     <td className="px-3 py-2.5 text-gray-500 hidden sm:table-cell max-w-[160px] truncate">{r.measureType}</td>
                     <td className="px-3 py-2.5 text-center">
-                      <Badge color={tierBadge[r.instructionalSetting] ?? 'blue'}>{r.instructionalSetting}</Badge>
+                      <Badge color={tierBadge[r.mtssTier] ?? 'blue'}>{r.mtssTier}</Badge>
                     </td>
                     <td className="px-3 py-2.5 text-right text-gray-500">{r.baselineAvg != null ? `${r.baselineAvg}%` : '—'}</td>
                     <td className="px-3 py-2.5 text-right font-bold text-gray-800">{r.currentAvg}%</td>
@@ -172,6 +228,7 @@ export function StudentData() {
       </Card>
 
       {uploadOpen && <StudentDataUploadModal onClose={() => setUploadOpen(false)} />}
+      {selectedRecord && <StudentDataDetailModal record={selectedRecord} onClose={() => setSelectedRecord(null)} />}
     </div>
   )
 }

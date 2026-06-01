@@ -8,7 +8,17 @@ import { Modal } from '../../components/ui/Modal'
 import { toast } from '../../store/useToastStore'
 import { roleColors } from '../../constants/roles'
 import { LogDetailModal } from '../shared/LogDetailModal'
-import type { ImplementationLog } from '../../types'
+import type { ImplementationLog, MeasureType } from '../../types'
+
+const MEASURE_TYPES: MeasureType[] = [
+  'CBM-Math Concepts & Applications',
+  'Unit Assessment',
+  'CBM-Math Computation',
+  'Goal-Specific Progress Monitoring',
+  'IEP Math Goal Probe',
+  'Intervention Skill Probe',
+  'Intensive Intervention Probe',
+]
 
 const roleColor = roleColors.teacher
 
@@ -30,8 +40,8 @@ export function MyLogs() {
   const [filter, setFilter] = useState<CompletionFilter>('all')
   const [dataModal, setDataModal] = useState<ImplementationLog | null>(null)
   const [selectedLog, setSelectedLog] = useState<ImplementationLog | null>(null)
-  const [measureType, setMeasureType] = useState('CBM-Math Concepts & Applications')
-  const [score, setScore] = useState('')
+  const [scores, setScores] = useState<Partial<Record<MeasureType, string>>>({})
+  const [notes, setNotes] = useState('')
   const [attachedFile, setAttachedFile] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -42,27 +52,32 @@ export function MyLogs() {
 
   const openAdd = (log: ImplementationLog) => {
     setDataModal(log)
-    setMeasureType('CBM-Math Concepts & Applications')
-    setScore('')
+    setScores({})
+    setNotes('')
     setAttachedFile(null)
   }
 
   const handleSave = () => {
-    if (!dataModal || !score) { toast.warning('Enter a score value.'); return }
-    addStudentDataRecord({
-      id: `sdr-${Date.now()}`,
-      teacherId: currentUser.id,
-      date: dataModal.date,
-      instructionalSetting: dataModal.tier as 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED',
-      measureType: measureType as import('../../types').MeasureType,
-      currentAvg: Number(score),
-      dataSource: 'Teacher upload',
-      uploadStatus: 'Submitted',
-      logId: dataModal.id,
+    if (!dataModal) return
+    const filled = MEASURE_TYPES.filter(m => scores[m] && scores[m] !== '')
+    if (filled.length === 0) { toast.warning('Enter at least one score value.'); return }
+    filled.forEach((m, i) => {
+      addStudentDataRecord({
+        id: `sdr-${Date.now()}-${i}`,
+        teacherId: currentUser.id,
+        date: dataModal.date,
+        mtssTier: dataModal.tier as 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED',
+        measureType: m,
+        currentAvg: Number(scores[m]),
+        dataSource: 'Teacher upload',
+        uploadStatus: 'Submitted',
+        notes: notes || undefined,
+        logId: dataModal.id,
+      })
     })
     const msg = attachedFile
-      ? `${measureType} score recorded with file: ${attachedFile}`
-      : `${measureType} score recorded for ${dataModal.date}`
+      ? `${filled.length} score${filled.length > 1 ? 's' : ''} recorded with file: ${attachedFile}`
+      : `${filled.length} score${filled.length > 1 ? 's' : ''} recorded for ${dataModal.date}`
     toast.success(msg)
     setDataModal(null)
   }
@@ -94,8 +109,11 @@ export function MyLogs() {
             return (
               <Card key={log.id}>
                 <div className="flex items-start justify-between gap-2 flex-wrap mb-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-semibold text-gray-800">{log.date}</span>
+                  <button
+                    className="flex items-center gap-2 flex-wrap cursor-pointer text-left"
+                    onClick={() => setSelectedLog(log)}
+                  >
+                    <span className="text-sm font-semibold text-gray-800 hover:underline">{log.date}</span>
                     {log.startTime && (
                       <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md">{log.startTime}</span>
                     )}
@@ -104,7 +122,7 @@ export function MyLogs() {
                     </Badge>
                     <Badge color="blue">{log.tier}</Badge>
                     {log.adaptationOccurred && <Badge color="purple">Adapted</Badge>}
-                  </div>
+                  </button>
                   <div className="flex gap-1.5">
                     <Button size="sm" variant="secondary" roleColor={roleColor} onClick={() => openAdd(log)}>
                       <BarChart2 size={12} />Add Data
@@ -159,23 +177,35 @@ export function MyLogs() {
               {' · '}{dataModal.tier}{' · '}{dataModal.durationMinutes} min
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1.5">Measure Type</label>
-              <select value={measureType} onChange={e => setMeasureType(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300">
-                <option>CBM-Math Concepts &amp; Applications</option>
-                <option>Unit Assessment</option>
-                <option>CBM-Math Computation</option>
-                <option>Goal-Specific Progress Monitoring</option>
-                <option>IEP Math Goal Probe</option>
-                <option>Intervention Skill Probe</option>
-                <option>Intensive Intervention Probe</option>
-              </select>
+              <label className="text-xs font-medium text-gray-600 block mb-2">Scores</label>
+              <div className="space-y-2">
+                {MEASURE_TYPES.map(m => (
+                  <div key={m} className="flex items-center gap-3">
+                    <span className="text-sm text-gray-600 flex-1 min-w-0">{m}</span>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      step={0.1}
+                      placeholder="—"
+                      value={scores[m] ?? ''}
+                      onChange={e => setScores(prev => ({ ...prev, [m]: e.target.value }))}
+                      className="w-20 border border-gray-300 rounded-lg px-2 py-1.5 text-sm text-right focus:outline-none focus:ring-2 focus:ring-emerald-300"
+                    />
+                    <span className="text-xs text-gray-400 w-3">%</span>
+                  </div>
+                ))}
+              </div>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1.5">Current Class Avg %</label>
-              <input type="number" value={score} onChange={e => setScore(e.target.value)}
-                placeholder="Enter score (0–100)…" min={0} max={100} step={0.1}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300" />
+              <label className="text-xs font-medium text-gray-600 block mb-1.5">Notes <span className="text-gray-400 font-normal">(optional)</span></label>
+              <textarea
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                rows={2}
+                placeholder="Any observations or context…"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-300"
+              />
             </div>
             <div>
               <label className="text-xs font-medium text-gray-600 block mb-1.5">Attach File (optional)</label>

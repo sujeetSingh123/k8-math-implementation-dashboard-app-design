@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Building2, Plus } from 'lucide-react'
+import { Building2, Plus, Users } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
@@ -17,8 +17,9 @@ type SchoolForm = { name: string; districtId: string }
 type SchoolRow = School & { teacherCount: number; adminCount: number; coachCount: number }
 
 export function SchoolManagement() {
-  const { schools, users, addSchool } = useAppStore()
+  const { schools, users, addSchool, implementationLogs } = useAppStore()
   const [open, setOpen] = useState(false)
+  const [selectedSchool, setSelectedSchool] = useState<SchoolRow | null>(null)
   const { register, handleSubmit, reset, formState: { errors } } = useForm<SchoolForm>()
 
   const schoolRows: SchoolRow[] = schools.map(s => ({
@@ -60,8 +61,32 @@ export function SchoolManagement() {
           data={schoolRows as unknown as Record<string, unknown>[]}
           emptyMessage="No schools found."
           emptyIcon={<Building2 size={24} />}
+          onRowClick={(row) => setSelectedSchool(row as unknown as SchoolRow)}
         />
       </Card>
+
+      {selectedSchool && (
+        <Modal open onClose={() => setSelectedSchool(null)} title={selectedSchool.name} size="sm">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: 'School ID', value: selectedSchool.id },
+                { label: 'District', value: selectedSchool.districtId },
+                { label: 'Teachers', value: selectedSchool.teacherCount },
+                { label: 'Coaches', value: selectedSchool.coachCount },
+                { label: 'Admins', value: selectedSchool.adminCount },
+                { label: 'Total Logs', value: implementationLogs.filter(l => l.schoolId === selectedSchool.id).length },
+              ].map(({ label, value }) => (
+                <div key={label} className="bg-gray-50 rounded-lg px-3 py-2">
+                  <p className="text-xs text-gray-400">{label}</p>
+                  <p className="text-sm font-semibold text-gray-800">{value}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-gray-400">Staff: {users.filter(u => u.schoolId === selectedSchool.id).map(u => u.name).join(', ')}</p>
+          </div>
+        </Modal>
+      )}
 
       <Modal open={open} onClose={() => { setOpen(false); reset() }} title="Add New School" size="sm">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

@@ -2,22 +2,26 @@ import { useMemo } from 'react'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
 import { useAppStore } from '../../store/useAppStore'
-import { calcTeacherBreakdown, calcCoachBreakdown, calcAdminBreakdown } from '../../utils/incentiveCalc'
+import { calcTeacherBreakdown, calcCoachBreakdown, calcAdminBreakdown, filterLogsBySemester } from '../../utils/incentiveCalc'
 
 const roleColor = '#8B5CF6'
 
 const tierColor = (r: number) => r >= 81 ? 'green' : r >= 71 ? 'blue' : r >= 60 ? 'amber' : 'red'
 
-export function EarningsBreakdown() {
+interface Props { semester: string }
+
+export function EarningsBreakdown({ semester }: Props) {
   const { users, implementationLogs, schools } = useAppStore()
+
+  const semLogs = useMemo(() => filterLogsBySemester(implementationLogs, semester), [implementationLogs, semester])
 
   const teachers = useMemo(() => users.filter(u => u.role === 'teacher'), [users])
   const coaches = useMemo(() => users.filter(u => u.role === 'coach'), [users])
   const admins = useMemo(() => users.filter(u => u.role === 'admin'), [users])
 
-  const teacherRows = useMemo(() => teachers.map(t => calcTeacherBreakdown(t, implementationLogs)), [teachers, implementationLogs])
-  const coachRows = useMemo(() => coaches.map(c => calcCoachBreakdown(c, users, implementationLogs)), [coaches, users, implementationLogs])
-  const adminRows = useMemo(() => admins.map(a => calcAdminBreakdown(a, users, implementationLogs)), [admins, users, implementationLogs])
+  const teacherRows = useMemo(() => teachers.map(t => calcTeacherBreakdown(t, semLogs)), [teachers, semLogs])
+  const coachRows = useMemo(() => coaches.map(c => calcCoachBreakdown(c, users, semLogs)), [coaches, users, semLogs])
+  const adminRows = useMemo(() => admins.map(a => calcAdminBreakdown(a, users, semLogs)), [admins, users, semLogs])
 
   const schoolTotals = useMemo(() => schools.map(s => {
     const t = teacherRows.filter(r => r.schoolId === s.id).reduce((sum, r) => sum + r.total, 0)
@@ -31,7 +35,7 @@ export function EarningsBreakdown() {
   return (
     <div className="space-y-4">
       {/* District summary */}
-      <Card title="District Totals">
+      <Card title={`District Totals — ${semester}`}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>

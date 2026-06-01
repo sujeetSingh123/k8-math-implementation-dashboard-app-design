@@ -1,5 +1,41 @@
 import type { ImplementationLog, User } from '../types'
 
+// ── Semester utilities ────────────────────────────────────────────────────────
+export function getSemester(dateStr: string): string {
+  const d = new Date(dateStr)
+  const m = d.getMonth() + 1
+  const y = d.getFullYear()
+  if (m >= 8) return `Fall ${y}`
+  if (m >= 6) return `Summer ${y}`
+  return `Spring ${y}`
+}
+
+export function getSemesterRange(semester: string): [Date, Date] {
+  const [term, yr] = semester.split(' ')
+  const year = parseInt(yr)
+  if (term === 'Fall') return [new Date(year, 7, 1), new Date(year, 11, 31, 23, 59, 59)]
+  if (term === 'Summer') return [new Date(year, 5, 1), new Date(year, 6, 31, 23, 59, 59)]
+  return [new Date(year, 0, 1), new Date(year, 4, 31, 23, 59, 59)]
+}
+
+export function filterLogsBySemester(logs: ImplementationLog[], semester: string): ImplementationLog[] {
+  const [start, end] = getSemesterRange(semester)
+  return logs.filter(l => { const d = new Date(l.date); return d >= start && d <= end })
+}
+
+export function currentSemester(): string {
+  return getSemester(new Date().toISOString())
+}
+
+export function sortSemesters(semesters: string[]): string[] {
+  const order: Record<string, number> = { Fall: 3, Spring: 2, Summer: 1 }
+  return [...semesters].sort((a, b) => {
+    const [tA, yA] = a.split(' '), [tB, yB] = b.split(' ')
+    if (yA !== yB) return parseInt(yB) - parseInt(yA)
+    return (order[tB] ?? 0) - (order[tA] ?? 0)
+  })
+}
+
 export interface TeacherBreakdown {
   userId: string
   name: string

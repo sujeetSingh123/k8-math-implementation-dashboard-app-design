@@ -61,7 +61,7 @@ export function IncentiveModal({ defaultRecipientId, defaultRecipientRole = 'tea
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-base font-bold text-gray-900">Award Incentive</h3>
+          <h3 className="text-base font-bold text-gray-900">Award & Approve Incentive</h3>
           <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 cursor-pointer">
             <X size={16} />
           </button>
@@ -166,7 +166,7 @@ export function IncentiveModal({ defaultRecipientId, defaultRecipientRole = 'tea
               className="flex-1 py-2 rounded-lg text-white text-sm font-semibold cursor-pointer"
               style={{ backgroundColor: catOpt.color }}
             >
-              Award Incentive
+              Approve & Award
             </button>
           </div>
         </form>

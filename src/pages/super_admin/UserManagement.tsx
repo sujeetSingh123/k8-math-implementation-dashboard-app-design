@@ -3,6 +3,7 @@ import { Users, Plus } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
+import { Modal } from '../../components/ui/Modal'
 import { Table } from '../../components/ui/Table'
 import { roleColors, roleLabels } from '../../constants/roles'
 import { useAppStore } from '../../store/useAppStore'
@@ -22,10 +23,11 @@ const roleBadgeColor: Record<string, 'green' | 'blue' | 'amber' | 'purple' | 're
 type UserRow = { id: string; name: string; role: Role; school: string; email: string }
 
 export function UserManagement() {
-  const { users, schools, orgMembers } = useAppStore()
+  const { users, schools, orgMembers, implementationLogs } = useAppStore()
   const [showAdd, setShowAdd] = useState(false)
   const [filterSchool, setFilterSchool] = useState('')
   const [filterRole, setFilterRole] = useState('')
+  const [selectedUser, setSelectedUser] = useState<UserRow | null>(null)
 
   const getSchoolName = (schoolId: string) => schools.find(s => s.id === schoolId)?.name ?? schoolId
   const getEmail = (userId: string) => orgMembers.find(m => m.id === userId)?.email ?? '—'
@@ -81,10 +83,35 @@ export function UserManagement() {
           data={rows as unknown as Record<string, unknown>[]}
           emptyMessage="No users found."
           emptyIcon={<Users size={24} />}
+          onRowClick={(row) => setSelectedUser(row as unknown as UserRow)}
         />
       </Card>
 
       <AddUserModal open={showAdd} onClose={() => setShowAdd(false)} />
+
+      {selectedUser && (
+        <Modal open onClose={() => setSelectedUser(null)} title={selectedUser.name} size="sm">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Badge color={roleBadgeColor[selectedUser.role] ?? 'blue'}>{roleLabels[selectedUser.role as Role]}</Badge>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: 'ID', value: selectedUser.id },
+                { label: 'Email', value: selectedUser.email },
+                { label: 'School', value: selectedUser.school },
+                { label: 'Role', value: roleLabels[selectedUser.role as Role] },
+                { label: 'Logs Submitted', value: implementationLogs.filter(l => l.teacherId === selectedUser.id).length || '—' },
+              ].map(({ label, value }) => (
+                <div key={label} className="bg-gray-50 rounded-lg px-3 py-2">
+                  <p className="text-xs text-gray-400">{label}</p>
+                  <p className="text-sm font-semibold text-gray-800 truncate">{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   )
 }

@@ -15,6 +15,8 @@ export type School = {
   districtId: string
 }
 
+export type InstructionalSetting = 'General Education' | 'Pull-out Group' | 'Push-in Support' | 'Resource Room' | 'Co-taught Classroom'
+
 export type ImplementationLog = {
   id: string
   teacherId: string
@@ -25,6 +27,7 @@ export type ImplementationLog = {
   ebpComponent: string[]
   implementationStrategy: string
   tier: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED'
+  instructionalSetting?: InstructionalSetting
   durationMinutes: number
   lessonCompletion: 'fully' | 'partially' | 'not_completed'
   adaptationOccurred: boolean
@@ -147,10 +150,12 @@ export type UploadStatus = 'Submitted' | 'Needs review' | 'Verified'
 export type StudentDataRecord = {
   id: string
   teacherId: string
+  schoolId?: string
   date: string
   week?: number
   grade?: string
-  instructionalSetting: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED'
+  mtssTier: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED'
+  instructionalSetting?: InstructionalSetting
   measureType: MeasureType
   studentsCount?: number
   baselineAvg?: number
@@ -235,6 +240,7 @@ export type LessonPlan = {
   ebpComponent: string[]
   implementationStrategy: string
   tier: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED'
+  instructionalSetting?: InstructionalSetting
   plannedDurationMinutes: number
   goal?: string
   status: 'upcoming' | 'logged' | 'missed'
@@ -279,6 +285,9 @@ export type Incentive = {
   amount: number
   reason: string
   awardedAt: string
+  status: 'pending' | 'approved'
+  approvedAt?: string
+  approvedBy?: string
 }
 
 export type BudgetAllocation = {

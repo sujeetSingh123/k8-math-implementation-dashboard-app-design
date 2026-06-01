@@ -74,6 +74,14 @@ export function TeacherDashboard() {
   const reasonData = Object.entries(reasonCounts).sort((a, b) => b[1] - a[1])
     .map(([name, count]) => ({ name: name.length > 18 ? name.slice(0, 18) + '…' : name, count }))
 
+  const weeklyLogData = Array.from({ length: 12 }, (_, i) => {
+    const weeksAgo = 11 - i
+    const end = new Date(); end.setDate(end.getDate() - weeksAgo * 7); end.setHours(23, 59, 59, 999)
+    const start = new Date(end); start.setDate(start.getDate() - 6); start.setHours(0, 0, 0, 0)
+    const wkLogs = myLogs.filter(l => { const d = new Date(l.date); return d >= start && d <= end })
+    return { week: `W${i + 1}`, Fully: wkLogs.filter(l => l.lessonCompletion === 'fully').length, Partial: wkLogs.filter(l => l.lessonCompletion === 'partially').length, Missed: wkLogs.filter(l => l.lessonCompletion === 'not_completed').length }
+  })
+
   const handleLogClick = () => { toast.info(`${myLogs.length} total logs — ${logCompletionRate}% fully completed.`); navigate('/teacher/log') }
   const handleFidelityClick = () => { toast.info('Fidelity self-check due — tap to complete.'); navigate('/teacher/fidelity') }
   const handleAdaptClick = () => { toast.info(`${thisMonthAdaptations} adaptations this month.`); navigate('/teacher/adaptations') }
@@ -151,6 +159,24 @@ export function TeacherDashboard() {
           messages={myCycle?.messages ?? []}
           coachId={myCycle?.coachId}
         />
+      </Card>
+      <Card>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-800">Weekly Log Activity (Last 12 Weeks)</h3>
+          <button onClick={() => navigate('/teacher/logs')} className="text-xs text-emerald-600 hover:text-emerald-800 cursor-pointer">View all →</button>
+        </div>
+        <ResponsiveContainer width="100%" height={180}>
+          <BarChart data={weeklyLogData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+            <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+            <YAxis allowDecimals={false} tick={{ fontSize: 10 }} width={20} />
+            <Tooltip />
+            <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
+            <Bar dataKey="Fully" stackId="a" fill="#10B981" />
+            <Bar dataKey="Partial" stackId="a" fill="#F59E0B" />
+            <Bar dataKey="Missed" stackId="a" fill="#EF4444" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
       </Card>
     </div>
   )

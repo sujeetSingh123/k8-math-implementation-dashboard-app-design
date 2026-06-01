@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Building2, TrendingUp, GraduationCap, CheckSquare, ChevronRight } from 'lucide-react'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { StatCard } from '../../components/ui/StatCard'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
@@ -53,9 +53,19 @@ const statusColors: Record<string, 'green' | 'blue' | 'amber'> = {
 }
 
 export function SchoolOverview() {
-  const { currentUser, schools } = useAppStore()
+  const { currentUser, schools, implementationLogs } = useAppStore()
   const mySchool = schools.find(s => s.id === currentUser.schoolId)
   const schoolData = mySchool ? [schoolIdToRow[mySchool.id] ?? allSchoolData[0]] : allSchoolData.slice(0, 1)
+  const mySchoolLogs = implementationLogs.filter(l => l.schoolId === (mySchool?.id ?? ''))
+  const computedLogRate = mySchoolLogs.length > 0
+    ? `${Math.round(mySchoolLogs.filter(l => l.lessonCompletion !== 'not_completed').length / mySchoolLogs.length * 100)}%`
+    : schoolData[0]?.logRate ?? '—'
+  const weeklySchoolLogs = Array.from({ length: 8 }, (_, i) => {
+    const weeksAgo = 7 - i
+    const end = new Date(); end.setDate(end.getDate() - weeksAgo * 7); end.setHours(23, 59, 59, 999)
+    const start = new Date(end); start.setDate(start.getDate() - 6); start.setHours(0, 0, 0, 0)
+    return { week: `W${i + 1}`, Logs: mySchoolLogs.filter(l => { const d = new Date(l.date); return d >= start && d <= end }).length }
+  })
   const [selected, setSelected] = useState<SchoolRow | null>(null)
 
   const columns = [
@@ -82,8 +92,8 @@ export function SchoolOverview() {
         <div className="cursor-pointer" onClick={() => toast.info(`${mySchool?.name ?? 'Your school'} — active for 2025–26.`)}>
           <StatCard label="School" value={mySchool?.name ?? '—'} sub={mySchool?.id ?? ''} icon={<Building2 size={18} />} iconColor={roleColor} />
         </div>
-        <div className="cursor-pointer" onClick={() => toast.info('Log rate is up 3% vs. last month.')}>
-          <StatCard label="Log Rate" value={schoolData[0]?.logRate ?? '—'} sub="+3% from last month" icon={<TrendingUp size={18} />} iconColor={roleColor} />
+        <div className="cursor-pointer" onClick={() => toast.info(`Log rate: ${computedLogRate} (${mySchoolLogs.length} total logs)`)}>
+          <StatCard label="Log Rate" value={computedLogRate} sub={`${mySchoolLogs.length} total logs`} icon={<TrendingUp size={18} />} iconColor={roleColor} />
         </div>
         <div className="cursor-pointer" onClick={() => toast.info('87% of staff attended at least one PD session this year.')}>
           <StatCard label="Training" value="87%" sub="Participation rate" icon={<GraduationCap size={18} />} iconColor={roleColor} />
@@ -106,6 +116,22 @@ export function SchoolOverview() {
           emptyIcon={<Building2 size={24} />}
           onRowClick={row => setSelected(row as unknown as SchoolRow)}
         />
+      </Card>
+
+      <Card>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-800">Log Submission Activity (Last 8 Weeks)</h3>
+          <span className="text-xs text-gray-400">{mySchool?.name ?? 'School-wide'}</span>
+        </div>
+        <ResponsiveContainer width="100%" height={160}>
+          <BarChart data={weeklySchoolLogs}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+            <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+            <YAxis allowDecimals={false} tick={{ fontSize: 10 }} width={20} />
+            <Tooltip />
+            <Bar dataKey="Logs" fill={roleColor} radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
       </Card>
 
       {selected && (

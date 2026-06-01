@@ -1,4 +1,4 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts'
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid, Cell } from 'recharts'
 import { Users, TrendingUp, MessageSquare, AlertTriangle } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
@@ -48,6 +48,18 @@ export function CoachDashboard() {
     })
   })
   const topReasons = Object.entries(reasonCounts).sort((a, b) => b[1] - a[1]).slice(0, 3)
+
+  const TEACHER_COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EF4444']
+  const weeklyTeacherLogs = Array.from({ length: 8 }, (_, i) => {
+    const weeksAgo = 7 - i
+    const end = new Date(); end.setDate(end.getDate() - weeksAgo * 7); end.setHours(23, 59, 59, 999)
+    const start = new Date(end); start.setDate(start.getDate() - 6); start.setHours(0, 0, 0, 0)
+    const row: Record<string, number | string> = { week: `W${i + 1}` }
+    myTeachers.forEach(t => {
+      row[t.name.split(' ')[0]] = implementationLogs.filter(l => { const d = new Date(l.date); return l.teacherId === t.id && d >= start && d <= end }).length
+    })
+    return row
+  })
 
   return (
     <div className="space-y-4">
@@ -110,6 +122,24 @@ export function CoachDashboard() {
           </div>
         </Card>
       </div>
+      <Card>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-800">Log Submissions by Week (Caseload)</h3>
+          <button onClick={() => navigate('/coach/caseload')} className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer">View caseload →</button>
+        </div>
+        <ResponsiveContainer width="100%" height={180}>
+          <LineChart data={weeklyTeacherLogs}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+            <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+            <YAxis allowDecimals={false} tick={{ fontSize: 10 }} width={20} />
+            <Tooltip />
+            <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
+            {myTeachers.map((t, i) => (
+              <Line key={t.id} type="monotone" dataKey={t.name.split(' ')[0]} stroke={TEACHER_COLORS[i % TEACHER_COLORS.length]} strokeWidth={2} dot={false} />
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
+      </Card>
     </div>
   )
 }
