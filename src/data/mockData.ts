@@ -519,7 +519,7 @@ export const rolePermissions: RolePermissions[] = [
   },
   {
     role: 'coach',
-    permissionIds: ['p_view_logs', 'p_view_fidelity', 'p_view_coaching', 'p_create_coaching', 'p_respond_coaching', 'p_view_reports', 'p_view_users'],
+    permissionIds: ['p_view_logs', 'p_view_fidelity', 'p_view_coaching', 'p_create_coaching', 'p_respond_coaching', 'p_view_reports', 'p_view_users', 'p_view_student_data'],
   },
   {
     role: 'admin',

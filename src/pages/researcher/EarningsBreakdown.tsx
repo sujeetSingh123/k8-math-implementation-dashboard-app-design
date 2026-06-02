@@ -2,25 +2,31 @@ import { useMemo } from 'react'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
 import { useAppStore } from '../../store/useAppStore'
-import { calcTeacherBreakdown, calcCoachBreakdown, calcAdminBreakdown, filterLogsBySemester } from '../../utils/incentiveCalc'
+import {
+  calcTeacherBreakdown, calcCoachBreakdown, calcAdminBreakdown,
+  filterLogsBySemester, filterStudentDataBySemester, filterFidelityBySemester,
+} from '../../utils/incentiveCalc'
 
 const roleColor = '#8B5CF6'
 
 const tierColor = (r: number) => r >= 81 ? 'green' : r >= 71 ? 'blue' : r >= 60 ? 'amber' : 'red'
+const fidelityColor = (f: number) => f >= 4.0 ? 'green' : f >= 3.0 ? 'amber' : 'red'
 
 interface Props { semester: string }
 
 export function EarningsBreakdown({ semester }: Props) {
-  const { users, implementationLogs, schools } = useAppStore()
+  const { users, implementationLogs, studentDataRecords, fidelityChecks, schools } = useAppStore()
 
   const semLogs = useMemo(() => filterLogsBySemester(implementationLogs, semester), [implementationLogs, semester])
+  const semStudentData = useMemo(() => filterStudentDataBySemester(studentDataRecords, semester), [studentDataRecords, semester])
+  const semChecks = useMemo(() => filterFidelityBySemester(fidelityChecks, semester), [fidelityChecks, semester])
 
   const teachers = useMemo(() => users.filter(u => u.role === 'teacher'), [users])
   const coaches = useMemo(() => users.filter(u => u.role === 'coach'), [users])
   const admins = useMemo(() => users.filter(u => u.role === 'admin'), [users])
 
-  const teacherRows = useMemo(() => teachers.map(t => calcTeacherBreakdown(t, semLogs)), [teachers, semLogs])
-  const coachRows = useMemo(() => coaches.map(c => calcCoachBreakdown(c, users, semLogs)), [coaches, users, semLogs])
+  const teacherRows = useMemo(() => teachers.map(t => calcTeacherBreakdown(t, semLogs, semStudentData)), [teachers, semLogs, semStudentData])
+  const coachRows = useMemo(() => coaches.map(c => calcCoachBreakdown(c, users, semLogs, semChecks)), [coaches, users, semLogs, semChecks])
   const adminRows = useMemo(() => admins.map(a => calcAdminBreakdown(a, users, semLogs)), [admins, users, semLogs])
 
   const schoolTotals = useMemo(() => schools.map(s => {
@@ -34,7 +40,6 @@ export function EarningsBreakdown({ semester }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* District summary */}
       <Card title={`District Totals — ${semester}`}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -79,8 +84,8 @@ export function EarningsBreakdown({ semester }: Props) {
                 <th className="text-left py-2 text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">School</th>
                 <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase">Rate</th>
                 <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">2-Wk</th>
-                <th className="text-right py-2 text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Base</th>
-                <th className="text-right py-2 text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Bonus</th>
+                <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase hidden lg:table-cell">Growth</th>
+                <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase hidden lg:table-cell">Benchmark</th>
                 <th className="text-right py-2 text-xs font-semibold text-gray-400 uppercase">Total</th>
               </tr>
             </thead>
@@ -93,8 +98,16 @@ export function EarningsBreakdown({ semester }: Props) {
                     <td className="py-2.5 text-gray-500 text-xs hidden md:table-cell">{school?.name ?? t.schoolId}</td>
                     <td className="py-2.5 text-center"><Badge color={tierColor(t.logRate)}>{t.logRate}%</Badge></td>
                     <td className="py-2.5 text-center text-gray-500 hidden sm:table-cell">{t.twoWeekPerfect} × $5</td>
-                    <td className="py-2.5 text-right text-gray-600 hidden sm:table-cell">$50</td>
-                    <td className="py-2.5 text-right text-gray-600 hidden sm:table-cell">${t.twoWeekBonus + t.rateBonus}</td>
+                    <td className="py-2.5 text-center hidden lg:table-cell">
+                      {t.avgStudentGrowth > 0
+                        ? <Badge color={t.avgStudentGrowth >= 10 ? 'green' : 'amber'}>{t.avgStudentGrowth}%</Badge>
+                        : <span className="text-xs text-gray-400">—</span>}
+                    </td>
+                    <td className="py-2.5 text-center hidden lg:table-cell">
+                      {t.benchmarkRate > 0
+                        ? <Badge color={t.benchmarkRate >= 80 ? 'green' : 'amber'}>{t.benchmarkRate}%</Badge>
+                        : <span className="text-xs text-gray-400">—</span>}
+                    </td>
                     <td className="py-2.5 text-right font-bold text-gray-900">${t.total}</td>
                   </tr>
                 )
@@ -111,9 +124,11 @@ export function EarningsBreakdown({ semester }: Props) {
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="text-left py-2 text-xs font-semibold text-gray-400 uppercase">Coach</th>
-                <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase">Avg Rate</th>
-                <th className="text-right py-2 text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Base</th>
-                <th className="text-right py-2 text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Bonus</th>
+                <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase">Avg Log Rate</th>
+                <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Avg Fidelity</th>
+                <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">All On Track</th>
+                <th className="text-right py-2 text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Log Bonus</th>
+                <th className="text-right py-2 text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">Perf Bonus</th>
                 <th className="text-right py-2 text-xs font-semibold text-gray-400 uppercase">Total</th>
               </tr>
             </thead>
@@ -122,8 +137,18 @@ export function EarningsBreakdown({ semester }: Props) {
                 <tr key={c.userId} className="hover:bg-gray-50">
                   <td className="py-2.5 font-medium text-gray-800">{c.name}</td>
                   <td className="py-2.5 text-center"><Badge color={tierColor(c.avgLogRate)}>{c.avgLogRate}%</Badge></td>
-                  <td className="py-2.5 text-right text-gray-600 hidden sm:table-cell">$100</td>
+                  <td className="py-2.5 text-center hidden sm:table-cell">
+                    {c.avgTeacherFidelity > 0
+                      ? <Badge color={fidelityColor(c.avgTeacherFidelity)}>{c.avgTeacherFidelity.toFixed(1)}</Badge>
+                      : <span className="text-xs text-gray-400">—</span>}
+                  </td>
+                  <td className="py-2.5 text-center hidden md:table-cell">
+                    {c.allOnTrack
+                      ? <Badge color="green">Yes +$25</Badge>
+                      : <span className="text-xs text-gray-400">No</span>}
+                  </td>
                   <td className="py-2.5 text-right text-gray-600 hidden sm:table-cell">${c.rateBonus}</td>
+                  <td className="py-2.5 text-right text-gray-600 hidden sm:table-cell">${c.teacherPerfBonus + c.allOnTrackBonus}</td>
                   <td className="py-2.5 text-right font-bold text-gray-900">${c.total}</td>
                 </tr>
               ))}

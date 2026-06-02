@@ -12,6 +12,7 @@ import { TeacherDashboard } from './pages/teacher/TeacherDashboard'
 import { MyLogs } from './pages/teacher/MyLogs'
 import { PlanningSession } from './pages/teacher/PlanningSession'
 import { StudentData } from './pages/teacher/StudentData'
+import { StudentDataView } from './pages/shared/StudentDataView'
 import { TeacherCaseload } from './pages/coach/TeacherCaseload'
 import { TeacherDetailPage } from './pages/coach/TeacherDetailPage'
 import { FeedbackQueue } from './pages/coach/FeedbackQueue'
@@ -78,6 +79,7 @@ export default function App() {
         <Route path="/teacher/dashboard" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><TeacherDashboard /></PermissionGate></ProtectedLayout>} />
         <Route path="/teacher/student-data" element={<ProtectedLayout><PermissionGate permissionId="p_view_student_data"><StudentData /></PermissionGate></ProtectedLayout>} />
         <Route path="/teacher/incentives" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><MyIncentives /></PermissionGate></ProtectedLayout>} />
+        <Route path="/coach/student-data" element={<ProtectedLayout><PermissionGate permissionId="p_view_student_data"><StudentDataView /></PermissionGate></ProtectedLayout>} />
         <Route path="/coach/caseload" element={<ProtectedLayout><PermissionGate permissionId="p_view_users"><TeacherCaseload /></PermissionGate></ProtectedLayout>} />
         <Route path="/coach/teacher/:teacherId" element={<ProtectedLayout><PermissionGate permissionId="p_view_users"><TeacherDetailPage /></PermissionGate></ProtectedLayout>} />
         <Route path="/coach/feedback" element={<ProtectedLayout><PermissionGate permissionId="p_respond_coaching"><FeedbackQueue /></PermissionGate></ProtectedLayout>} />
@@ -85,6 +87,7 @@ export default function App() {
         <Route path="/coach/fidelity-trends" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><FidelityAdaptationView /></PermissionGate></ProtectedLayout>} />
         <Route path="/coach/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
         <Route path="/coach/incentives" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><CoachIncentives /></PermissionGate></ProtectedLayout>} />
+        <Route path="/admin/student-data" element={<ProtectedLayout><PermissionGate permissionId="p_view_student_data"><StudentDataView /></PermissionGate></ProtectedLayout>} />
         <Route path="/admin/overview" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><SchoolOverview /></PermissionGate></ProtectedLayout>} />
         <Route path="/admin/fidelity-trends" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><FidelityAdaptationView /></PermissionGate></ProtectedLayout>} />
         <Route path="/admin/mtss" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><MTSSMonitoring /></PermissionGate></ProtectedLayout>} />
@@ -94,6 +97,7 @@ export default function App() {
         <Route path="/admin/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
         <Route path="/admin/resources" element={<ProtectedLayout><PermissionGate permissionId="p_manage_org"><ResourceManagement /></PermissionGate></ProtectedLayout>} />
         <Route path="/admin/incentives" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><AdminIncentives /></PermissionGate></ProtectedLayout>} />
+        <Route path="/researcher/student-data" element={<ProtectedLayout><PermissionGate permissionId="p_view_student_data"><StudentDataView /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/analytics" element={<ProtectedLayout><PermissionGate permissionId="p_view_logs"><ResearchAnalytics /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/longitudinal" element={<ProtectedLayout><PermissionGate permissionId="p_view_student_data"><LongitudinalView /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/log-aggregation" element={<ProtectedLayout><PermissionGate permissionId="p_view_logs"><LogAggregation /></PermissionGate></ProtectedLayout>} />

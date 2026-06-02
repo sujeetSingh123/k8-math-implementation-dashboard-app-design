@@ -1,4 +1,4 @@
-import type { ImplementationLog, User } from '../types'
+import type { ImplementationLog, StudentDataRecord, FidelityCheck, User } from '../types'
 
 // ── Semester utilities ────────────────────────────────────────────────────────
 export function getSemester(dateStr: string): string {
@@ -23,6 +23,16 @@ export function filterLogsBySemester(logs: ImplementationLog[], semester: string
   return logs.filter(l => { const d = new Date(l.date); return d >= start && d <= end })
 }
 
+export function filterStudentDataBySemester(records: StudentDataRecord[], semester: string): StudentDataRecord[] {
+  const [start, end] = getSemesterRange(semester)
+  return records.filter(r => { const d = new Date(r.date); return d >= start && d <= end })
+}
+
+export function filterFidelityBySemester(checks: FidelityCheck[], semester: string): FidelityCheck[] {
+  const [start, end] = getSemesterRange(semester)
+  return checks.filter(c => { const d = new Date(c.date); return d >= start && d <= end })
+}
+
 export function currentSemester(): string {
   return getSemester(new Date().toISOString())
 }
@@ -36,6 +46,7 @@ export function sortSemesters(semesters: string[]): string[] {
   })
 }
 
+// ── Interfaces ────────────────────────────────────────────────────────────────
 export interface TeacherBreakdown {
   userId: string
   name: string
@@ -45,6 +56,10 @@ export interface TeacherBreakdown {
   base: number
   twoWeekBonus: number
   rateBonus: number
+  avgStudentGrowth: number
+  benchmarkRate: number
+  studentPerfBonus: number
+  studentBenchmarkBonus: number
   total: number
 }
 
@@ -55,6 +70,10 @@ export interface CoachBreakdown {
   avgLogRate: number
   base: number
   rateBonus: number
+  avgTeacherFidelity: number
+  allOnTrack: boolean
+  teacherPerfBonus: number
+  allOnTrackBonus: number
   total: number
 }
 
@@ -76,14 +95,13 @@ export interface SchoolTotal {
   total: number
 }
 
-// Log rate = fully-completed logs / total logs × 100
+// ── Log rate ──────────────────────────────────────────────────────────────────
 export function calcLogRate(logs: ImplementationLog[], teacherId: string): number {
   const tl = logs.filter(l => l.teacherId === teacherId)
   if (!tl.length) return 0
   return Math.round((tl.filter(l => l.lessonCompletion === 'fully').length / tl.length) * 100)
 }
 
-// Count non-overlapping 14-day windows where ≥2 logs exist and ALL are fully completed
 function countTwoWeekPerfect(logs: ImplementationLog[], teacherId: string): number {
   const tl = [...logs.filter(l => l.teacherId === teacherId)].sort((a, b) => a.date.localeCompare(b.date))
   if (tl.length < 2) return 0
@@ -100,6 +118,7 @@ function countTwoWeekPerfect(logs: ImplementationLog[], teacherId: string): numb
   return count
 }
 
+// ── Rate bonus tables ─────────────────────────────────────────────────────────
 function teacherRateBonus(rate: number): number {
   if (rate >= 81) return 30
   if (rate >= 71) return 20
@@ -121,22 +140,95 @@ function adminRateBonus(rate: number): number {
   return 0
 }
 
-export function calcTeacherBreakdown(teacher: User, logs: ImplementationLog[]): TeacherBreakdown {
+// ── Student performance bonus (teacher) ───────────────────────────────────────
+function calcAvgStudentGrowth(records: StudentDataRecord[], teacherId: string): number {
+  const tr = records.filter(r => r.teacherId === teacherId && r.growth != null)
+  if (!tr.length) return 0
+  return parseFloat((tr.reduce((s, r) => s + (r.growth ?? 0), 0) / tr.length).toFixed(1))
+}
+
+function calcBenchmarkRate(records: StudentDataRecord[], teacherId: string): number {
+  const tr = records.filter(r => r.teacherId === teacherId && r.atOrAboveBenchmark != null && (r.studentsCount ?? 0) > 0)
+  if (!tr.length) return 0
+  const totalStudents = tr.reduce((s, r) => s + (r.studentsCount ?? 0), 0)
+  const totalAtBenchmark = tr.reduce((s, r) => s + (r.atOrAboveBenchmark ?? 0), 0)
+  return Math.round((totalAtBenchmark / totalStudents) * 100)
+}
+
+function studentGrowthBonus(avgGrowth: number): number {
+  if (avgGrowth >= 20) return 50
+  if (avgGrowth >= 10) return 30
+  if (avgGrowth >= 5) return 15
+  return 0
+}
+
+function studentBenchmarkBonus(rate: number): number {
+  return rate >= 80 ? 25 : 0
+}
+
+// ── Teacher fidelity performance bonus (coach) ────────────────────────────────
+function calcTeacherAvgFidelity(checks: FidelityCheck[], teacherId: string): number {
+  const tc = checks.filter(c => c.teacherId === teacherId)
+  if (!tc.length) return 0
+  return tc.reduce((s, c) => s + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / tc.length
+}
+
+function fidelityPerfBonus(avgFidelity: number): number {
+  if (avgFidelity >= 4.0) return 50
+  if (avgFidelity >= 3.5) return 30
+  if (avgFidelity >= 3.0) return 15
+  return 0
+}
+
+// ── Public calc functions ─────────────────────────────────────────────────────
+export function calcTeacherBreakdown(
+  teacher: User,
+  logs: ImplementationLog[],
+  studentDataRecords: StudentDataRecord[] = [],
+): TeacherBreakdown {
   const logRate = calcLogRate(logs, teacher.id)
   const twoWeekPerfect = countTwoWeekPerfect(logs, teacher.id)
   const base = 50
   const twoWeekBonus = twoWeekPerfect * 5
   const rateBonus = teacherRateBonus(logRate)
-  return { userId: teacher.id, name: teacher.name, schoolId: teacher.schoolId, logRate, twoWeekPerfect, base, twoWeekBonus, rateBonus, total: base + twoWeekBonus + rateBonus }
+  const avgStudentGrowth = calcAvgStudentGrowth(studentDataRecords, teacher.id)
+  const benchmarkRate = calcBenchmarkRate(studentDataRecords, teacher.id)
+  const perfBonus = studentGrowthBonus(avgStudentGrowth)
+  const benchBonus = studentBenchmarkBonus(benchmarkRate)
+  return {
+    userId: teacher.id, name: teacher.name, schoolId: teacher.schoolId,
+    logRate, twoWeekPerfect, base, twoWeekBonus, rateBonus,
+    avgStudentGrowth, benchmarkRate,
+    studentPerfBonus: perfBonus,
+    studentBenchmarkBonus: benchBonus,
+    total: base + twoWeekBonus + rateBonus + perfBonus + benchBonus,
+  }
 }
 
-export function calcCoachBreakdown(coach: User, teachers: User[], logs: ImplementationLog[]): CoachBreakdown {
+export function calcCoachBreakdown(
+  coach: User,
+  teachers: User[],
+  logs: ImplementationLog[],
+  fidelityChecks: FidelityCheck[] = [],
+): CoachBreakdown {
   const myTeachers = teachers.filter(t => t.coachId === coach.id)
   const rates = myTeachers.map(t => calcLogRate(logs, t.id))
   const avgLogRate = rates.length ? Math.round(rates.reduce((s, r) => s + r, 0) / rates.length) : 0
   const base = 100
   const rateBonus = coachRateBonus(avgLogRate)
-  return { userId: coach.id, name: coach.name, schoolId: coach.schoolId, avgLogRate, base, rateBonus, total: base + rateBonus }
+  const fidelities = myTeachers.map(t => calcTeacherAvgFidelity(fidelityChecks, t.id))
+  const avgTeacherFidelity = fidelities.length
+    ? parseFloat((fidelities.reduce((s, f) => s + f, 0) / fidelities.length).toFixed(2))
+    : 0
+  const allOnTrack = fidelities.length > 0 && fidelities.every(f => f >= 4.0)
+  const teacherPerfBonus = fidelityPerfBonus(avgTeacherFidelity)
+  const allOnTrackBonus = allOnTrack ? 25 : 0
+  return {
+    userId: coach.id, name: coach.name, schoolId: coach.schoolId,
+    avgLogRate, base, rateBonus,
+    avgTeacherFidelity, allOnTrack, teacherPerfBonus, allOnTrackBonus,
+    total: base + rateBonus + teacherPerfBonus + allOnTrackBonus,
+  }
 }
 
 export function calcAdminBreakdown(admin: User, teachers: User[], logs: ImplementationLog[]): AdminBreakdown {
@@ -148,9 +240,24 @@ export function calcAdminBreakdown(admin: User, teachers: User[], logs: Implemen
   return { userId: admin.id, name: admin.name, schoolId: admin.schoolId, avgLogRate, base, rateBonus, total: base + rateBonus }
 }
 
+// ── Label helpers ─────────────────────────────────────────────────────────────
 export function rateTierLabel(rate: number, role: 'teacher' | 'coach' | 'admin'): string {
   if (rate >= 81) return role === 'admin' ? '+$100 (81–100%)' : '+$30 (81–100%)'
   if (rate >= 71) return role === 'admin' ? '+$80 (71–80%)' : '+$20 (71–80%)'
   if (rate >= 60) return role === 'admin' ? '+$50 (60–70%)' : '+$10 (60–70%)'
   return '$0 (below 60%)'
+}
+
+export function studentGrowthTierLabel(growth: number): string {
+  if (growth >= 20) return '+$50 (≥20% avg growth)'
+  if (growth >= 10) return '+$30 (≥10% avg growth)'
+  if (growth >= 5)  return '+$15 (≥5% avg growth)'
+  return '$0 (below 5% avg growth)'
+}
+
+export function fidelityPerfTierLabel(fidelity: number): string {
+  if (fidelity >= 4.0) return '+$50 (avg ≥ 4.0)'
+  if (fidelity >= 3.5) return '+$30 (avg ≥ 3.5)'
+  if (fidelity >= 3.0) return '+$15 (avg ≥ 3.0)'
+  return '$0 (avg below 3.0)'
 }
