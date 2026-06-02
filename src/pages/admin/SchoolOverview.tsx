@@ -7,9 +7,11 @@ import { Badge } from '../../components/ui/Badge'
 import { Table } from '../../components/ui/Table'
 import { Modal } from '../../components/ui/Modal'
 import { Button } from '../../components/ui/Button'
+import { TimePeriodSelector, type TimePeriod } from '../../components/ui/TimePeriodSelector'
 import { toast } from '../../store/useToastStore'
 import { roleColors } from '../../constants/roles'
 import { useAppStore } from '../../store/useAppStore'
+import { getTimeBuckets, inBucket } from '../../utils/timePeriod'
 
 const roleColor = roleColors.admin
 
@@ -54,18 +56,18 @@ const statusColors: Record<string, 'green' | 'blue' | 'amber'> = {
 
 export function SchoolOverview() {
   const { currentUser, schools, implementationLogs } = useAppStore()
+  const [period, setPeriod] = useState<TimePeriod>('week')
   const mySchool = schools.find(s => s.id === currentUser.schoolId)
   const schoolData = mySchool ? [schoolIdToRow[mySchool.id] ?? allSchoolData[0]] : allSchoolData.slice(0, 1)
   const mySchoolLogs = implementationLogs.filter(l => l.schoolId === (mySchool?.id ?? ''))
   const computedLogRate = mySchoolLogs.length > 0
     ? `${Math.round(mySchoolLogs.filter(l => l.lessonCompletion !== 'not_completed').length / mySchoolLogs.length * 100)}%`
     : schoolData[0]?.logRate ?? '—'
-  const weeklySchoolLogs = Array.from({ length: 8 }, (_, i) => {
-    const weeksAgo = 7 - i
-    const end = new Date(); end.setDate(end.getDate() - weeksAgo * 7); end.setHours(23, 59, 59, 999)
-    const start = new Date(end); start.setDate(start.getDate() - 6); start.setHours(0, 0, 0, 0)
-    return { week: `W${i + 1}`, Logs: mySchoolLogs.filter(l => { const d = new Date(l.date); return d >= start && d <= end }).length }
-  })
+  const buckets = getTimeBuckets(period)
+  const weeklySchoolLogs = buckets.map(b => ({
+    week: b.label,
+    Logs: mySchoolLogs.filter(l => inBucket(l.date, b)).length,
+  }))
   const [selected, setSelected] = useState<SchoolRow | null>(null)
 
   const columns = [
@@ -120,8 +122,11 @@ export function SchoolOverview() {
 
       <Card>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-800">Log Submission Activity (Last 8 Weeks)</h3>
-          <span className="text-xs text-gray-400">{mySchool?.name ?? 'School-wide'}</span>
+          <h3 className="text-sm font-semibold text-gray-800">Log Submission Activity</h3>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-gray-400 hidden sm:block">{mySchool?.name ?? 'School-wide'}</span>
+            <TimePeriodSelector value={period} onChange={setPeriod} />
+          </div>
         </div>
         <ResponsiveContainer width="100%" height={160}>
           <BarChart data={weeklySchoolLogs}>

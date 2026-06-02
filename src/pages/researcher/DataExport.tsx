@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Download, FileDown, Eye } from 'lucide-react'
+import { Download, FileDown, Eye, ShieldCheck } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
@@ -8,15 +8,15 @@ import { Table } from '../../components/ui/Table'
 import { Modal } from '../../components/ui/Modal'
 import { toast } from '../../store/useToastStore'
 import { roleColors } from '../../constants/roles'
+import { useAppStore } from '../../store/useAppStore'
 
 const roleColor = roleColors.researcher
 
 type ExportForm = {
   dataset: string
-  deIdentification: string
   startDate: string
   endDate: string
-  site: string
+  schoolId: string
   format: 'csv' | 'json' | 'spss'
 }
 
@@ -29,31 +29,56 @@ const recentExports: ExportRow[] = [
   { date: '2026-03-31', dataset: 'Implementation logs only', records: '156 records', format: 'CSV', status: 'Complete' },
 ]
 
-const previewRows = [
-  { id: 'LOG-001', site: 'Site A', date: '2026-05-12', routine: 'Number Talks', completion: 'fully', fidelity: '4.2', adaptation: 'No' },
-  { id: 'LOG-002', site: 'Site B', date: '2026-05-11', routine: 'Math Workshop', completion: 'partially', fidelity: '3.7', adaptation: 'Yes' },
-  { id: 'LOG-003', site: 'Site A', date: '2026-05-10', routine: 'CRA Sequence', completion: 'fully', fidelity: '4.5', adaptation: 'No' },
-  { id: 'LOG-004', site: 'Site C', date: '2026-05-09', routine: 'Error Analysis', completion: 'not_completed', fidelity: '—', adaptation: 'Yes' },
-  { id: 'LOG-005', site: 'Site B', date: '2026-05-08', routine: 'Number Talks', completion: 'fully', fidelity: '3.9', adaptation: 'No' },
-]
-
 export function DataExport() {
+  const { implementationLogs, users, schools } = useAppStore()
   const [previewOpen, setPreviewOpen] = useState(false)
+
   const { register, handleSubmit, watch } = useForm<ExportForm>({
     defaultValues: {
       dataset: 'Full longitudinal',
-      deIdentification: 'De-identified (research)',
       startDate: '2025-09-01',
-      endDate: '2026-05-17',
-      site: 'All sites',
+      endDate: '2026-05-31',
+      schoolId: 'all',
       format: 'csv',
     },
   })
-  const currentDataset = watch('dataset')
 
-  const onSubmit = (data: ExportForm) => {
-    toast.success(`Export generated: ${data.dataset} (${data.format.toUpperCase()}) — download will begin shortly.`)
-  }
+  const watchSchool = watch('schoolId')
+  const watchDataset = watch('dataset')
+
+  // Build de-identified preview from real data
+  const previewLogs = implementationLogs
+    .filter(l => watchSchool === 'all' || l.schoolId === watchSchool)
+    .slice(0, 6)
+    .map(l => {
+      const teacher = users.find(u => u.id === l.teacherId)
+      return {
+        participant_id: l.teacherId,          // code, not name
+        school_id: l.schoolId,                // code, not name
+        coach_id: teacher?.coachId ?? '—',   // code, not name
+        date: l.date,
+        tier: l.tier,
+        routine: l.instructionalRoutine,
+        completion: l.lessonCompletion,
+        adaptation: l.adaptationOccurred ? 'Yes' : 'No',
+      }
+    })
+
+  const previewColumns = [
+    { key: 'participant_id', header: 'Participant ID' },
+    { key: 'school_id', header: 'School ID' },
+    { key: 'coach_id', header: 'Coach ID', className: 'hidden sm:table-cell' },
+    { key: 'date', header: 'Date' },
+    { key: 'tier', header: 'Tier', className: 'hidden md:table-cell' },
+    { key: 'completion', header: 'Completion', render: (row: typeof previewLogs[0]) => (
+      <Badge color={row.completion === 'fully' ? 'green' : row.completion === 'partially' ? 'amber' : 'red'}>
+        {row.completion.replace('_', ' ')}
+      </Badge>
+    )},
+    { key: 'adaptation', header: 'Adapted', render: (row: typeof previewLogs[0]) => (
+      <Badge color={row.adaptation === 'Yes' ? 'blue' : 'gray'}>{row.adaptation}</Badge>
+    )},
+  ]
 
   const exportColumns = [
     { key: 'date', header: 'Date', className: 'whitespace-nowrap' },
@@ -71,22 +96,24 @@ export function DataExport() {
     )},
   ]
 
-  const previewColumns = [
-    { key: 'id', header: 'ID' },
-    { key: 'site', header: 'Site' },
-    { key: 'date', header: 'Date' },
-    { key: 'routine', header: 'Routine', className: 'hidden sm:table-cell' },
-    { key: 'completion', header: 'Completion', render: (row: typeof previewRows[0]) => (
-      <Badge color={row.completion === 'fully' ? 'green' : row.completion === 'partially' ? 'amber' : 'red'}>{row.completion}</Badge>
-    )},
-    { key: 'fidelity', header: 'Fidelity', className: 'hidden sm:table-cell' },
-    { key: 'adaptation', header: 'Adapt.', render: (row: typeof previewRows[0]) => (
-      <Badge color={row.adaptation === 'Yes' ? 'blue' : 'gray'}>{row.adaptation}</Badge>
-    )},
-  ]
+  const onSubmit = (data: ExportForm) => {
+    const count = implementationLogs.filter(l => data.schoolId === 'all' || l.schoolId === data.schoolId).length
+    toast.success(`De-identified export generated: ${data.dataset} · ${count} records · ${data.format.toUpperCase()}`)
+  }
 
   return (
     <div className="w-full max-w-2xl space-y-4">
+      {/* De-identification notice */}
+      <div className="flex items-start gap-3 bg-purple-50 border border-purple-200 rounded-xl px-4 py-3">
+        <ShieldCheck size={16} className="flex-shrink-0 mt-0.5 text-purple-600" />
+        <div>
+          <p className="text-sm font-semibold text-purple-800">All exports are automatically de-identified</p>
+          <p className="text-xs text-purple-600 mt-0.5">
+            Names are replaced with participant codes (T001, C001, SCH01). No personally identifiable information is included in any export file.
+          </p>
+        </div>
+      </div>
+
       <Card>
         <h2 className="text-sm font-semibold text-gray-800 mb-4">Export Configuration</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -98,15 +125,17 @@ export function DataExport() {
                 <option>Implementation logs only</option>
                 <option>Adaptation records (FRAME-IS)</option>
                 <option>Fidelity self-checks</option>
+                <option>Student data records</option>
                 <option>Coaching records</option>
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1.5">De-identification Level</label>
-              <select {...register('deIdentification')} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300">
-                <option>De-identified (research)</option>
-                <option>School-level aggregated</option>
-                <option>District-level aggregated</option>
+              <label className="text-xs font-medium text-gray-600 block mb-1.5">School Filter</label>
+              <select {...register('schoolId')} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300">
+                <option value="all">All Schools</option>
+                {schools.map(s => (
+                  <option key={s.id} value={s.id}>{s.name} ({s.id})</option>
+                ))}
               </select>
             </div>
             <div>
@@ -117,20 +146,11 @@ export function DataExport() {
               <label className="text-xs font-medium text-gray-600 block mb-1.5">End Date</label>
               <input type="date" {...register('endDate')} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" />
             </div>
-            <div className="sm:col-span-2">
-              <label className="text-xs font-medium text-gray-600 block mb-1.5">Site Filter</label>
-              <select {...register('site')} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300">
-                <option>All sites</option>
-                <option>Site A (Lincoln Elementary)</option>
-                <option>Site B (Washington Elementary)</option>
-                <option>Site C (Jefferson Elementary)</option>
-              </select>
-            </div>
           </div>
           <div>
             <label className="text-xs font-medium text-gray-600 block mb-1.5">Export Format</label>
             <div className="flex flex-wrap gap-4">
-              {([['csv','CSV'],['json','JSON'],['spss','SPSS-ready']] as const).map(([v, l]) => (
+              {([['csv', 'CSV'], ['json', 'JSON'], ['spss', 'SPSS-ready']] as const).map(([v, l]) => (
                 <label key={v} className="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
                   <input type="radio" value={v} {...register('format')} className="accent-purple-500" />
                   {l}
@@ -139,15 +159,20 @@ export function DataExport() {
             </div>
           </div>
           <div className="flex flex-wrap gap-3 pt-2">
-            <Button type="submit" roleColor={roleColor}><FileDown size={14}/>Generate Export</Button>
-            <Button type="button" variant="secondary" roleColor={roleColor} onClick={() => setPreviewOpen(true)}><Eye size={14}/>Preview Dataset</Button>
+            <Button type="submit" roleColor={roleColor}><FileDown size={14} />Generate Export</Button>
+            <Button type="button" variant="secondary" roleColor={roleColor} onClick={() => setPreviewOpen(true)}>
+              <Eye size={14} />Preview De-identified
+            </Button>
           </div>
         </form>
       </Card>
+
       <Card padding="none">
         <div className="px-4 sm:px-5 py-4 border-b border-gray-100 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-gray-800">Recent Exports</h2>
-          <button onClick={() => toast.info('Exports are retained for 90 days. Contact data admin to extend retention.')} className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer">Retention policy</button>
+          <button onClick={() => toast.info('Exports are retained for 90 days.')} className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer">
+            Retention policy
+          </button>
         </div>
         <Table
           columns={exportColumns as Parameters<typeof Table>[0]['columns']}
@@ -158,18 +183,23 @@ export function DataExport() {
       </Card>
 
       {previewOpen && (
-        <Modal open onClose={() => setPreviewOpen(false)} title={`Preview: ${currentDataset}`} size="lg">
+        <Modal open onClose={() => setPreviewOpen(false)} title={`De-identified Preview: ${watchDataset}`} size="lg">
           <div className="space-y-3">
-            <div className="flex items-center gap-2 bg-purple-50 border border-purple-200 rounded-lg px-3 py-2">
-              <p className="text-xs text-purple-700">Showing 5 sample de-identified records. All IDs and dates are synthetic.</p>
+            <div className="flex items-start gap-2 bg-purple-50 border border-purple-200 rounded-lg px-3 py-2">
+              <ShieldCheck size={14} className="flex-shrink-0 mt-0.5 text-purple-600" />
+              <p className="text-xs text-purple-700">
+                Names replaced with participant codes. This is exactly how exported data will appear — no real names are present.
+              </p>
             </div>
             <Table
               columns={previewColumns as Parameters<typeof Table>[0]['columns']}
-              data={previewRows as unknown as Record<string, unknown>[]}
-              emptyMessage="No preview available."
+              data={previewLogs as unknown as Record<string, unknown>[]}
+              emptyMessage="No records match the current filter."
             />
             <div className="flex gap-2 pt-1">
-              <Button roleColor={roleColor} onClick={() => { toast.success('Full export queued — check Recent Exports shortly.'); setPreviewOpen(false) }}>Generate Full Export</Button>
+              <Button roleColor={roleColor} onClick={() => { toast.success('Full de-identified export queued.'); setPreviewOpen(false) }}>
+                Generate Full Export
+              </Button>
               <Button variant="ghost" roleColor={roleColor} onClick={() => setPreviewOpen(false)}>Close</Button>
             </div>
           </div>

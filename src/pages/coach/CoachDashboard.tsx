@@ -1,12 +1,18 @@
+import { useState } from 'react'
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid, Cell } from 'recharts'
-import { Users, TrendingUp, MessageSquare, AlertTriangle } from 'lucide-react'
+import { Users, TrendingUp, MessageSquare, AlertTriangle, ChevronRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
 import { StatCard } from '../../components/ui/StatCard'
 import { Card } from '../../components/ui/Card'
+import { TimePeriodSelector, type TimePeriod } from '../../components/ui/TimePeriodSelector'
+import { Badge } from '../../components/ui/Badge'
+import { LogDetailView } from './LogDetailView'
+import { Modal } from '../../components/ui/Modal'
 import { toast } from '../../store/useToastStore'
 import { users } from '../../data/mockData'
 import { roleColors } from '../../constants/roles'
+import { getTimeBuckets, inBucket } from '../../utils/timePeriod'
 
 const roleColor = roleColors.coach
 
@@ -17,10 +23,17 @@ function getBarColor(avg: number): string {
 }
 
 export function CoachDashboard() {
-  const { currentUser, implementationLogs, fidelityChecks, adaptations } = useAppStore()
+  const { currentUser, implementationLogs, fidelityChecks, adaptations, studentDataRecords } = useAppStore()
   const navigate = useNavigate()
+  const [period, setPeriod] = useState<TimePeriod>('week')
+  const [selectedLog, setSelectedLog] = useState<typeof implementationLogs[0] | null>(null)
 
   const myTeachers = users.filter(u => u.role === 'teacher' && u.coachId === currentUser.id)
+  const teacherById = Object.fromEntries(myTeachers.map(t => [t.id, t.name]))
+  const recentLogs = implementationLogs
+    .filter(l => myTeachers.some(t => t.id === l.teacherId))
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 6)
 
   const teacherStats = myTeachers.map(t => {
     const logs = implementationLogs.filter(l => l.teacherId === t.id)
@@ -30,7 +43,7 @@ export function CoachDashboard() {
       ? checks.reduce((sum, c) => sum + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / checks.length : 0
     const myAdapts = adaptations.filter(a => a.teacherId === t.id)
     return {
-      name: t.name.split(' ')[0], fullName: t.name,
+      id: t.id, name: t.name.split(' ')[0], fullName: t.name,
       logRate, avgFidelity: parseFloat(avgFidelity.toFixed(1)),
       consistent: myAdapts.filter(a => a.fidelityType === 'consistent').length,
       inconsistent: myAdapts.filter(a => a.fidelityType === 'inconsistent').length,
@@ -50,19 +63,22 @@ export function CoachDashboard() {
   const topReasons = Object.entries(reasonCounts).sort((a, b) => b[1] - a[1]).slice(0, 3)
 
   const TEACHER_COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EF4444']
-  const weeklyTeacherLogs = Array.from({ length: 8 }, (_, i) => {
-    const weeksAgo = 7 - i
-    const end = new Date(); end.setDate(end.getDate() - weeksAgo * 7); end.setHours(23, 59, 59, 999)
-    const start = new Date(end); start.setDate(start.getDate() - 6); start.setHours(0, 0, 0, 0)
-    const row: Record<string, number | string> = { week: `W${i + 1}` }
+  const buckets = getTimeBuckets(period)
+
+  const weeklyTeacherLogs = buckets.map(b => {
+    const row: Record<string, number | string> = { week: b.label }
     myTeachers.forEach(t => {
-      row[t.name.split(' ')[0]] = implementationLogs.filter(l => { const d = new Date(l.date); return l.teacherId === t.id && d >= start && d <= end }).length
+      row[t.name.split(' ')[0]] = implementationLogs.filter(l => l.teacherId === t.id && inBucket(l.date, b)).length
     })
     return row
   })
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-gray-400">Showing data by period</p>
+        <TimePeriodSelector value={period} onChange={setPeriod} />
+      </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         <div className="cursor-pointer" onClick={() => navigate('/coach/caseload')}>
           <StatCard label="Teachers On Track" value={`${onTrack}/${myTeachers.length}`} sub="Fidelity ≥ 4.0" icon={<Users size={18} />} iconColor={roleColor} />
@@ -89,7 +105,7 @@ export function CoachDashboard() {
               <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={55} />
               <Tooltip formatter={(v) => typeof v === 'number' ? v.toFixed(1) : v} />
               <Bar dataKey="avgFidelity" radius={[0, 4, 4, 0]} cursor="pointer"
-                onClick={(data) => toast.info(`${data.payload.fullName}: avg fidelity ${data.payload.avgFidelity}`)}>
+                onClick={(data) => navigate(`/coach/teacher/${data.payload.id}`)}>
                 {teacherStats.map((entry, i) => <Cell key={i} fill={getBarColor(entry.avgFidelity)} />)}
               </Bar>
             </BarChart>
@@ -124,7 +140,7 @@ export function CoachDashboard() {
       </div>
       <Card>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-800">Log Submissions by Week (Caseload)</h3>
+          <h3 className="text-sm font-semibold text-gray-800">Log Submissions by Period (Caseload)</h3>
           <button onClick={() => navigate('/coach/caseload')} className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer">View caseload →</button>
         </div>
         <ResponsiveContainer width="100%" height={180}>
@@ -140,6 +156,42 @@ export function CoachDashboard() {
           </LineChart>
         </ResponsiveContainer>
       </Card>
+      <Card padding="none">
+        <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <MessageSquare size={14} style={{ color: roleColor }} />
+            <h3 className="text-sm font-semibold text-gray-800">Recent Implementation Logs</h3>
+          </div>
+          <button onClick={() => navigate('/coach/caseload')} className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer">View all →</button>
+        </div>
+        {recentLogs.length === 0 ? (
+          <p className="text-sm text-gray-400 text-center py-8">No logs from your caseload yet.</p>
+        ) : recentLogs.map(log => (
+          <button key={log.id} onClick={() => setSelectedLog(log)}
+            className="w-full px-4 py-2.5 text-left hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-50 last:border-0 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-gray-700 truncate">{teacherById[log.teacherId] ?? log.teacherId} · {log.date} · {log.instructionalRoutine}</p>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <Badge color={log.adaptationOccurred ? 'purple' : 'blue'}>{log.tier}</Badge>
+              <Badge color={log.lessonCompletion === 'fully' ? 'green' : log.lessonCompletion === 'partially' ? 'amber' : 'red'}>{log.lessonCompletion.replace('_', ' ')}</Badge>
+              <ChevronRight size={13} className="text-gray-300 ml-1" />
+            </div>
+          </button>
+        ))}
+      </Card>
+
+      {selectedLog && (
+        <Modal open onClose={() => setSelectedLog(null)} title="Log Detail" size="lg">
+          <LogDetailView
+            log={selectedLog}
+            adaptation={adaptations.find(a => a.logId === selectedLog.id)}
+            fidelityCheck={fidelityChecks.find(f => f.logId === selectedLog.id)}
+            studentDataRecords={studentDataRecords.filter(r => r.logId === selectedLog.id)}
+            onBack={() => setSelectedLog(null)}
+          />
+        </Modal>
+      )}
     </div>
   )
 }

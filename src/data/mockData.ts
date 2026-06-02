@@ -527,7 +527,7 @@ export const rolePermissions: RolePermissions[] = [
   },
   {
     role: 'researcher',
-    permissionIds: ['p_view_logs', 'p_view_fidelity', 'p_export_data', 'p_view_student_data', 'p_view_reports', 'p_generate_reports'],
+    permissionIds: ['p_view_logs', 'p_view_fidelity', 'p_export_data', 'p_view_student_data', 'p_view_reports', 'p_generate_reports', 'p_manage_org'],
   },
   {
     role: 'super_admin',

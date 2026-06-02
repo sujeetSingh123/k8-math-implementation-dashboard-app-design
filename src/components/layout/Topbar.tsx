@@ -83,7 +83,20 @@ export function Topbar({ title, onMenuClick }: TopbarProps) {
             <div className="absolute right-0 top-11 w-48 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
               <div className="px-4 py-3 border-b border-gray-100">
                 <p className="text-sm font-semibold text-gray-800">{currentUser.name}</p>
-                <p className="text-xs text-gray-400">{roleLabels[currentRole]}</p>
+                <p className="text-xs text-gray-400 mb-2">{roleLabels[currentRole]}</p>
+                <div className="flex flex-wrap gap-1">
+                  <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
+                    {currentUser.id}
+                  </span>
+                  <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
+                    {currentUser.schoolId}
+                  </span>
+                  {currentUser.coachId && (
+                    <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
+                      {currentUser.coachId}
+                    </span>
+                  )}
+                </div>
               </div>
               <button
                 onClick={() => setShowUserMenu(false)}

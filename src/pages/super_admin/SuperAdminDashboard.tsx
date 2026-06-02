@@ -8,8 +8,10 @@ import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
 import { Table } from '../../components/ui/Table'
 import { Modal } from '../../components/ui/Modal'
+import { TimePeriodSelector, type TimePeriod } from '../../components/ui/TimePeriodSelector'
 import { roleColors } from '../../constants/roles'
 import { useAppStore } from '../../store/useAppStore'
+import { getTimeBuckets, inBucket } from '../../utils/timePeriod'
 
 const roleColor = roleColors.super_admin
 
@@ -19,6 +21,7 @@ export function SuperAdminDashboard() {
   const { schools, users, implementationLogs } = useAppStore()
   const navigate = useNavigate()
   const [selectedSchool, setSelectedSchool] = useState<SchoolRow | null>(null)
+  const [period, setPeriod] = useState<TimePeriod>('week')
 
   const teachers = users.filter(u => u.role === 'teacher').length
   const coaches = users.filter(u => u.role === 'coach').length
@@ -27,12 +30,17 @@ export function SuperAdminDashboard() {
 
   const totalLogs = implementationLogs.length
   const completionRate = totalLogs > 0 ? Math.round(implementationLogs.filter(l => l.lessonCompletion !== 'not_completed').length / totalLogs * 100) : 0
-  const schoolLogData = schools.map(s => ({
-    school: s.name.split(' ')[0],
-    Fully: implementationLogs.filter(l => l.schoolId === s.id && l.lessonCompletion === 'fully').length,
-    Partial: implementationLogs.filter(l => l.schoolId === s.id && l.lessonCompletion === 'partially').length,
-    Missed: implementationLogs.filter(l => l.schoolId === s.id && l.lessonCompletion === 'not_completed').length,
-  }))
+
+  const buckets = getTimeBuckets(period)
+  const schoolLogData = schools.map(s => {
+    const filtered = implementationLogs.filter(l => l.schoolId === s.id && buckets.some(b => inBucket(l.date, b)))
+    return {
+      school: s.name.split(' ')[0],
+      Fully: filtered.filter(l => l.lessonCompletion === 'fully').length,
+      Partial: filtered.filter(l => l.lessonCompletion === 'partially').length,
+      Missed: filtered.filter(l => l.lessonCompletion === 'not_completed').length,
+    }
+  })
 
   const schoolRows: SchoolRow[] = schools.map(s => ({
     id: s.id,
@@ -80,7 +88,7 @@ export function SuperAdminDashboard() {
       <Card>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-gray-800">Log Activity by School</h2>
-          <span className="text-xs text-gray-400">All-time totals</span>
+          <TimePeriodSelector value={period} onChange={setPeriod} />
         </div>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={schoolLogData}>

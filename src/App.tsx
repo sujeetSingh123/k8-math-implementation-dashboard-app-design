@@ -13,6 +13,7 @@ import { MyLogs } from './pages/teacher/MyLogs'
 import { PlanningSession } from './pages/teacher/PlanningSession'
 import { StudentData } from './pages/teacher/StudentData'
 import { TeacherCaseload } from './pages/coach/TeacherCaseload'
+import { TeacherDetailPage } from './pages/coach/TeacherDetailPage'
 import { FeedbackQueue } from './pages/coach/FeedbackQueue'
 import { CoachDashboard } from './pages/coach/CoachDashboard'
 import { SchoolOverview } from './pages/admin/SchoolOverview'
@@ -28,6 +29,7 @@ import { LogAggregation } from './pages/researcher/LogAggregation'
 import { DataExport } from './pages/researcher/DataExport'
 import { DSAIIPathway } from './pages/researcher/DSAIIPathway'
 import { BudgetView } from './pages/researcher/BudgetView'
+import { DataBrowser } from './pages/researcher/DataBrowser'
 import { MyIncentives } from './pages/teacher/MyIncentives'
 import { CoachIncentives } from './pages/coach/CoachIncentives'
 import { FidelityAdaptationView } from './pages/shared/FidelityAdaptationView'
@@ -77,6 +79,7 @@ export default function App() {
         <Route path="/teacher/student-data" element={<ProtectedLayout><PermissionGate permissionId="p_view_student_data"><StudentData /></PermissionGate></ProtectedLayout>} />
         <Route path="/teacher/incentives" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><MyIncentives /></PermissionGate></ProtectedLayout>} />
         <Route path="/coach/caseload" element={<ProtectedLayout><PermissionGate permissionId="p_view_users"><TeacherCaseload /></PermissionGate></ProtectedLayout>} />
+        <Route path="/coach/teacher/:teacherId" element={<ProtectedLayout><PermissionGate permissionId="p_view_users"><TeacherDetailPage /></PermissionGate></ProtectedLayout>} />
         <Route path="/coach/feedback" element={<ProtectedLayout><PermissionGate permissionId="p_respond_coaching"><FeedbackQueue /></PermissionGate></ProtectedLayout>} />
         <Route path="/coach/dashboard" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><CoachDashboard /></PermissionGate></ProtectedLayout>} />
         <Route path="/coach/fidelity-trends" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><FidelityAdaptationView /></PermissionGate></ProtectedLayout>} />
@@ -95,6 +98,8 @@ export default function App() {
         <Route path="/researcher/longitudinal" element={<ProtectedLayout><PermissionGate permissionId="p_view_student_data"><LongitudinalView /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/log-aggregation" element={<ProtectedLayout><PermissionGate permissionId="p_view_logs"><LogAggregation /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/fidelity-trends" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><FidelityAdaptationView /></PermissionGate></ProtectedLayout>} />
+        <Route path="/researcher/data-browser" element={<ProtectedLayout><PermissionGate permissionId="p_view_logs"><DataBrowser /></PermissionGate></ProtectedLayout>} />
+        <Route path="/researcher/teacher/:teacherId" element={<ProtectedLayout><PermissionGate permissionId="p_view_logs"><TeacherDetailPage /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/export" element={<ProtectedLayout><PermissionGate permissionId="p_export_data"><DataExport /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/dsaii" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><DSAIIPathway /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />

@@ -25,7 +25,7 @@ function getStatus(avgFidelity: number): { label: string; color: 'green' | 'ambe
 export function TeacherCaseload() {
   const { currentUser, implementationLogs, fidelityChecks, adaptations, coachingCycles, flaggedTeachers, toggleFlag, studentDataRecords } = useAppStore()
   const navigate = useNavigate()
-  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [expandedId] = useState<string | null>(null)
   const [logsModal, setLogsModal] = useState<{ name: string; logs: ImplementationLog[] } | null>(null)
   const [selectedLog, setSelectedLog] = useState<ImplementationLog | null>(null)
   const [detailTeacher, setDetailTeacher] = useState<User | null>(null)
@@ -88,7 +88,7 @@ export function TeacherCaseload() {
             {teacherData.map(d => (
               <div key={d.teacher.id}>
                 <div className="px-4 sm:px-5 py-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
-                  onClick={() => setExpandedId(expandedId === d.teacher.id ? null : d.teacher.id)}>
+                  onClick={() => navigate(`/coach/teacher/${d.teacher.id}`)}>
                   {/* Mobile */}
                   <div className="flex items-center justify-between gap-3 mb-2 sm:hidden">
                     <div className="flex items-center gap-2">

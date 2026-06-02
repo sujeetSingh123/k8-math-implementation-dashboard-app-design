@@ -25,7 +25,6 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
           { label: 'Plan Session', path: '/teacher/planning', icon: <CalendarDays size={16} />, permission: 'p_edit_logs' },
           { label: 'Daily Log', path: '/teacher/log', icon: <ClipboardList size={16} />, permission: 'p_edit_logs' },
           { label: 'My Logs', path: '/teacher/logs', icon: <BookOpen size={16} />, permission: 'p_edit_logs' },
-          { label: 'Fidelity Trends', path: '/teacher/fidelity-trends', icon: <TrendingUp size={16} />, permission: 'p_view_fidelity' },
           { label: 'Coaching', path: '/teacher/coaching', icon: <BookOpen size={16} />, badge: unreadCounts.coaching > 0 ? String(unreadCounts.coaching) : undefined, permission: 'p_respond_coaching' },
           { label: 'Student Data', path: '/teacher/student-data', icon: <BarChart size={16} />, permission: 'p_view_student_data' },
         ],
@@ -67,7 +66,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
         items: [
           { label: 'Coach Dashboard', path: '/coach/dashboard', icon: <LayoutDashboard size={16} />, permission: 'p_view_reports' },
           { label: 'Fidelity Trends', path: '/coach/fidelity-trends', icon: <TrendingUp size={16} />, permission: 'p_view_fidelity' },
-          { label: 'Teacher Incentives', path: '/coach/incentives', icon: <Award size={16} />, permission: 'p_view_reports' },
+          { label: 'Incentives', path: '/coach/incentives', icon: <Award size={16} />, permission: 'p_view_reports' },
         ],
       },
       { section: 'Communication', items: [msgItem] },
@@ -134,8 +133,10 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
     {
       section: 'Data',
       items: [
+        { label: 'Data Browser', path: '/researcher/data-browser', icon: <Users size={16} />, permission: 'p_view_logs' },
         { label: 'Export Data', path: '/researcher/export', icon: <Download size={16} />, permission: 'p_export_data' },
         { label: 'Resource Library', path: '/researcher/library', icon: <Library size={16} /> },
+        { label: 'Manage Resources', path: '/admin/resources', icon: <Library size={16} /> },
       ],
     },
     {
@@ -203,7 +204,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
 
       {/* Current User */}
       <div className="px-4 py-3 border-b border-gray-100">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mb-2">
           <div className="w-8 h-8 rounded-full text-white text-xs font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: roleColor }}>
             {currentUser.initials}
           </div>
@@ -214,6 +215,19 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           {unreadCount > 0 && (
             <span className="ml-auto flex-shrink-0 w-5 h-5 rounded-full text-white text-xs font-bold flex items-center justify-center" style={{ backgroundColor: roleColor }}>
               {unreadCount}
+            </span>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-1">
+          <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 tracking-wide">
+            {currentUser.id}
+          </span>
+          <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 tracking-wide">
+            {currentUser.schoolId}
+          </span>
+          {currentUser.coachId && (
+            <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 tracking-wide">
+              {currentUser.coachId}
             </span>
           )}
         </div>
