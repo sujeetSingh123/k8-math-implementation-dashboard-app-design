@@ -11,6 +11,7 @@ import { roleColors } from '../../constants/roles'
 import { instructionalRoutines, implementationStrategies, implementationTiers, instructionalSettings } from '../../data/mockData'
 import { FidelitySection } from './FidelitySection'
 import { AdaptationSubForm } from './AdaptationSubForm'
+import { StudentPerfSummary } from './StudentPerfSummary'
 import type { CoreScores, ExtraScores } from './FidelitySection'
 import type { ImplementationLog, Adaptation, FidelityCheck } from '../../types'
 
@@ -191,6 +192,7 @@ export function DailyLog() {
             onChange={e => { const f = e.target.files?.[0]; if (f) { setArtifactFile(f.name); toast.success(`Artifact attached: ${f.name}`) } }} />
         </div>
       </form>
+      <StudentPerfSummary />
     </div>
   )
 }

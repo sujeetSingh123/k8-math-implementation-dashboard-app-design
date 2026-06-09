@@ -115,6 +115,7 @@ export default function App() {
         <Route path="/super-admin/dashboard" element={<ProtectedLayout><SuperAdminDashboard /></ProtectedLayout>} />
         <Route path="/super-admin/schools" element={<ProtectedLayout><SchoolManagement /></ProtectedLayout>} />
         <Route path="/super-admin/users" element={<ProtectedLayout><UserManagement /></ProtectedLayout>} />
+        <Route path="/super-admin/labs" element={<ProtectedLayout><PDPlanning /></ProtectedLayout>} />
         <Route path="*" element={<DefaultRedirect />} />
       </Routes>
     </BrowserRouter>

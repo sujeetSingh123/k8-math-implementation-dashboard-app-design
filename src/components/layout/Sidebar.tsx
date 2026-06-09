@@ -31,7 +31,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
         section: 'Resources',
         items: [
           { label: 'Coaching', path: '/teacher/coaching', icon: <BookOpen size={16} />, badge: unreadCounts.coaching > 0 ? String(unreadCounts.coaching) : undefined, permission: 'p_respond_coaching' },
-          { label: 'My Training', path: '/teacher/training', icon: <GraduationCap size={16} /> },
+          { label: 'Impl. Learning Labs', path: '/teacher/labs', icon: <CalendarDays size={16} /> },
           { label: 'Resource Library', path: '/teacher/library', icon: <Library size={16} /> },
         ],
       },
@@ -89,7 +89,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
         items: [
           { label: 'Organization', path: '/admin/organization', icon: <Users size={16} />, permission: 'p_view_users' },
           { label: 'Roles & Permissions', path: '/admin/roles', icon: <Shield size={16} />, permission: 'p_assign_roles' },
-          { label: 'PD Planning', path: '/admin/pd-planning', icon: <CalendarDays size={16} />, permission: 'p_manage_org' },
+          { label: 'Impl. Learning Labs', path: '/admin/pd-planning', icon: <CalendarDays size={16} />, permission: 'p_manage_org' },
         ],
       },
       {
@@ -118,6 +118,12 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
           { label: 'Users', path: '/super-admin/users', icon: <Users size={16} /> },
         ],
       },
+      {
+        section: 'Resources',
+        items: [
+          { label: 'Impl. Learning Labs', path: '/super-admin/labs', icon: <CalendarDays size={16} /> },
+        ],
+      },
       { section: 'Communication', items: [msgItem] },
     ]
   }
@@ -130,6 +136,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
         { label: 'Log Aggregation', path: '/researcher/log-aggregation', icon: <Activity size={16} />, permission: 'p_view_logs' },
         { label: 'Fidelity Trends', path: '/researcher/fidelity-trends', icon: <TrendingUp size={16} />, permission: 'p_view_fidelity' },
         { label: 'DSAII Pathway', path: '/researcher/dsaii', icon: <GitBranch size={16} />, permission: 'p_view_reports' },
+        { label: 'Impl. Learning Labs', path: '/researcher/labs', icon: <CalendarDays size={16} /> },
       ],
     },
     {

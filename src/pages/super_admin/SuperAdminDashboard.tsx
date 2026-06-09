@@ -12,7 +12,7 @@ import { TimePeriodSelector, type TimePeriod } from '../../components/ui/TimePer
 import { roleColors } from '../../constants/roles'
 import { useAppStore } from '../../store/useAppStore'
 import { getTimeBuckets, inBucket } from '../../utils/timePeriod'
-import { schoolFidelityTrends, incentives } from '../../data/mockData'
+import { schoolFidelityTrends, incentives, studentDataRecords } from '../../data/mockData'
 
 const roleColor = roleColors.super_admin
 
@@ -140,6 +140,48 @@ function IncentivesSection() {
   )
 }
 
+function StudentsSection() {
+  const schoolIds = ['SCH01', 'SCH02', 'SCH03', 'SCH04']
+  const rows = schoolIds.map(id => {
+    const recs = studentDataRecords.filter(r => r.schoolId === id)
+    if (!recs.length) return { id, name: schoolNames[id] ?? id, avgScore: '—', avgGrowth: '—', atBench: '—', count: 0 }
+    const avgScore = (recs.reduce((s, r) => s + r.currentAvg, 0) / recs.length).toFixed(1)
+    const avgGrowth = (recs.reduce((s, r) => s + (r.growth ?? 0), 0) / recs.length).toFixed(1)
+    const atBench = Math.round(recs.reduce((s, r) => s + r.atOrAboveBenchmark, 0) / recs.length)
+    return { id, name: schoolNames[id] ?? id, avgScore, avgGrowth, atBench: `${atBench}%`, count: recs.length }
+  })
+  return (
+    <Card title="Students' Performance by School">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase">
+              <th className="text-left py-2 pr-3 font-semibold">School</th>
+              <th className="text-center py-2 px-2 font-semibold">Avg Score %</th>
+              <th className="text-center py-2 px-2 font-semibold">Avg Growth</th>
+              <th className="text-center py-2 px-2 font-semibold">At Benchmark</th>
+              <th className="text-center py-2 pl-2 font-semibold">Records</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50">
+            {rows.map(r => (
+              <tr key={r.id} className="hover:bg-gray-50">
+                <td className="py-2.5 pr-3 font-medium text-gray-800">{r.name}</td>
+                <td className="py-2.5 px-2 text-center text-gray-600">{r.avgScore}</td>
+                <td className="py-2.5 px-2 text-center text-emerald-600 font-medium">
+                  {r.avgGrowth !== '—' ? `+${r.avgGrowth}` : '—'}
+                </td>
+                <td className="py-2.5 px-2 text-center font-semibold" style={{ color: r.atBench !== '—' ? roleColor : undefined }}>{r.atBench}</td>
+                <td className="py-2.5 pl-2 text-center text-gray-400">{r.count || '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  )
+}
+
 // ── Main Component ─────────────────────────────────────────────────────────────
 
 export function SuperAdminDashboard() {
@@ -229,6 +271,8 @@ export function SuperAdminDashboard() {
       </Card>
 
       <FidelitySection />
+
+      <StudentsSection />
 
       <IncentivesSection />
 
