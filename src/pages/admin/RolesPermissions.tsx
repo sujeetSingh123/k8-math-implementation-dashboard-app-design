@@ -7,6 +7,7 @@ import type { Role } from '../../types'
 
 const roleDescriptions: Record<Role, string> = {
   teacher: 'Classroom teachers implementing math curricula',
+  paraprofessional: 'Paraprofessionals supporting math instruction',
   coach: 'Instructional coaches supporting teachers',
   admin: 'School and district administrators',
   researcher: 'External researchers and data analysts',

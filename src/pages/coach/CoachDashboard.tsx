@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid, Cell } from 'recharts'
 import { Users, TrendingUp, MessageSquare, AlertTriangle, ChevronRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -38,16 +38,10 @@ export function CoachDashboard() {
   const teacherStats = myTeachers.map(t => {
     const logs = implementationLogs.filter(l => l.teacherId === t.id)
     const checks = fidelityChecks.filter(f => f.teacherId === t.id)
-    const logRate = logs.length > 0 ? Math.round((logs.filter(l => l.lessonCompletion !== 'not_completed').length / logs.length) * 100) : 0
-    const avgFidelity = checks.length > 0
-      ? checks.reduce((sum, c) => sum + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / checks.length : 0
-    const myAdapts = adaptations.filter(a => a.teacherId === t.id)
-    return {
-      id: t.id, name: t.name.split(' ')[0], fullName: t.name,
-      logRate, avgFidelity: parseFloat(avgFidelity.toFixed(1)),
-      consistent: myAdapts.filter(a => a.fidelityType === 'consistent').length,
-      inconsistent: myAdapts.filter(a => a.fidelityType === 'inconsistent').length,
-    }
+    const adpts = adaptations.filter(a => a.teacherId === t.id)
+    const logRate = logs.length ? Math.round(logs.filter(l => l.lessonCompletion !== 'not_completed').length / logs.length * 100) : 0
+    const avgFidelity = checks.length ? parseFloat((checks.reduce((s, c) => s + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / checks.length).toFixed(1)) : 0
+    return { id: t.id, name: t.name.split(' ')[0], fullName: t.name, logRate, avgFidelity, consistent: adpts.filter(a => a.fidelityType === 'consistent').length, inconsistent: adpts.filter(a => a.fidelityType === 'inconsistent').length }
   })
 
   const onTrack = teacherStats.filter(t => t.avgFidelity >= 4.0).length
@@ -55,11 +49,7 @@ export function CoachDashboard() {
   const fidelityConcerns = teacherStats.filter(t => t.avgFidelity < 3.0).length
 
   const reasonCounts: Record<string, number> = {}
-  myTeachers.forEach(t => {
-    adaptations.filter(a => a.teacherId === t.id).forEach(a => {
-      a.reasons.forEach(r => { reasonCounts[r] = (reasonCounts[r] ?? 0) + 1 })
-    })
-  })
+  adaptations.filter(a => myTeachers.some(t => t.id === a.teacherId)).forEach(a => a.reasons.forEach(r => { reasonCounts[r] = (reasonCounts[r] ?? 0) + 1 }))
   const topReasons = Object.entries(reasonCounts).sort((a, b) => b[1] - a[1]).slice(0, 3)
 
   const TEACHER_COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EF4444']
@@ -67,11 +57,16 @@ export function CoachDashboard() {
 
   const weeklyTeacherLogs = buckets.map(b => {
     const row: Record<string, number | string> = { week: b.label }
-    myTeachers.forEach(t => {
-      row[t.name.split(' ')[0]] = implementationLogs.filter(l => l.teacherId === t.id && inBucket(l.date, b)).length
-    })
+    myTeachers.forEach(t => { row[t.name.split(' ')[0]] = implementationLogs.filter(l => l.teacherId === t.id && inBucket(l.date, b)).length })
     return row
   })
+
+  const studentPerfTrend = useMemo(() => {
+    const ids = myTeachers.map(t => t.id)
+    const byWeek: Record<number, number[]> = {}
+    studentDataRecords.filter(r => ids.includes(r.teacherId)).forEach(r => { const w = r.week ?? 0; (byWeek[w] ??= []).push(r.currentAvg) })
+    return Object.entries(byWeek).sort(([a], [b]) => +a - +b).map(([w, vals]) => ({ week: `Wk ${w}`, avgScore: +(vals.reduce((s, v) => s + v, 0) / vals.length).toFixed(1) }))
+  }, [studentDataRecords, myTeachers])
 
   return (
     <div className="space-y-4">
@@ -179,6 +174,20 @@ export function CoachDashboard() {
             </div>
           </button>
         ))}
+      </Card>
+
+      <Card title="Student Performance Trend">
+        {!studentPerfTrend.length ? <p className="text-sm text-gray-400 text-center py-8">No student data available.</p> : (
+          <ResponsiveContainer width="100%" height={160}>
+            <LineChart data={studentPerfTrend} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+              <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+              <YAxis tick={{ fontSize: 10 }} width={30} />
+              <Tooltip formatter={(v) => typeof v === 'number' ? v.toFixed(1) : v} />
+              <Line type="monotone" dataKey="avgScore" name="Avg %" stroke={roleColor} strokeWidth={2} dot={{ r: 3, fill: roleColor }} />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
       </Card>
 
       {selectedLog && (

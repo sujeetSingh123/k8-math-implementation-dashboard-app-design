@@ -2,6 +2,7 @@ import type { Role } from '../types'
 
 export const roleColors: Record<Role, string> = {
   teacher: '#10B981',
+  paraprofessional: '#059669',
   coach: '#3B82F6',
   admin: '#F59E0B',
   researcher: '#8B5CF6',
@@ -10,6 +11,7 @@ export const roleColors: Record<Role, string> = {
 
 export const roleLabels: Record<Role, string> = {
   teacher: 'Teacher',
+  paraprofessional: 'Paraprofessional',
   coach: 'Coach',
   admin: 'Administrator',
   researcher: 'Researcher',

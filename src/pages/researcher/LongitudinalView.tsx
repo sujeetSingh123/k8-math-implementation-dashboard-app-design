@@ -7,7 +7,10 @@ import { TrendingUp } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Modal } from '../../components/ui/Modal'
 import { StatCard } from '../../components/ui/StatCard'
-import { monthlyFidelityTrend, schoolFidelityTrends, schools } from '../../data/mockData'
+import {
+  monthlyFidelityTrend, schoolFidelityTrends, dist2SchoolFidelityTrends,
+  districtFidelityTrends, districts, schools,
+} from '../../data/mockData'
 import { roleColors } from '../../constants/roles'
 
 const roleColor = roleColors.researcher
@@ -16,16 +19,20 @@ const dims = ['adherence', 'dosage', 'quality', 'responsiveness', 'confidence'] 
 type Dim = typeof dims[number]
 
 const dimColors: Record<Dim, string> = {
-  adherence: '#8B5CF6',
-  dosage: '#3B82F6',
-  quality: '#10B981',
-  responsiveness: '#F59E0B',
-  confidence: '#EF4444',
+  adherence: '#8B5CF6', dosage: '#3B82F6', quality: '#10B981',
+  responsiveness: '#F59E0B', confidence: '#EF4444',
 }
 
 const schoolMeta: Record<string, { name: string; color: string }> = {
   SCH01: { name: 'Lincoln K-8', color: '#3B82F6' },
   SCH02: { name: 'Washington Middle', color: '#F59E0B' },
+  SCH03: { name: 'Roosevelt Elementary', color: '#10B981' },
+  SCH04: { name: 'Jefferson K-8', color: '#F59E0B' },
+}
+
+const districtMeta: Record<string, { name: string; color: string }> = {
+  dist1: { name: 'Riverside USD', color: roleColor },
+  dist2: { name: 'Lakeside SD', color: '#EC4899' },
 }
 
 type TrendRow = { adherence: number; dosage: number; quality: number; responsiveness: number; confidence: number }
@@ -34,34 +41,151 @@ function composite(row: TrendRow) {
   return +(dims.reduce((s, d) => s + row[d], 0) / dims.length).toFixed(2)
 }
 
-// Composite trajectory: District + each school
-const compositeTrend = monthlyFidelityTrend.map((m, i) => ({
-  month: m.month,
-  District: composite(m),
-  ...Object.fromEntries(
-    Object.entries(schoolFidelityTrends).map(([id, trend]) => [schoolMeta[id].name, composite(trend[i])])
-  ),
-}))
+const allSchoolTrends = { ...schoolFidelityTrends, ...dist2SchoolFidelityTrends }
 
-// Current (May) per-dimension per school for grouped bar
-const dimensionBreakdown = dims.map(d => ({
-  dim: d.charAt(0).toUpperCase() + d.slice(1),
-  ...Object.fromEntries(
-    Object.entries(schoolFidelityTrends).map(([id, trend]) => [schoolMeta[id].name, trend[8][d]])
-  ),
-}))
+type DistrictFilter = 'all' | 'dist1' | 'dist2'
 
-// Summary stats
-const districtFirst = composite(monthlyFidelityTrend[0])
-const districtLast = composite(monthlyFidelityTrend[8])
-const growth = +(districtLast - districtFirst).toFixed(2)
+function getSchoolIds(filter: DistrictFilter): string[] {
+  if (filter === 'dist1') return ['SCH01', 'SCH02']
+  if (filter === 'dist2') return ['SCH03', 'SCH04']
+  return ['SCH01', 'SCH02', 'SCH03', 'SCH04']
+}
 
-const schoolKeys = Object.keys(schoolFidelityTrends)
+function buildCompositeTrend(filter: DistrictFilter) {
+  const schoolIds = getSchoolIds(filter)
+  return monthlyFidelityTrend.map((m, i) => {
+    const row: Record<string, number | string> = { month: m.month }
+    if (filter === 'all' || filter === 'dist1') row['Riverside USD'] = composite(districtFidelityTrends.dist1[i])
+    if (filter === 'all' || filter === 'dist2') row['Lakeside SD'] = composite(districtFidelityTrends.dist2[i])
+    schoolIds.forEach(id => { row[schoolMeta[id].name] = composite(allSchoolTrends[id][i]) })
+    return row
+  })
+}
+
+function buildDimensionBreakdown(schoolIds: string[]) {
+  return dims.map(d => ({
+    dim: d.charAt(0).toUpperCase() + d.slice(1),
+    ...Object.fromEntries(schoolIds.map(id => [schoolMeta[id].name, allSchoolTrends[id][8][d]])),
+  }))
+}
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+type CompositeTrendChartProps = { data: Record<string, number | string>[]; filter: DistrictFilter }
+
+function CompositeTrendChart({ data, filter }: CompositeTrendChartProps) {
+  const schoolIds = getSchoolIds(filter)
+  return (
+    <ResponsiveContainer width="100%" height={240}>
+      <LineChart data={data} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+        <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+        <YAxis domain={[2, 5]} tick={{ fontSize: 12 }} />
+        <Tooltip formatter={(v) => typeof v === 'number' ? v.toFixed(2) : ''} contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+        <Legend wrapperStyle={{ fontSize: 12 }} />
+        {(filter === 'all' || filter === 'dist1') && (
+          <Line type="monotone" dataKey="Riverside USD" stroke={districtMeta.dist1.color} strokeWidth={2.5} strokeDasharray="5 3" dot={false} />
+        )}
+        {(filter === 'all' || filter === 'dist2') && (
+          <Line type="monotone" dataKey="Lakeside SD" stroke={districtMeta.dist2.color} strokeWidth={2.5} strokeDasharray="5 3" dot={false} />
+        )}
+        {schoolIds.map(id => (
+          <Line key={id} type="monotone" dataKey={schoolMeta[id].name} stroke={schoolMeta[id].color} strokeWidth={2} dot={false} />
+        ))}
+      </LineChart>
+    </ResponsiveContainer>
+  )
+}
+
+type SchoolMetricsTableProps = { schoolIds: string[]; onSelect: (id: string) => void; districtLabel: string; districtLast: TrendRow; districtFirst: TrendRow }
+
+function SchoolMetricsTable({ schoolIds, onSelect, districtLabel, districtLast, districtFirst }: SchoolMetricsTableProps) {
+  const distComp = composite(districtLast)
+  const distGrowth = +(composite(districtLast) - composite(districtFirst)).toFixed(2)
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-gray-100">
+            <th className="text-left py-2 text-xs font-semibold text-gray-400 uppercase">School</th>
+            <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase">Composite</th>
+            {dims.map(d => (
+              <th key={d} className="text-center py-2 text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">
+                {d.slice(0, 3).toUpperCase()}
+              </th>
+            ))}
+            <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase">Growth</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-50">
+          {schoolIds.map(id => {
+            const first = allSchoolTrends[id][0]
+            const last = allSchoolTrends[id][8]
+            const comp = composite(last)
+            const g = +(composite(last) - composite(first)).toFixed(2)
+            return (
+              <tr key={id} className="hover:bg-gray-50 cursor-pointer" onClick={() => onSelect(id)}>
+                <td className="py-2.5 font-medium text-gray-800">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: schoolMeta[id].color }} />
+                    <span className="hover:underline">{schoolMeta[id].name}</span>
+                  </div>
+                </td>
+                <td className="py-2.5 text-center">
+                  <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold text-white"
+                    style={{ backgroundColor: comp >= 4 ? '#10B981' : comp >= 3.5 ? '#F59E0B' : '#EF4444' }}>
+                    {comp.toFixed(2)}
+                  </span>
+                </td>
+                {dims.map(d => (
+                  <td key={d} className="py-2.5 text-center text-xs text-gray-600 hidden md:table-cell">
+                    <span className="font-medium" style={{ color: dimColors[d] }}>{last[d].toFixed(1)}</span>
+                  </td>
+                ))}
+                <td className="py-2.5 text-center text-xs font-semibold text-emerald-600">+{g}</td>
+              </tr>
+            )
+          })}
+          <tr className="bg-gray-50 font-semibold">
+            <td className="py-2.5 text-gray-700 pl-1">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: roleColor }} />
+                {districtLabel}
+              </div>
+            </td>
+            <td className="py-2.5 text-center">
+              <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold text-white"
+                style={{ backgroundColor: distComp >= 4 ? '#10B981' : distComp >= 3.5 ? '#F59E0B' : '#EF4444' }}>
+                {distComp.toFixed(2)}
+              </span>
+            </td>
+            {dims.map(d => (
+              <td key={d} className="py-2.5 text-center text-xs text-gray-600 hidden md:table-cell">
+                {districtLast[d].toFixed(1)}
+              </td>
+            ))}
+            <td className="py-2.5 text-center text-xs font-semibold text-emerald-600">+{distGrowth}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+// ── Main Component ────────────────────────────────────────────────────────────
 
 export function LongitudinalView() {
+  const [districtFilter, setDistrictFilter] = useState<DistrictFilter>('all')
   const [selectedSchoolId, setSelectedSchoolId] = useState<string | null>(null)
 
-  const selectedTrend = selectedSchoolId ? schoolFidelityTrends[selectedSchoolId] : null
+  const schoolIds = getSchoolIds(districtFilter)
+  const compositeTrend = buildCompositeTrend(districtFilter)
+  const dimensionBreakdown = buildDimensionBreakdown(schoolIds)
+
+  const distRef = districtFilter === 'dist2' ? districtFidelityTrends.dist2 : districtFidelityTrends.dist1
+  const districtLabel = districtFilter === 'dist2' ? 'Lakeside SD Avg' : districtFilter === 'dist1' ? 'Riverside USD Avg' : 'Dist Avg'
+
+  const selectedTrend = selectedSchoolId ? allSchoolTrends[selectedSchoolId] : null
   const schoolTrendChartData = selectedTrend
     ? monthlyFidelityTrend.map((m, i) => ({
         month: m.month,
@@ -69,6 +193,12 @@ export function LongitudinalView() {
         Composite: composite(selectedTrend[i]),
       }))
     : []
+
+  const tabOptions: { value: DistrictFilter; label: string }[] = [
+    { value: 'all', label: 'All Districts' },
+    { value: 'dist1', label: 'Riverside USD' },
+    { value: 'dist2', label: 'Lakeside SD' },
+  ]
 
   return (
     <div className="space-y-6">
@@ -78,46 +208,49 @@ export function LongitudinalView() {
         </div>
         <div>
           <h2 className="text-lg font-bold text-gray-900">Longitudinal Fidelity Trajectories</h2>
-          <p className="text-sm text-gray-500">All components aggregated · Sep – May · {schools.length} schools</p>
+          <p className="text-sm text-gray-500">All components aggregated · Sep – May · {schools.length} schools · {districts.length} districts</p>
         </div>
+      </div>
+
+      {/* District tab selector */}
+      <div className="flex gap-2 flex-wrap">
+        {tabOptions.map(opt => (
+          <button
+            key={opt.value}
+            onClick={() => setDistrictFilter(opt.value)}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              districtFilter === opt.value
+                ? 'text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+            style={districtFilter === opt.value ? { backgroundColor: roleColor } : undefined}
+          >
+            {opt.label}
+          </button>
+        ))}
       </div>
 
       {/* Summary stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard label="District Composite" value={districtLast.toFixed(2)} unit="/5" color={roleColor} />
-        {schoolKeys.map(id => (
+        {schoolIds.map(id => (
           <StatCard
             key={id}
             label={schoolMeta[id].name}
-            value={composite(schoolFidelityTrends[id][8]).toFixed(2)}
+            value={composite(allSchoolTrends[id][8]).toFixed(2)}
             unit="/5"
             color={schoolMeta[id].color}
           />
         ))}
-        <StatCard label="Growth (Sep → May)" value={`+${growth}`} unit="pts" color="#10B981" />
       </div>
 
       {/* Composite aggregate trajectory */}
       <Card title="Composite Fidelity Trajectory — All Schools">
-        <p className="text-xs text-gray-400 mb-3">Aggregate of all 5 components (adherence, dosage, quality, responsiveness, confidence)</p>
-        <ResponsiveContainer width="100%" height={240}>
-          <LineChart data={compositeTrend} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
-            <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-            <YAxis domain={[2, 5]} tick={{ fontSize: 12 }} />
-            <Tooltip formatter={(v) => typeof v === 'number' ? v.toFixed(2) : ''} contentStyle={{ borderRadius: 12, fontSize: 12 }} />
-            <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Line type="monotone" dataKey="District" stroke={roleColor} strokeWidth={2.5} strokeDasharray="5 3" dot={false} />
-            {schoolKeys.map(id => (
-              <Line key={id} type="monotone" dataKey={schoolMeta[id].name} stroke={schoolMeta[id].color} strokeWidth={2} dot={false} />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
+        <p className="text-xs text-gray-400 mb-3">Dashed lines = district aggregates · Solid lines = individual schools</p>
+        <CompositeTrendChart data={compositeTrend} filter={districtFilter} />
       </Card>
 
       {/* Component breakdown + school metrics side by side */}
       <div className="grid lg:grid-cols-2 gap-4">
-        {/* Per-dimension grouped bar chart */}
         <Card title="Component Breakdown by School (May)">
           <ResponsiveContainer width="100%" height={230}>
             <BarChart data={dimensionBreakdown} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
@@ -126,82 +259,21 @@ export function LongitudinalView() {
               <YAxis domain={[2, 5]} tick={{ fontSize: 12 }} />
               <Tooltip formatter={(v) => typeof v === 'number' ? v.toFixed(2) : ''} contentStyle={{ borderRadius: 12, fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              {schoolKeys.map(id => (
+              {schoolIds.map(id => (
                 <Bar key={id} dataKey={schoolMeta[id].name} fill={schoolMeta[id].color} radius={[4, 4, 0, 0]} />
               ))}
             </BarChart>
           </ResponsiveContainer>
         </Card>
 
-        {/* School metrics table */}
         <Card title="School Metrics Snapshot">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="text-left py-2 text-xs font-semibold text-gray-400 uppercase">School</th>
-                  <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase">Composite</th>
-                  {dims.map(d => (
-                    <th key={d} className="text-center py-2 text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">
-                      {d.slice(0, 3).toUpperCase()}
-                    </th>
-                  ))}
-                  <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase">Growth</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {schoolKeys.map(id => {
-                  const first = schoolFidelityTrends[id][0]
-                  const last = schoolFidelityTrends[id][8]
-                  const comp = composite(last)
-                  const g = +(composite(last) - composite(first)).toFixed(2)
-                  return (
-                    <tr key={id} className="hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedSchoolId(id)}>
-                      <td className="py-2.5 font-medium text-gray-800">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: schoolMeta[id].color }} />
-                          <span className="hover:underline">{schoolMeta[id].name}</span>
-                        </div>
-                      </td>
-                      <td className="py-2.5 text-center">
-                        <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold text-white"
-                          style={{ backgroundColor: comp >= 4 ? '#10B981' : comp >= 3.5 ? '#F59E0B' : '#EF4444' }}>
-                          {comp.toFixed(2)}
-                        </span>
-                      </td>
-                      {dims.map(d => (
-                        <td key={d} className="py-2.5 text-center text-xs text-gray-600 hidden md:table-cell">
-                          <span className="font-medium" style={{ color: dimColors[d] }}>{last[d].toFixed(1)}</span>
-                        </td>
-                      ))}
-                      <td className="py-2.5 text-center text-xs font-semibold text-emerald-600">+{g}</td>
-                    </tr>
-                  )
-                })}
-                {/* District row */}
-                <tr className="bg-gray-50 font-semibold">
-                  <td className="py-2.5 text-gray-700 pl-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: roleColor }} />
-                      District Avg
-                    </div>
-                  </td>
-                  <td className="py-2.5 text-center">
-                    <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold text-white"
-                      style={{ backgroundColor: districtLast >= 4 ? '#10B981' : districtLast >= 3.5 ? '#F59E0B' : '#EF4444' }}>
-                      {districtLast.toFixed(2)}
-                    </span>
-                  </td>
-                  {dims.map(d => (
-                    <td key={d} className="py-2.5 text-center text-xs text-gray-600 hidden md:table-cell">
-                      {monthlyFidelityTrend[8][d].toFixed(1)}
-                    </td>
-                  ))}
-                  <td className="py-2.5 text-center text-xs font-semibold text-emerald-600">+{growth}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <SchoolMetricsTable
+            schoolIds={schoolIds}
+            onSelect={setSelectedSchoolId}
+            districtLabel={districtLabel}
+            districtLast={distRef[8]}
+            districtFirst={distRef[0]}
+          />
         </Card>
       </div>
 

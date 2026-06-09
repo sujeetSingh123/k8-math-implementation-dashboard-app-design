@@ -69,7 +69,9 @@ function PlanCard({ plan, onLogThis, onDelete }: PlanCardProps) {
   )
 }
 
-export function PlanningSession() {
+type PlanningSessionProps = { onSwitchToLog?: () => void }
+
+export function PlanningSession({ onSwitchToLog }: PlanningSessionProps = {}) {
   const { currentUser, lessonPlans, addLessonPlan, deleteLessonPlan, setPendingPlan } = useAppStore()
   const navigate = useNavigate()
   const [showForm, setShowForm] = useState(false)
@@ -83,8 +85,13 @@ export function PlanningSession() {
 
   const handleLogThis = (plan: LessonPlan) => {
     setPendingPlan(plan)
-    navigate('/teacher/log')
-    toast.success('Daily Log pre-filled from your plan.')
+    if (onSwitchToLog) {
+      toast.success('Log pre-filled from your plan.')
+      onSwitchToLog()
+    } else {
+      navigate('/teacher/log')
+      toast.success('Daily Log pre-filled from your plan.')
+    }
   }
 
   const handleDelete = (id: string) => {

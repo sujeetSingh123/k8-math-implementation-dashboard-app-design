@@ -86,6 +86,54 @@ export function CoachIncentives() {
         ))}
       </div>
 
+      <Card title={`My Awards — ${selected}`}>
+        {semPending.length === 0 && semApproved.length === 0 ? (
+          <p className="text-sm text-gray-400 text-center py-4">No incentives recorded for {selected}.</p>
+        ) : (
+          <div className="space-y-5">
+            {semPending.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-amber-600 uppercase tracking-wide mb-2 flex items-center gap-1.5"><Clock size={11} /> To Be Awarded</p>
+                {semPending.map(inc => (
+                  <div key={inc.id} className="flex items-start justify-between gap-3 p-2.5 bg-amber-50 border border-amber-100 rounded-lg mb-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white capitalize" style={{ backgroundColor: '#F59E0B' }}>{inc.category}</span>
+                        <span className="text-xs text-gray-400">{inc.awardedAt}</span>
+                      </div>
+                      <p className="text-sm text-gray-600">{inc.reason}</p>
+                    </div>
+                    <span className="text-base font-bold text-amber-700 flex-shrink-0">${inc.amount}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between text-sm"><span className="text-amber-600 font-medium">Subtotal</span><span className="font-bold text-amber-700">${semPending.reduce((s, i) => s + i.amount, 0)}</span></div>
+              </div>
+            )}
+            {semApproved.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-2 flex items-center gap-1.5"><CheckCircle size={11} /> Awarded</p>
+                {semApproved.map(inc => (
+                  <div key={inc.id} className="flex items-start justify-between gap-3 pb-2.5 border-b border-gray-50 last:border-0 last:pb-0">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white capitalize" style={{ backgroundColor: roleColor }}>{inc.category}</span>
+                        <span className="text-xs text-gray-400">{inc.awardedAt}</span>
+                      </div>
+                      <p className="text-sm text-gray-600">{inc.reason}</p>
+                    </div>
+                    <span className="text-base font-bold text-gray-800 flex-shrink-0">${inc.amount}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between pt-2 border-t border-gray-100">
+                  <span className="text-sm font-semibold text-gray-600">Total Awarded</span>
+                  <span className="text-sm font-bold text-gray-900">${semApproved.reduce((s, i) => s + i.amount, 0)}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </Card>
+
       <Card title={`${selected} — My Breakdown`}>
         <div className="space-y-3">
           <div className="flex items-center justify-between py-2.5 border-b border-gray-50">
@@ -194,53 +242,6 @@ export function CoachIncentives() {
         </table>
       </Card>
 
-      <Card title={`My Awards — ${selected}`}>
-        {semPending.length === 0 && semApproved.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-4">No incentives recorded for {selected}.</p>
-        ) : (
-          <div className="space-y-5">
-            {semPending.length > 0 && (
-              <div>
-                <p className="text-xs font-semibold text-amber-600 uppercase tracking-wide mb-2 flex items-center gap-1.5"><Clock size={11} /> To Be Awarded</p>
-                {semPending.map(inc => (
-                  <div key={inc.id} className="flex items-start justify-between gap-3 p-2.5 bg-amber-50 border border-amber-100 rounded-lg mb-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white capitalize" style={{ backgroundColor: '#F59E0B' }}>{inc.category}</span>
-                        <span className="text-xs text-gray-400">{inc.awardedAt}</span>
-                      </div>
-                      <p className="text-sm text-gray-600">{inc.reason}</p>
-                    </div>
-                    <span className="text-base font-bold text-amber-700 flex-shrink-0">${inc.amount}</span>
-                  </div>
-                ))}
-                <div className="flex justify-between text-sm"><span className="text-amber-600 font-medium">Subtotal</span><span className="font-bold text-amber-700">${semPending.reduce((s, i) => s + i.amount, 0)}</span></div>
-              </div>
-            )}
-            {semApproved.length > 0 && (
-              <div>
-                <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-2 flex items-center gap-1.5"><CheckCircle size={11} /> Awarded</p>
-                {semApproved.map(inc => (
-                  <div key={inc.id} className="flex items-start justify-between gap-3 pb-2.5 border-b border-gray-50 last:border-0 last:pb-0">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white capitalize" style={{ backgroundColor: roleColor }}>{inc.category}</span>
-                        <span className="text-xs text-gray-400">{inc.awardedAt}</span>
-                      </div>
-                      <p className="text-sm text-gray-600">{inc.reason}</p>
-                    </div>
-                    <span className="text-base font-bold text-gray-800 flex-shrink-0">${inc.amount}</span>
-                  </div>
-                ))}
-                <div className="flex justify-between pt-2 border-t border-gray-100">
-                  <span className="text-sm font-semibold text-gray-600">Total Awarded</span>
-                  <span className="text-sm font-bold text-gray-900">${semApproved.reduce((s, i) => s + i.amount, 0)}</span>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </Card>
     </div>
   )
 }

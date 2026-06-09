@@ -84,12 +84,12 @@ function AddSessionModal({ onClose }: { onClose: () => void }) {
       status: 'upcoming',
     }
     addPDSession(session)
-    toast.success('PD session scheduled!')
+    toast.success('Session scheduled!')
     onClose()
   }
 
   return (
-    <Modal open onClose={onClose} title="Schedule PD Session" size="lg">
+    <Modal open onClose={onClose} title="Schedule Session" size="lg">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label className="text-xs font-medium text-gray-600 block mb-1">Session Title</label>
@@ -164,8 +164,8 @@ export function PDPlanning() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-base font-semibold text-gray-900">Professional Development Planning</h1>
-          <p className="text-xs text-gray-500 mt-0.5">Schedule and manage PD sessions across your district</p>
+          <h1 className="text-base font-semibold text-gray-900">Implementation Learning Laboratories</h1>
+          <p className="text-xs text-gray-500 mt-0.5">Schedule and manage training sessions and meeting laboratories</p>
         </div>
         <Button roleColor={roleColor} size="sm" onClick={() => setAddOpen(true)}><Plus size={14} />Add Session</Button>
       </div>

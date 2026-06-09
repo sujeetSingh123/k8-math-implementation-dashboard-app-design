@@ -24,10 +24,85 @@ import type {
   InstructionalSetting,
 } from '../types'
 
+// ─── EBP Hierarchy (Level 1 = EBP name, Level 2 = components) ───────────────
+export const ebpHierarchy = [
+  {
+    id: 'systematic-instruction',
+    name: 'Systematic Instruction',
+    components: [
+      'Review and integrate previously learned content throughout intervention',
+      'Use accessible numbers when introducing new concepts and procedures',
+      'Sequence instruction so mathematics builds incrementally',
+      'Provide visual and verbal supports',
+      'Provide immediate, supportive feedback to address misunderstandings',
+    ],
+  },
+  {
+    id: 'mathematical-language',
+    name: 'Mathematical Language',
+    components: [
+      'Routinely teach mathematical vocabulary',
+      'Use clear, concise, and correct mathematical language throughout lessons',
+      'Support students in using mathematically precise language in explanations',
+    ],
+  },
+  {
+    id: 'representations',
+    name: 'Representations',
+    components: [
+      'Provide concrete and semi-concrete representations for the concept or procedure',
+      'Connect concrete and semi-concrete representations to abstract representations',
+      'Provide ample opportunities for students to use representations as thinking tools',
+      'Revisit concrete and semi-concrete representations to reinforce understanding',
+    ],
+  },
+  {
+    id: 'number-lines',
+    name: 'Number Lines',
+    components: [
+      'Represent whole numbers, fractions, and decimals on a number line',
+      'Compare numbers and determine relative magnitude using a number line',
+      'Use the number line to build understanding of operations',
+    ],
+  },
+  {
+    id: 'word-problems',
+    name: 'Word Problems',
+    components: [
+      'Teach students to identify word problem types by action or event',
+      'Teach a solution method for each problem type',
+      'Expand ability to identify relevant information in word problems',
+      'Teach vocabulary and language often used in word problems',
+      'Include a mix of previously and newly learned problem types',
+    ],
+  },
+  {
+    id: 'timed-activities',
+    name: 'Timed Activities',
+    components: [
+      'Identify already-learned topics for timed activities and create a timeline',
+      'Choose the activity and materials and set clear expectations',
+      'Ensure students have an efficient strategy for the timed activity',
+      'Encourage and motivate students by having them chart their progress',
+      'Provide immediate feedback by asking students to correct errors',
+    ],
+  },
+] as const
+
+export type EBPCategory = typeof ebpHierarchy[number]
+
+// ─── Districts ─────────────────────────────────────────────────────────────────
+export const districts = [
+  { id: 'dist1', name: 'Riverside Unified School District' },
+  { id: 'dist2', name: 'Lakeside School District' },
+]
+
 // ─── Schools ─────────────────────────────────────────────────────────────────
 export const schools: School[] = [
   { id: 'SCH01', name: 'Lincoln K-8 School', districtId: 'dist1' },
   { id: 'SCH02', name: 'Washington Middle School', districtId: 'dist1' },
+  { id: 'SCH03', name: 'Roosevelt Elementary', districtId: 'dist2' },
+  { id: 'SCH04', name: 'Jefferson K-8 School', districtId: 'dist2' },
 ]
 
 // ─── Users ────────────────────────────────────────────────────────────────────
@@ -37,11 +112,20 @@ export const users: User[] = [
   { id: 'T003', name: 'Carla Nguyen', initials: 'CN', role: 'teacher', schoolId: 'SCH01', coachId: 'C001' },
   { id: 'T004', name: 'David Brooks', initials: 'DB', role: 'teacher', schoolId: 'SCH02', coachId: 'C001' },
   { id: 'T005', name: 'Elena Martinez', initials: 'EM', role: 'teacher', schoolId: 'SCH02', coachId: 'C001' },
+  { id: 'P001', name: 'Sarah Kim', initials: 'SK', role: 'paraprofessional', schoolId: 'SCH01', coachId: 'C001' },
+  { id: 'P002', name: 'Marcus Webb', initials: 'MW', role: 'paraprofessional', schoolId: 'SCH02', coachId: 'C001' },
   { id: 'A001', name: 'Monica Hill', initials: 'MH', role: 'admin', schoolId: 'SCH01' },
   { id: 'A002', name: 'James Patel', initials: 'JP', role: 'admin', schoolId: 'SCH02' },
   { id: 'C001', name: 'Rachel Stone', initials: 'RS', role: 'coach', schoolId: 'SCH01' },
   { id: 'R001', name: 'Dr. Jing Researcher', initials: 'JR', role: 'researcher', schoolId: 'SCH01' },
   { id: 'SA001', name: 'Alex Super', initials: 'AS', role: 'super_admin', schoolId: 'DISTRICT' },
+  // Testing accounts — clean-slate users for QA
+  { id: 'TEST_T', name: 'Testing – Teacher', initials: 'TT', role: 'teacher', schoolId: 'SCH01', coachId: 'C001' },
+  { id: 'TEST_P', name: 'Testing – Para', initials: 'TP', role: 'paraprofessional', schoolId: 'SCH01', coachId: 'C001' },
+  { id: 'TEST_C', name: 'Testing – Coach', initials: 'TC', role: 'coach', schoolId: 'SCH01' },
+  { id: 'TEST_A', name: 'Testing – School Admin', initials: 'TA', role: 'admin', schoolId: 'SCH01' },
+  { id: 'TEST_SA', name: 'Testing – District Admin', initials: 'TD', role: 'super_admin', schoolId: 'DISTRICT' },
+  { id: 'TEST_R', name: 'Testing – Researcher', initials: 'TR', role: 'researcher', schoolId: 'SCH01' },
 ]
 
 export const usersByRole: Record<string, User> = {
@@ -447,6 +531,48 @@ export const teacherFidelityTrends: Record<string, typeof monthlyFidelityTrend> 
   T004: monthlyFidelityTrend.map(m => ({ ...m, adherence: m.adherence - 1.0, dosage: m.dosage - 0.8 })),
 }
 
+// Fidelity trends for district 2 schools (Lakeside SD)
+export const dist2SchoolFidelityTrends: Record<string, typeof monthlyFidelityTrend> = {
+  SCH03: [
+    { month: 'Sep', adherence: 3.0, dosage: 3.2, quality: 2.9, responsiveness: 2.7, confidence: 3.1 },
+    { month: 'Oct', adherence: 3.2, dosage: 3.4, quality: 3.1, responsiveness: 2.9, confidence: 3.3 },
+    { month: 'Nov', adherence: 3.4, dosage: 3.5, quality: 3.3, responsiveness: 3.1, confidence: 3.5 },
+    { month: 'Dec', adherence: 3.2, dosage: 3.3, quality: 3.1, responsiveness: 2.9, confidence: 3.3 },
+    { month: 'Jan', adherence: 3.5, dosage: 3.7, quality: 3.4, responsiveness: 3.2, confidence: 3.6 },
+    { month: 'Feb', adherence: 3.7, dosage: 3.8, quality: 3.6, responsiveness: 3.4, confidence: 3.8 },
+    { month: 'Mar', adherence: 3.8, dosage: 3.9, quality: 3.7, responsiveness: 3.5, confidence: 3.9 },
+    { month: 'Apr', adherence: 3.9, dosage: 4.0, quality: 3.8, responsiveness: 3.7, confidence: 4.0 },
+    { month: 'May', adherence: 4.0, dosage: 4.1, quality: 3.9, responsiveness: 3.8, confidence: 4.1 },
+  ],
+  SCH04: [
+    { month: 'Sep', adherence: 2.6, dosage: 2.8, quality: 2.5, responsiveness: 2.3, confidence: 2.7 },
+    { month: 'Oct', adherence: 2.9, dosage: 3.0, quality: 2.8, responsiveness: 2.6, confidence: 2.9 },
+    { month: 'Nov', adherence: 3.0, dosage: 3.1, quality: 2.9, responsiveness: 2.7, confidence: 3.1 },
+    { month: 'Dec', adherence: 2.8, dosage: 2.9, quality: 2.7, responsiveness: 2.5, confidence: 2.9 },
+    { month: 'Jan', adherence: 3.1, dosage: 3.2, quality: 3.0, responsiveness: 2.9, confidence: 3.2 },
+    { month: 'Feb', adherence: 3.3, dosage: 3.4, quality: 3.2, responsiveness: 3.1, confidence: 3.4 },
+    { month: 'Mar', adherence: 3.4, dosage: 3.5, quality: 3.3, responsiveness: 3.2, confidence: 3.5 },
+    { month: 'Apr', adherence: 3.5, dosage: 3.6, quality: 3.4, responsiveness: 3.3, confidence: 3.6 },
+    { month: 'May', adherence: 3.6, dosage: 3.7, quality: 3.5, responsiveness: 3.4, confidence: 3.7 },
+  ],
+}
+
+// District-level aggregated fidelity trends (composite of all schools in each district)
+export const districtFidelityTrends: Record<string, typeof monthlyFidelityTrend> = {
+  dist1: monthlyFidelityTrend,
+  dist2: [
+    { month: 'Sep', adherence: 2.8, dosage: 3.0, quality: 2.7, responsiveness: 2.5, confidence: 2.9 },
+    { month: 'Oct', adherence: 3.1, dosage: 3.2, quality: 3.0, responsiveness: 2.8, confidence: 3.1 },
+    { month: 'Nov', adherence: 3.2, dosage: 3.3, quality: 3.1, responsiveness: 2.9, confidence: 3.3 },
+    { month: 'Dec', adherence: 3.0, dosage: 3.1, quality: 2.9, responsiveness: 2.7, confidence: 3.1 },
+    { month: 'Jan', adherence: 3.3, dosage: 3.5, quality: 3.2, responsiveness: 3.1, confidence: 3.4 },
+    { month: 'Feb', adherence: 3.5, dosage: 3.6, quality: 3.4, responsiveness: 3.3, confidence: 3.6 },
+    { month: 'Mar', adherence: 3.6, dosage: 3.7, quality: 3.5, responsiveness: 3.4, confidence: 3.7 },
+    { month: 'Apr', adherence: 3.7, dosage: 3.8, quality: 3.6, responsiveness: 3.5, confidence: 3.8 },
+    { month: 'May', adherence: 3.8, dosage: 3.9, quality: 3.7, responsiveness: 3.6, confidence: 3.9 },
+  ],
+}
+
 export const schoolFidelityTrends: Record<string, typeof monthlyFidelityTrend> = {
   SCH01: [
     { month: 'Sep', adherence: 3.5, dosage: 3.7, quality: 3.4, responsiveness: 3.2, confidence: 3.6 },
@@ -479,6 +605,8 @@ export const mockCredentials: MockCredential[] = [
   { email: 'carla.nguyen@example.org', password: 'demo1234', userId: 'T003' },
   { email: 'david.brooks@example.org', password: 'demo1234', userId: 'T004' },
   { email: 'elena.martinez@example.org', password: 'demo1234', userId: 'T005' },
+  { email: 'sarah.kim@example.org', password: 'demo1234', userId: 'P001' },
+  { email: 'marcus.webb@example.org', password: 'demo1234', userId: 'P002' },
   { email: 'monica.hill@example.org', password: 'demo1234', userId: 'A001' },
   { email: 'james.patel@example.org', password: 'demo1234', userId: 'A002' },
   { email: 'rachel.stone@example.org', password: 'demo1234', userId: 'C001' },
@@ -489,6 +617,13 @@ export const mockCredentials: MockCredential[] = [
   { email: 'researcher@demo.com', password: 'demo1234', userId: 'R001' },
   { email: 'superadmin@example.org', password: 'demo1234', userId: 'SA001' },
   { email: 'superadmin@demo.com', password: 'demo1234', userId: 'SA001' },
+  // Testing accounts
+  { email: 'test.teacher@demo.com', password: 'demo1234', userId: 'TEST_T' },
+  { email: 'test.para@demo.com', password: 'demo1234', userId: 'TEST_P' },
+  { email: 'test.coach@demo.com', password: 'demo1234', userId: 'TEST_C' },
+  { email: 'test.admin@demo.com', password: 'demo1234', userId: 'TEST_A' },
+  { email: 'test.district@demo.com', password: 'demo1234', userId: 'TEST_SA' },
+  { email: 'test.researcher@demo.com', password: 'demo1234', userId: 'TEST_R' },
 ]
 
 // ─── Permissions ──────────────────────────────────────────────────────────────
@@ -515,6 +650,10 @@ export const permissions: Permission[] = [
 export const rolePermissions: RolePermissions[] = [
   {
     role: 'teacher',
+    permissionIds: ['p_edit_logs', 'p_view_fidelity', 'p_view_coaching', 'p_respond_coaching', 'p_view_reports'],
+  },
+  {
+    role: 'paraprofessional',
     permissionIds: ['p_edit_logs', 'p_view_fidelity', 'p_view_coaching', 'p_respond_coaching', 'p_view_reports'],
   },
   {
@@ -547,6 +686,8 @@ export const orgMembers: OrgMember[] = [
   { id: 'C001', name: 'Rachel Stone', email: 'rachel.stone@example.org', initials: 'RS', role: 'coach', schoolId: 'SCH01', department: 'Implementation Coach', status: 'active', joinedAt: '2020-08-01' },
   { id: 'R001', name: 'Dr. Jing Researcher', email: 'researcher@example.org', initials: 'JR', role: 'researcher', schoolId: 'SCH01', department: 'Research Team', status: 'active', joinedAt: '2022-03-14' },
   { id: 'SA001', name: 'Alex Super', email: 'superadmin@example.org', initials: 'AS', role: 'super_admin', schoolId: 'DISTRICT', department: 'District Office', status: 'active', joinedAt: '2020-01-01' },
+  { id: 'P001', name: 'Sarah Kim', email: 'sarah.kim@example.org', initials: 'SK', role: 'paraprofessional', schoolId: 'SCH01', department: 'Grade 4 · Support', status: 'active', joinedAt: '2024-08-20' },
+  { id: 'P002', name: 'Marcus Webb', email: 'marcus.webb@example.org', initials: 'MW', role: 'paraprofessional', schoolId: 'SCH02', department: 'Grade 6 · Support', status: 'active', joinedAt: '2024-08-20' },
 ]
 
 // ─── Lesson Plans ──────────────────────────────────────────────────────────────

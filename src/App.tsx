@@ -10,7 +10,6 @@ import { ResourceLibrary } from './pages/teacher/ResourceLibrary'
 import { TrainingHistory } from './pages/teacher/TrainingHistory'
 import { TeacherDashboard } from './pages/teacher/TeacherDashboard'
 import { MyLogs } from './pages/teacher/MyLogs'
-import { PlanningSession } from './pages/teacher/PlanningSession'
 import { StudentData } from './pages/teacher/StudentData'
 import { StudentDataView } from './pages/shared/StudentDataView'
 import { TeacherCaseload } from './pages/coach/TeacherCaseload'
@@ -46,6 +45,7 @@ function DefaultRedirect() {
   if (!isAuthenticated) return <Navigate to="/login" replace />
   const defaults: Record<string, string> = {
     teacher: '/teacher/dashboard',
+    paraprofessional: '/teacher/dashboard',
     coach: '/coach/dashboard',
     admin: '/admin/overview',
     researcher: '/researcher/analytics',
@@ -67,7 +67,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<DefaultRedirect />} />
-        <Route path="/teacher/planning" element={<ProtectedLayout><PermissionGate permissionId="p_edit_logs"><PlanningSession /></PermissionGate></ProtectedLayout>} />
+        <Route path="/teacher/planning" element={<Navigate to="/teacher/log" replace />} />
         <Route path="/teacher/log" element={<ProtectedLayout><PermissionGate permissionId="p_edit_logs"><DailyLog /></PermissionGate></ProtectedLayout>} />
         <Route path="/teacher/logs" element={<ProtectedLayout><PermissionGate permissionId="p_edit_logs"><MyLogs /></PermissionGate></ProtectedLayout>} />
         <Route path="/teacher/fidelity-trends" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><FidelityAdaptationView /></PermissionGate></ProtectedLayout>} />
@@ -108,6 +108,9 @@ export default function App() {
         <Route path="/researcher/dsaii" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><DSAIIPathway /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
         <Route path="/researcher/budget" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><BudgetView /></PermissionGate></ProtectedLayout>} />
+        <Route path="/teacher/labs" element={<ProtectedLayout><PDPlanning /></ProtectedLayout>} />
+        <Route path="/coach/labs" element={<ProtectedLayout><PDPlanning /></ProtectedLayout>} />
+        <Route path="/researcher/labs" element={<ProtectedLayout><PDPlanning /></ProtectedLayout>} />
         <Route path="/messages" element={<ProtectedLayout><MessagesPage /></ProtectedLayout>} />
         <Route path="/super-admin/dashboard" element={<ProtectedLayout><SuperAdminDashboard /></ProtectedLayout>} />
         <Route path="/super-admin/schools" element={<ProtectedLayout><SchoolManagement /></ProtectedLayout>} />

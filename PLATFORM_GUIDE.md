@@ -662,48 +662,140 @@ When viewing adaptation data, the platform tracks what percentage of all adaptat
 
 ## 7. Incentives & Earnings — How They Work
 
-The platform includes an **incentive program** that rewards teachers and school leaders for consistent implementation.
+The platform includes an **incentive program** that rewards teachers, coaches, and school leaders for consistent implementation and strong outcomes. There are two types of incentives:
+
+- **Logging incentives** — based on how consistently teachers record their lessons
+- **Performance incentives** — based on how well students are doing and how well teachers are implementing
+
+---
 
 ### 7.1 Teacher Incentives
 
-A teacher's total incentive earnings for a semester are calculated from three components:
+A teacher's total incentive earnings for a semester are calculated from **five components**:
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                   TEACHER INCENTIVE FORMULA             │
-│                                                         │
-│  Base Participation Incentive:     $50 / semester       │
-│                                                         │
-│  + 2-Week Perfect Bonus:           $5 per 2-week period │
-│    (if ALL logs in that period are "Fully Completed")   │
-│                                                         │
-│  + Log Rate Tier Bonus:                                 │
-│    ┌──────────────┬───────────┐                         │
-│    │ Log Rate     │ Bonus     │                         │
-│    ├──────────────┼───────────┤                         │
-│    │ 81 – 100%    │ +$30      │                         │
-│    │ 71 – 80%     │ +$20      │                         │
-│    │ 60 – 70%     │ +$10      │                         │
-│    │ Below 60%    │ $0        │                         │
-│    └──────────────┴───────────┘                         │
-│                                                         │
-│  TOTAL = $50 + 2-Week Bonus + Rate Bonus                │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                    TEACHER INCENTIVE FORMULA                 │
+│                                                              │
+│  1. Base Participation Incentive:    $50 / semester          │
+│                                                              │
+│  2. 2-Week Perfect Log Bonus:        $5 per 2-week period    │
+│     (all logs in that window = "Fully Completed")            │
+│                                                              │
+│  3. Log Rate Tier Bonus:                                     │
+│     ┌──────────────┬───────────┐                            │
+│     │ Log Rate     │ Bonus     │                            │
+│     ├──────────────┼───────────┤                            │
+│     │ 81 – 100%    │ +$30      │                            │
+│     │ 71 – 80%     │ +$20      │                            │
+│     │ 60 – 70%     │ +$10      │                            │
+│     │ Below 60%    │ $0        │                            │
+│     └──────────────┴───────────┘                            │
+│                                                              │
+│  4. Student Growth Bonus: (performance incentive)            │
+│     ┌──────────────────────┬───────────┐                    │
+│     │ Avg Student Growth   │ Bonus     │                    │
+│     ├──────────────────────┼───────────┤                    │
+│     │ ≥ 20% avg growth     │ +$50      │                    │
+│     │ ≥ 10% avg growth     │ +$30      │                    │
+│     │ ≥ 5% avg growth      │ +$15      │                    │
+│     │ Below 5%             │ $0        │                    │
+│     └──────────────────────┴───────────┘                    │
+│                                                              │
+│  5. Benchmark Achievement Bonus: (performance incentive)     │
+│     ≥ 80% of students at or above benchmark → +$25          │
+│     Below 80%                               → $0            │
+│                                                              │
+│  TOTAL = Base + 2-Wk Bonus + Rate Bonus                     │
+│        + Student Growth Bonus + Benchmark Bonus             │
+└──────────────────────────────────────────────────────────────┘
 ```
+
+**What "Student Growth" means:**
+- Teachers upload student assessment data (e.g., CBM scores, unit tests)
+- Each record has a **baseline** (starting score) and a **current** score
+- Growth = Current score minus Baseline score
+- The platform averages growth across all records the teacher submitted in that semester
+- Higher average growth = higher bonus
+
+**What "Benchmark Achievement" means:**
+- When uploading student data, teachers record how many students scored at or above the district benchmark
+- If 80% or more of assessed students are at/above benchmark → teacher earns +$25
 
 **Example Calculation:**
 
 Teacher "Anna Carter" in Fall semester:
 - Log Rate: 78% → Rate Bonus = **$20**
-- Had 3 perfect 2-week periods → 2-Week Bonus = 3 × $5 = **$15**
+- 3 perfect 2-week periods → 2-Week Bonus = 3 × $5 = **$15**
+- Avg student growth: 12% → Student Growth Bonus = **$30**
+- 85% of students at/above benchmark → Benchmark Bonus = **$25**
 - Base = **$50**
-- **Total = $50 + $15 + $20 = $85**
+- **Total = $50 + $15 + $20 + $30 + $25 = $140**
 
 ---
 
-### 7.2 Admin Incentives
+### 7.2 Coach Incentives
 
-School administrators earn based on how well their *whole school* performs:
+Coaches earn based on **their caseload's log behavior** and **how well their teachers are implementing** (fidelity performance):
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    COACH INCENTIVE FORMULA                   │
+│                                                              │
+│  1. Base Participation Incentive:    $100 / semester         │
+│                                                              │
+│  2. Caseload Log Rate Bonus:                                 │
+│     ┌──────────────────────┬───────────┐                    │
+│     │ Caseload Avg Log Rate│ Bonus     │                    │
+│     ├──────────────────────┼───────────┤                    │
+│     │ 81 – 100%            │ +$30      │                    │
+│     │ 71 – 80%             │ +$20      │                    │
+│     │ 60 – 70%             │ +$10      │                    │
+│     │ Below 60%            │ $0        │                    │
+│     └──────────────────────┴───────────┘                    │
+│                                                              │
+│  3. Teacher Fidelity Performance Bonus: (performance)        │
+│     ┌──────────────────────────┬───────────┐                │
+│     │ Caseload Avg Fidelity    │ Bonus     │                │
+│     ├──────────────────────────┼───────────┤                │
+│     │ ≥ 4.0 / 5               │ +$50      │                │
+│     │ ≥ 3.5 / 5               │ +$30      │                │
+│     │ ≥ 3.0 / 5               │ +$15      │                │
+│     │ Below 3.0               │ $0        │                │
+│     └──────────────────────────┴───────────┘                │
+│                                                              │
+│  4. All Teachers On Track Bonus: (performance)               │
+│     Every teacher in caseload has avg fidelity ≥ 4.0        │
+│     → +$25 bonus                                            │
+│                                                              │
+│  TOTAL = Base + Log Rate Bonus                              │
+│        + Fidelity Bonus + All On Track Bonus                │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**What "Teacher Fidelity Performance Bonus" means:**
+- The platform averages the fidelity scores of all teachers in the coach's caseload
+- If the caseload average is high, the coach is rewarded — because strong fidelity reflects effective coaching
+- This directly links coaching quality to teacher implementation quality
+
+**What "All Teachers On Track Bonus" means:**
+- If *every single teacher* in the coach's caseload has an average fidelity ≥ 4.0 ("On Track"), the coach earns an additional flat $25
+- This rewards coaches who have lifted their entire caseload to a high level, not just a few
+
+**Example Calculation:**
+
+Coach "Rachel Stone" in Fall semester:
+- Caseload avg log rate: 76% → Log Rate Bonus = **$20**
+- Caseload avg fidelity: 3.8 → Fidelity Bonus = **$30**
+- Not all teachers at ≥ 4.0 → All On Track Bonus = **$0**
+- Base = **$100**
+- **Total = $100 + $20 + $30 + $0 = $150**
+
+---
+
+### 7.3 Admin Incentives
+
+School administrators earn based on how well their *whole school* performs on logging:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -728,14 +820,38 @@ The school average log rate is the **average of all teachers' individual log rat
 
 ---
 
-### 7.3 Incentive Approval Flow
+### 7.4 Performance Incentives — How the Chain Works
+
+The performance incentive system creates a **linked chain of accountability**:
+
+```
+STUDENTS DO WELL
+       │
+       ▼ (student data shows growth + benchmark achievement)
+TEACHER EARNS PERFORMANCE BONUS
+       │
+       ▼ (teachers' fidelity scores are high)
+COACH EARNS FIDELITY PERFORMANCE BONUS
+       │
+       ▼ (all teachers in caseload are "On Track")
+COACH EARNS ALL-ON-TRACK BONUS
+```
+
+In plain English:
+- **Teachers** are rewarded when their **students improve** and meet benchmarks
+- **Coaches** are rewarded when their **teachers implement well** (high fidelity)
+- This means coaches are motivated to support teachers who are struggling, not just teachers who are already performing well
+
+---
+
+### 7.5 Incentive Approval Flow
 
 Incentives go through a **3-step process** before funds are confirmed:
 
 ```
 Step 1: CALCULATED / AWARDED
    The platform calculates formula-based earnings automatically
-   OR a user manually awards an incentive (admin can award teachers, etc.)
+   OR a user manually awards an incentive (researcher can award anyone)
    Status: "Pending"
         │
         ▼
@@ -753,11 +869,20 @@ Step 3: APPROVED ✅
 
 **Incentive Categories:**
 
-| Category | Description |
-|----------|-------------|
-| Training | Compensation for attending PD sessions, coaching, or labs |
-| Performance | Recognition for exceptional implementation or fidelity scores |
-| Logging | Formula-based earnings from log completion rates |
+| Category | Description | Who It Applies To |
+|----------|-------------|------------------|
+| Training | Compensation for attending PD sessions, coaching, or labs | All roles |
+| Performance | Student growth, benchmark achievement, fidelity bonuses | Teachers, Coaches |
+| Logging | Formula-based earnings from log completion rates | Teachers, Coaches, Admins |
+
+**Who can see what:**
+
+| Role | Can See | Can Award |
+|------|---------|-----------|
+| Teacher | Own incentives only | No |
+| Coach | Own incentives + caseload teacher projections | No |
+| Admin | Own incentives + school teacher projections | No |
+| Researcher | Everyone's incentives + full budget | Yes — can approve/reject/award |
 
 ---
 
@@ -1069,7 +1194,9 @@ Reply appears in Coaching Thread
 | **FRAME-IS** | The framework used to document and evaluate instructional adaptations |
 | **IEP** | Individualized Education Program — a legal document outlining special education services for a student |
 | **Implementation Log** | A daily record of a lesson a teacher taught |
-| **Incentive** | A financial reward tied to logging behavior and implementation quality |
+| **Benchmark Achievement Bonus** | A teacher incentive of +$25 when ≥80% of assessed students score at or above the district benchmark |
+| **All Teachers On Track Bonus** | A coach incentive of +$25 when every teacher in the caseload has an average fidelity ≥ 4.0 |
+| **Incentive** | A financial reward tied to logging behavior, implementation quality, or student outcomes |
 | **Log Completion Rate** | % of lessons marked "Fully Completed" out of all logged lessons |
 | **MTSS** | Multi-Tiered System of Supports — a framework for matching student support to need level |
 | **PD / PDSession** | Professional Development — training sessions for educators |

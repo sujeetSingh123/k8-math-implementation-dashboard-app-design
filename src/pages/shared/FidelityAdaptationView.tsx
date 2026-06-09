@@ -1,11 +1,13 @@
 import { useState, useMemo } from 'react'
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend } from 'recharts'
 import { TrendingUp } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
+import { FidelityTrendChart, type TLPoint } from '../../components/ui/FidelityTrendChart'
 import { useAppStore } from '../../store/useAppStore'
 import { users } from '../../data/mockData'
 import { roleColors } from '../../constants/roles'
+import { SchoolDistrictFidelity } from './SchoolDistrictFidelity'
 
 type Period = 'week' | 'month' | 'year'
 
@@ -40,7 +42,13 @@ function bucketLabel(bucket: string, period: Period): string {
   return new Date(bucket + '-15T12:00:00').toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
 }
 
-function compScore(c: { adherence: number; dosage: number; quality: number; responsiveness: number; confidence: number }) {
+type FidelityCheck = { adherence: number; dosage: number; quality: number; responsiveness: number; confidence: number }
+
+const DIMS: [keyof Omit<TLPoint, 'label' | 'composite'>, string][] = [
+  ['adherence', '#8B5CF6'], ['dosage', '#3B82F6'], ['quality', '#10B981'], ['responsiveness', '#F59E0B'],
+]
+
+function compScore(c: FidelityCheck) {
   return (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5
 }
 
@@ -75,19 +83,22 @@ export function FidelityAdaptationView() {
     adaptations.filter(a => teacherIds.includes(a.teacherId) && a.date >= start),
     [adaptations, teacherIds, start])
 
-  const fidelityTimeline = useMemo(() => {
-    const buckets: Record<string, number[]> = {}
+  const fidelityTimeline = useMemo((): TLPoint[] => {
+    type Bucket = { n: number; sums: Record<string, number>; comp: number }
+    const buckets: Record<string, Bucket> = {}
     filteredChecks.forEach(c => {
       const key = getBucket(c.date, period)
-      if (!buckets[key]) buckets[key] = []
-      buckets[key].push(compScore(c))
+      if (!buckets[key]) buckets[key] = { n: 0, sums: { adherence: 0, dosage: 0, quality: 0, responsiveness: 0 }, comp: 0 }
+      const b = buckets[key]; b.n++
+      DIMS.forEach(([d]) => { b.sums[d] += c[d as keyof FidelityCheck] })
+      b.comp += compScore(c)
     })
-    return Object.entries(buckets)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([key, vals]) => ({
-        label: bucketLabel(key, period),
-        fidelity: +(vals.reduce((s, v) => s + v, 0) / vals.length).toFixed(2),
-      }))
+    return Object.entries(buckets).sort(([a], [b]) => a.localeCompare(b)).map(([key, b]) => ({
+      label: bucketLabel(key, period),
+      adherence: +(b.sums.adherence / b.n).toFixed(2), dosage: +(b.sums.dosage / b.n).toFixed(2),
+      quality: +(b.sums.quality / b.n).toFixed(2), responsiveness: +(b.sums.responsiveness / b.n).toFixed(2),
+      composite: +(b.comp / b.n).toFixed(2),
+    }))
   }, [filteredChecks, period])
 
   const adaptationTimeline = useMemo(() => {
@@ -162,20 +173,8 @@ export function FidelityAdaptationView() {
 
       {/* Charts */}
       <div className="grid lg:grid-cols-2 gap-4">
-        <Card title="Composite Fidelity Trend">
-          {fidelityTimeline.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-12">No fidelity data in this period.</p>
-          ) : (
-            <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={fidelityTimeline} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
-                <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-                <YAxis domain={[1, 5]} tick={{ fontSize: 12 }} />
-                <Tooltip formatter={(v) => typeof v === 'number' ? v.toFixed(2) : ''} contentStyle={{ borderRadius: 12, fontSize: 12 }} />
-                <Line type="monotone" dataKey="fidelity" name="Avg Fidelity" stroke={roleColor} strokeWidth={2.5} dot={{ r: 3, fill: roleColor }} />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
+        <Card title="Fidelity Trends by Dimension">
+          <FidelityTrendChart data={fidelityTimeline} roleColor={roleColor} />
         </Card>
 
         <Card title="Adaptations Over Time">
@@ -196,6 +195,10 @@ export function FidelityAdaptationView() {
           )}
         </Card>
       </div>
+
+      {!isTeacher && (
+        <SchoolDistrictFidelity role={currentUser.role} currentSchoolId={currentUser.schoolId} roleColor={roleColor} />
+      )}
     </div>
   )
 }

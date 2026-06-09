@@ -17,23 +17,22 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
   const msgBadge = unreadCounts.messages > 0 ? String(unreadCounts.messages) : undefined
   const msgItem: NavItem = { label: 'Messages', path: '/messages', icon: <MessageSquare size={16} />, badge: msgBadge }
 
-  if (role === 'teacher') {
+  if (role === 'teacher' || role === 'paraprofessional') {
     return [
       {
         section: 'My Work',
         items: [
-          { label: 'Plan Session', path: '/teacher/planning', icon: <CalendarDays size={16} />, permission: 'p_edit_logs' },
           { label: 'Daily Log', path: '/teacher/log', icon: <ClipboardList size={16} />, permission: 'p_edit_logs' },
-          { label: 'My Logs', path: '/teacher/logs', icon: <BookOpen size={16} />, permission: 'p_edit_logs' },
-          { label: 'Coaching', path: '/teacher/coaching', icon: <BookOpen size={16} />, badge: unreadCounts.coaching > 0 ? String(unreadCounts.coaching) : undefined, permission: 'p_respond_coaching' },
+          { label: 'Past Logs', path: '/teacher/logs', icon: <BookOpen size={16} />, permission: 'p_edit_logs' },
           { label: 'Student Data', path: '/teacher/student-data', icon: <BarChart size={16} />, permission: 'p_view_student_data' },
         ],
       },
       {
         section: 'Resources',
         items: [
-          { label: 'Resource Library', path: '/teacher/library', icon: <Library size={16} /> },
+          { label: 'Coaching', path: '/teacher/coaching', icon: <BookOpen size={16} />, badge: unreadCounts.coaching > 0 ? String(unreadCounts.coaching) : undefined, permission: 'p_respond_coaching' },
           { label: 'My Training', path: '/teacher/training', icon: <GraduationCap size={16} /> },
+          { label: 'Resource Library', path: '/teacher/library', icon: <Library size={16} /> },
         ],
       },
       {
@@ -60,6 +59,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
         section: 'Resources',
         items: [
           { label: 'Resource Library', path: '/coach/library', icon: <Library size={16} /> },
+          { label: 'Impl. Learning Labs', path: '/coach/labs', icon: <CalendarDays size={16} /> },
         ],
       },
       {

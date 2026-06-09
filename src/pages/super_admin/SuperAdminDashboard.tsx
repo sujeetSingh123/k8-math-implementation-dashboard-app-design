@@ -12,10 +12,135 @@ import { TimePeriodSelector, type TimePeriod } from '../../components/ui/TimePer
 import { roleColors } from '../../constants/roles'
 import { useAppStore } from '../../store/useAppStore'
 import { getTimeBuckets, inBucket } from '../../utils/timePeriod'
+import { schoolFidelityTrends, incentives } from '../../data/mockData'
 
 const roleColor = roleColors.super_admin
 
+const dims = ['adherence', 'dosage', 'quality', 'responsiveness', 'confidence'] as const
+type Dim = typeof dims[number]
+type TrendRow = Record<Dim, number>
+
+function composite(row: TrendRow) {
+  return +(dims.reduce((s, d) => s + row[d], 0) / dims.length).toFixed(2)
+}
+
+function barColor(score: number) {
+  if (score >= 4.0) return '#10B981'
+  if (score >= 3.5) return '#F59E0B'
+  return '#EF4444'
+}
+
 type SchoolRow = { id: string; name: string; teachers: number; coaches: number; admins: number }
+
+// ── Sub-components ─────────────────────────────────────────────────────────────
+
+const schoolNames: Record<string, string> = {
+  SCH01: 'Lincoln K-8', SCH02: 'Washington Middle', SCH03: 'Roosevelt Elem', SCH04: 'Jefferson K-8',
+}
+
+function FidelitySection() {
+  const entries = Object.entries(schoolFidelityTrends).map(([id, trend]) => {
+    const last = trend[8] as TrendRow
+    const score = composite(last)
+    return { id, name: schoolNames[id] ?? id, score, last }
+  })
+
+  return (
+    <Card title="Fidelity Performance by School">
+      <div className="space-y-4">
+        {entries.map(({ id, name, score, last }) => (
+          <div key={id}>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm font-medium text-gray-700">{name}</span>
+              <span className="text-sm font-bold" style={{ color: barColor(score) }}>{score.toFixed(2)}/5</span>
+            </div>
+            <div className="w-full bg-gray-100 rounded-full h-2.5 mb-1">
+              <div
+                className="h-2.5 rounded-full transition-all"
+                style={{ width: `${(score / 5) * 100}%`, backgroundColor: barColor(score) }}
+              />
+            </div>
+            <div className="flex gap-3 flex-wrap">
+              {dims.map(d => (
+                <span key={d} className="text-xs text-gray-400">
+                  {d.slice(0, 3).toUpperCase()}: <span className="font-medium text-gray-600">{last[d].toFixed(1)}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  )
+}
+
+function IncentivesSection() {
+  const schoolIds = ['SCH01', 'SCH02', 'SCH03', 'SCH04']
+
+  const rows = schoolIds.map(schoolId => {
+    const schoolName = schoolNames[schoolId] ?? schoolId
+    // Teachers in this school (from incentives data — SCH03/SCH04 have no teachers in mock but include for completeness)
+    const schoolIncentives = incentives.filter(inc => {
+      // Map recipients to schools via their ids: T001/T002/T003 → SCH01, T004/T005 → SCH02, C001 → SCH01
+      const teacherSchool: Record<string, string> = {
+        T001: 'SCH01', T002: 'SCH01', T003: 'SCH01',
+        T004: 'SCH02', T005: 'SCH02',
+        C001: 'SCH01',
+      }
+      return teacherSchool[inc.recipientId] === schoolId
+    })
+    const approved = schoolIncentives.filter(i => i.status === 'approved').reduce((s, i) => s + i.amount, 0)
+    const pending = schoolIncentives.filter(i => i.status === 'pending').reduce((s, i) => s + i.amount, 0)
+    const teacherCount = [...new Set(schoolIncentives.filter(i => i.recipientRole === 'teacher').map(i => i.recipientId))].length
+    return { schoolId, schoolName, teacherCount, approved, pending }
+  })
+
+  const totalApproved = rows.reduce((s, r) => s + r.approved, 0)
+  const totalPending = rows.reduce((s, r) => s + r.pending, 0)
+
+  return (
+    <Card title="Incentives Overview">
+      <div className="flex gap-6 mb-4 flex-wrap">
+        <div className="bg-emerald-50 rounded-lg px-4 py-2">
+          <p className="text-xs text-gray-400">Total Awarded</p>
+          <p className="text-base font-bold text-emerald-700">${totalApproved.toLocaleString()}</p>
+        </div>
+        <div className="bg-amber-50 rounded-lg px-4 py-2">
+          <p className="text-xs text-gray-400">Pending Approval</p>
+          <p className="text-base font-bold text-amber-700">${totalPending.toLocaleString()}</p>
+        </div>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-100">
+              <th className="text-left py-2 text-xs font-semibold text-gray-400 uppercase">School</th>
+              <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase">Teachers</th>
+              <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase">Total Awarded</th>
+              <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase">Pending</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50">
+            {rows.map(r => (
+              <tr key={r.schoolId} className="hover:bg-gray-50">
+                <td className="py-2.5 font-medium text-gray-800">{r.schoolName}</td>
+                <td className="py-2.5 text-center text-gray-600">{r.teacherCount}</td>
+                <td className="py-2.5 text-center font-semibold text-emerald-700">
+                  {r.approved > 0 ? `$${r.approved.toLocaleString()}` : '—'}
+                </td>
+                <td className="py-2.5 text-center font-semibold text-amber-600">
+                  {r.pending > 0 ? `$${r.pending.toLocaleString()}` : '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  )
+}
+
+// ── Main Component ─────────────────────────────────────────────────────────────
 
 export function SuperAdminDashboard() {
   const { schools, users, implementationLogs } = useAppStore()
@@ -43,8 +168,7 @@ export function SuperAdminDashboard() {
   })
 
   const schoolRows: SchoolRow[] = schools.map(s => ({
-    id: s.id,
-    name: s.name,
+    id: s.id, name: s.name,
     teachers: users.filter(u => u.schoolId === s.id && u.role === 'teacher').length,
     coaches: users.filter(u => u.schoolId === s.id && u.role === 'coach').length,
     admins: users.filter(u => u.schoolId === s.id && u.role === 'admin').length,
@@ -103,6 +227,10 @@ export function SuperAdminDashboard() {
           </BarChart>
         </ResponsiveContainer>
       </Card>
+
+      <FidelitySection />
+
+      <IncentivesSection />
 
       <Card padding="none">
         <div className="px-4 sm:px-5 py-4 border-b border-gray-100 flex items-center justify-between">

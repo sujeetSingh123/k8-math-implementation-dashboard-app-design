@@ -11,6 +11,7 @@ type LoginForm = {
 
 const roleDefaults: Record<string, string> = {
   teacher: '/teacher/dashboard',
+  paraprofessional: '/teacher/dashboard',
   coach: '/coach/dashboard',
   admin: '/admin/overview',
   researcher: '/researcher/analytics',
@@ -28,6 +29,12 @@ const demoAccounts = [
   { label: 'James Patel', sub: 'Admin · Asst Principal · SCH02', email: 'james.patel@example.org' },
   { label: 'Dr. Jing Researcher', sub: 'Researcher · All Schools', email: 'researcher@example.org' },
   { label: 'Alex Super', sub: 'Super Admin · District Office', email: 'superadmin@example.org' },
+  { label: 'Sarah Kim', sub: 'Paraprofessional · SCH01', email: 'sarah.kim@example.org' },
+  { label: 'Testing – Teacher', sub: 'Test account · clean slate', email: 'test.teacher@demo.com' },
+  { label: 'Testing – Coach', sub: 'Test account · clean slate', email: 'test.coach@demo.com' },
+  { label: 'Testing – School Admin', sub: 'Test account · clean slate', email: 'test.admin@demo.com' },
+  { label: 'Testing – District Admin', sub: 'Test account · clean slate', email: 'test.district@demo.com' },
+  { label: 'Testing – Researcher', sub: 'Test account · clean slate', email: 'test.researcher@demo.com' },
 ]
 
 export function LoginPage() {
