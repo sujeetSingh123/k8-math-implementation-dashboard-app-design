@@ -50,9 +50,44 @@
 
 ## 2. Repository Layout
 
+### Current State (Frontend Prototype)
+
 ```
 mathimpl/
-├── frontend/              # React + Vite app
+├── src/
+│   ├── components/
+│   │   ├── layout/        # Sidebar, ProtectedLayout, AppShell
+│   │   └── ui/            # Card, Button, Badge, Table, Modal,
+│   │                      #   EBPSelector, FidelityTrendChart, StatCard, …
+│   ├── constants/         # roles.ts (roleColors, roleLabels, rolePermissions)
+│   ├── data/              # mockData.ts — all mock data
+│   ├── hooks/             # usePermissions.ts
+│   ├── pages/
+│   │   ├── teacher/       # DailyLog, StudentPerfSummary, StudentData, …
+│   │   ├── coach/         # CoachDashboard, Caseload, FeedbackQueue, …
+│   │   ├── admin/         # SchoolOverview, MTSSMonitoring, …
+│   │   ├── super_admin/   # SuperAdminDashboard, UserManagement,
+│   │   │                  #   StudentsPerformanceTab, …
+│   │   ├── researcher/    # ResearchAnalytics, LongitudinalView, …
+│   │   └── shared/        # FidelityAdaptationView, SchoolDistrictFidelity
+│   ├── store/             # useAppStore.ts (Zustand)
+│   └── types/             # index.ts
+├── public/
+├── index.html
+├── vite.config.ts
+├── tsconfig.app.json
+├── package.json
+├── CLAUDE.md
+├── PLATFORM_GUIDE.md
+├── README.md
+└── TECH_STACK.md
+```
+
+### Planned Full-Stack Layout
+
+```
+mathimpl/
+├── frontend/              # React + Vite app (contents above)
 ├── backend/               # Go API server
 │   ├── cmd/server/        # main.go entry point
 │   ├── internal/          # domain packages (auth, users, analytics …)

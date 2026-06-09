@@ -30,7 +30,7 @@
    - [Teacher Incentives](#71-teacher-incentives)
    - [Admin Incentives](#72-admin-incentives)
    - [Approval Flow](#73-incentive-approval-flow)
-8. [MTSS Monitoring — School Health Indicators](#8-mtss-monitoring--school-health-indicators)
+8. [MTSS Monitoring — Implementation Indicators](#8-mtss-monitoring--implementation-indicators)
 9. [Data & Research Analytics](#9-data--research-analytics)
 10. [Notifications — How the System Alerts Users](#10-notifications--how-the-system-alerts-users)
 11. [Permissions — Who Can See What](#11-permissions--who-can-see-what)
@@ -58,34 +58,45 @@ MathImpl answers all of these questions by collecting data at the classroom leve
 ### The Big Picture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         MATHIMPL PLATFORM                       │
-│                                                                 │
-│   TEACHER          COACH           ADMIN        RESEARCHER      │
-│   ───────         ───────         ───────       ──────────      │
-│   Logs daily  →  Supports    →   Monitors  →   Analyzes        │
-│   lessons        teachers        school         district-       │
-│                                  health         wide trends     │
-│                                                                 │
-│           All data flows up → enabling decisions at each level  │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                           MATHIMPL PLATFORM                         │
+│                                                                     │
+│  TEACHER/PARA    COACH          ADMIN       SUPER ADMIN  RESEARCHER │
+│  ────────────   ───────        ───────      ──────────   ──────────  │
+│  Logs daily  → Supports   →  Monitors  →   Oversees  →  Analyzes   │
+│  lessons       teachers       school        district     district-  │
+│                               impl.         all schools  wide trends│
+│                                                                     │
+│            All data flows up → enabling decisions at each level     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 2. Who Uses It? — The Five Roles
+## 2. Who Uses It? — The Six Roles
 
 Each person in the system has a **role** that determines what they can see and do. Roles are color-coded throughout the platform so you always know whose perspective you're in.
 
 | Role | Color | Who They Are | Primary Goal |
 |------|-------|-------------|--------------|
 | 🟢 **Teacher** | Green | Classroom teachers | Log lessons, track their own implementation |
+| 🌿 **Paraprofessional** | Dark Emerald | Paraprofessionals / teaching assistants | Same workflow as teacher — log sessions, track implementation |
 | 🔵 **Coach** | Blue | Implementation coaches | Support teachers, monitor caseload |
-| 🟡 **Admin** | Amber/Gold | School principals/admins | Monitor school health, manage staff |
+| 🟡 **Admin** | Amber/Gold | School principals/admins | Monitor school implementation, manage staff |
 | 🟣 **Researcher** | Purple | Research team members | Analyze data, manage budget & incentives |
-| 🔴 **Super Admin** | Red | District-level administrators | Manage all schools and users |
+| 🔴 **Super Admin** | Red | District-level administrators | Manage all schools and users across all districts |
 
 > **Important:** Every person logs in with their own email and password. The platform automatically shows them only the pages and data relevant to their role.
+
+### Test Accounts (all use password `demo1234`)
+
+| Email | Role |
+|-------|------|
+| test.teacher@demo.com | Teacher |
+| test.coach@demo.com | Coach |
+| test.admin@demo.com | Admin |
+| test.district@demo.com | Super Admin (District Admin) |
+| test.researcher@demo.com | Researcher |
 
 ---
 
@@ -112,28 +123,33 @@ Each teacher is **assigned to one coach**. The coach can see all of their assign
 
 Each role has a customized sidebar with only the pages they need:
 
-**Teacher Sidebar:**
-- My Work: Plan Session, Daily Log, My Logs, Coaching, Student Data
-- Resources: Resource Library, My Training
+**Teacher / Paraprofessional Sidebar:**
+- My Work: Daily Log, Past Logs, Student Data
+- Resources: Coaching, Impl. Learning Labs, Resource Library
 - Insights: My Dashboard, My Incentives
 - Communication: Messages
 
 **Coach Sidebar:**
-- Caseload: My Teachers, Feedback Queue
-- Resources: Resource Library
+- Caseload: My Teachers, Feedback Queue, Student Data
+- Resources: Resource Library, Impl. Learning Labs
 - Insights: Coach Dashboard, Fidelity Trends, Incentives
 - Communication: Messages
 
 **Admin Sidebar:**
-- Overview: School Overview, MTSS Monitoring, Fidelity Trends
-- Management: Organization, Roles & Permissions, PD Planning
+- Overview: School Overview, MTSS Monitoring, Fidelity Trends, Student Data
+- Management: Organization, Roles & Permissions, Impl. Learning Labs
 - Resources: Resource Library, Manage Resources
 - Incentives: My Incentives
 - Communication: Messages
 
+**Super Admin Sidebar:**
+- District: Overview, Schools, Users
+- Resources: Impl. Learning Labs
+- Communication: Messages
+
 **Researcher Sidebar:**
-- Analytics: Research Analytics, Longitudinal View, Log Aggregation, Fidelity Trends, DSAII Pathway
-- Data: Data Browser, Export Data, Resource Library, Manage Resources
+- Analytics: Research Analytics, Longitudinal View, Log Aggregation, Fidelity Trends, DSAII Pathway, Impl. Learning Labs
+- Data: Student Data, Data Browser, Export Data, Resource Library, Manage Resources
 - Budget: Budget & Incentives
 - Communication: Messages
 
@@ -143,56 +159,54 @@ Each role has a customized sidebar with only the pages they need:
 
 ### 4.1 Teacher Journey
 
-A teacher's day on MathImpl typically follows this path:
+A teacher's workflow on MathImpl typically follows this path:
 
 ```
-MORNING
-   │
-   ▼
-[1] PLAN SESSION (optional)
-    Teacher creates a lesson plan for today or future dates
-    - Picks instructional routine, strategy, duration
-    - Selects MTSS tier (Tier 1/2/3/SPED)
-    - Sets a lesson goal
+[1] OPEN DAILY LOG
+    Single scrolling form with 5 sections:
+
+    ┌─ Section 1: Pre-Instruction Planning ─────────────────┐
+    │  Session goal (text) + Pre-instruction notes           │
+    └───────────────────────────────────────────────────────┘
+    ┌─ Section 2: Instructional Implementation ─────────────┐
+    │  Date/time, instructional routine, strategy, duration  │
+    │  MTSS tier, setting, EBP selector, lesson completion   │
+    │  Notes                                                 │
+    └───────────────────────────────────────────────────────┘
+    ┌─ Section 3: Post Instruction Reflections ─────────────┐
+    │  Fidelity self-check: Consistent / Inconsistent        │
+    │  + description of implementation fidelity              │
+    └───────────────────────────────────────────────────────┘
+    ┌─ Section 4: Adaptation ───────────────────────────────┐
+    │  Did an adaptation occur? (see Section 5.3)            │
+    │  Planned vs. Reactive, what changed, reasons           │
+    └───────────────────────────────────────────────────────┘
+    ┌─ Section 5: Coach Communication ──────────────────────┐
+    │  Optional message to coach (appears in Feedback Queue) │
+    └───────────────────────────────────────────────────────┘
+
+    Below the form: Students' Aggregated Performance panel
+    (shows teacher's own student data by MTSS tier)
     │
     ▼
-[2] TEACH THE LESSON
-    (The actual classroom instruction happens here — offline)
+[2] REVIEW PAST LOGS
+    Teacher can browse all previously submitted logs
     │
     ▼
-[3] LOG THE LESSON (Daily Log)
-    Teacher records what happened:
-    - Date & time
-    - What routine they taught
-    - How long it lasted
-    - Whether the lesson was completed (fully / partially / not completed)
-    - Notes and reflections
-    │
-    ├── Did an adaptation occur?
-    │   YES → Fill out Adaptation Sub-Form (see Section 5.3)
-    │   NO  → Continue
-    │
-    ▼
-[4] FIDELITY SELF-CHECK
-    Teacher rates their own implementation on 5 dimensions (1–5 scale)
-    - Adherence, Dosage, Quality, Responsiveness, Confidence
-    │
-    ▼
-[5] REVIEW DASHBOARD
+[3] REVIEW DASHBOARD
     Teacher sees their own stats:
     - Log completion rate
     - Average fidelity score
     - Adaptations this month
     - Coaching messages
-    - Training attendance
     │
     ▼
-[6] CHECK COACHING THREAD
+[4] CHECK COACHING THREAD
     Teacher reads messages from their coach
     Ask questions → Coach replies
     │
     ▼
-[7] VIEW INCENTIVES
+[5] VIEW INCENTIVES
     Teacher sees how much they've earned based on their logging behavior
 ```
 
@@ -204,7 +218,7 @@ MORNING
 | Avg Fidelity | Average score across all 5 dimensions (1–5) |
 | Adaptations | Number of adaptations documented this month |
 | Messages | Total coaching messages, with unread count |
-| Training | Sessions attended out of total available |
+| Students' Performance | Aggregated student data by MTSS tier (avg score, growth, % at benchmark) |
 
 ---
 
@@ -245,7 +259,7 @@ A coach manages a **caseload** of assigned teachers and supports their implement
     - Communicate via coaching thread
 ```
 
-**How Coach Sees Teacher Health:**
+**How Coach Rates Teacher Status:**
 
 ```
 Fidelity Score → Status Label
@@ -259,7 +273,7 @@ Below 3.0      = 🔴 At Risk
 
 ### 4.3 Admin Journey
 
-An admin monitors the health of their entire school:
+An admin monitors the implementation status of their entire school:
 
 ```
 [1] SCHOOL OVERVIEW
@@ -272,7 +286,7 @@ An admin monitors the health of their entire school:
     │
     ▼
 [2] MTSS MONITORING
-    Six health indicators (called "Determinants"):
+    Six capacity indicators (called "Determinants"):
     - Leadership Support
     - Coaching Access
     - Staffing Stability
@@ -297,9 +311,9 @@ An admin monitors the health of their entire school:
     Review pending incentive awards for the school
     │
     ▼
-[6] PD PLANNING
-    Manage professional development sessions
-    Track enrollment and attendance
+[6] IMPL. LEARNING LABS
+    Manage implementation learning laboratory sessions
+    Track enrollment and attendance for professional development
 ```
 
 ---
@@ -357,9 +371,10 @@ The super admin manages the entire district infrastructure:
 ```
 [1] DISTRICT OVERVIEW
     High-level stats:
-    - Total schools
-    - Total staff (teachers, coaches, admins, researchers)
-    - Total logs and completion rate
+    - Total schools across all districts
+    - Total staff (teachers, paraprofessionals, coaches, admins, researchers)
+    - Total logs, completion rate, fidelity summary
+    - Student performance by school (avg score, growth, at benchmark)
     - Log activity chart by school
     │
     ▼
@@ -370,7 +385,15 @@ The super admin manages the entire district infrastructure:
     ▼
 [3] MANAGE USERS
     Full roster of all users in the district
+    Two-tab view:
+      • All Users — filter by school/role, click user for detail modal
+        - Teacher/para modals show fidelity scores + student performance data
+      • Students' Performance — district-wide stats, per-school table, per-teacher table
     Add new users, edit roles, deactivate accounts
+    │
+    ▼
+[4] IMPL. LEARNING LABS
+    View and manage professional development / learning laboratory sessions
 ```
 
 ---
@@ -879,16 +902,16 @@ Step 3: APPROVED ✅
 
 | Role | Can See | Can Award |
 |------|---------|-----------|
-| Teacher | Own incentives only | No |
+| Teacher / Paraprofessional | Own incentives only | No |
 | Coach | Own incentives + caseload teacher projections | No |
 | Admin | Own incentives + school teacher projections | No |
 | Researcher | Everyone's incentives + full budget | Yes — can approve/reject/award |
 
 ---
 
-## 8. MTSS Monitoring — School Health Indicators
+## 8. MTSS Monitoring — Implementation Indicators
 
-The **MTSS Monitoring** page (visible to Admins and Researchers) shows the overall health of implementation at a school or district level. It uses two sets of indicators:
+The **MTSS Monitoring** page (visible to Admins and Researchers) shows the overall status of implementation at a school or district level. It uses two sets of indicators:
 
 ### Capacity Indicators ("Determinants")
 
@@ -1037,25 +1060,31 @@ The platform uses a **permission system** to control access. Each role has a set
 
 ### Permission Summary by Role
 
-| Permission | Teacher | Coach | Admin | Researcher | Super Admin |
-|-----------|---------|-------|-------|-----------|-------------|
-| Edit/submit logs | ✅ | ❌ | ❌ | ❌ | ✅ |
-| View fidelity data | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Respond to coaching | ✅ | ✅ | ❌ | ❌ | ✅ |
-| View reports/dashboards | ✅ | ✅ | ✅ | ✅ | ✅ |
-| View users/caseload | ❌ | ✅ | ✅ | ❌ | ✅ |
-| Assign roles | ❌ | ❌ | ✅ | ❌ | ✅ |
-| Manage org/school | ❌ | ❌ | ✅ | ✅ | ✅ |
-| Export data | ❌ | ❌ | ❌ | ✅ | ✅ |
-| View student data | ✅ | ❌ | ❌ | ✅ | ✅ |
-| Generate reports | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Manage schools | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Permission | Teacher | Para | Coach | Admin | Researcher | Super Admin |
+|-----------|---------|------|-------|-------|-----------|-------------|
+| Edit/submit logs | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
+| View fidelity data | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Respond to coaching | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ |
+| View reports/dashboards | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| View users/caseload | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ |
+| Assign roles | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ |
+| Manage org/school | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Export data | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| View student data | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Generate reports | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Manage schools | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 
 > If a user does not have a permission, the page or button simply doesn't appear for them — they never see it.
 
 ---
 
 ## 12. Visual Flow Diagrams
+
+### Platform Architecture & User Journeys
+
+The diagram below shows the full platform at a glance: shared modules across the top, each role's feature set in the middle, and the step-by-step user journey for every role along the bottom.
+
+![MathImpl Platform Flow Diagram](docs/flow_diagram.png)
 
 ### Full Data Flow
 
@@ -1064,26 +1093,26 @@ The platform uses a **permission system** to control access. Each role has a set
 │                      DATA FLOW OVERVIEW                         │
 └─────────────────────────────────────────────────────────────────┘
 
-  TEACHER                 COACH                  ADMIN
-  ───────                ───────                ───────
-  1. Plans lesson    →   Sees caseload       →  Sees school
-  2. Logs lesson         activity               overview
-  3. Rates fidelity      ↓                      ↓
-  4. Documents       →  Sends messages       → Reviews
-     adaptations        Creates actions        incentives
-  5. Answers             Resolves questions     Monitors
-     coaching Q's                               MTSS health
+  TEACHER/PARA            COACH                  ADMIN
+  ────────────           ───────                ───────
+  1. Logs lesson     →   Sees caseload       →  Sees school
+  2. Rates fidelity      activity               overview
+  3. Documents       →   Sends messages      →  Reviews
+     adaptations         Creates actions        incentives
+  4. Answers             Resolves questions     Monitors
+     coaching Q's                               MTSS status
        ↓                    ↓                      ↓
        └────────────────────┴──────────────────────┘
                             │
-                            ▼
-                      RESEARCHER
-                      ──────────
-                      Sees everything:
-                      - Longitudinal trends
-                      - Cross-school comparison
-                      - Budget management
-                      - Data exports
+                    ┌───────┴────────┐
+                    ▼                ▼
+              SUPER ADMIN       RESEARCHER
+              ──────────        ──────────
+              District-wide     Sees everything:
+              overview:         - Longitudinal trends
+              - All schools     - Cross-school comparison
+              - All users       - Budget management
+              - Student perf    - Data exports
 ```
 
 ### Teacher Logging Flow
@@ -1200,6 +1229,8 @@ Reply appears in Coaching Thread
 | **Log Completion Rate** | % of lessons marked "Fully Completed" out of all logged lessons |
 | **MTSS** | Multi-Tiered System of Supports — a framework for matching student support to need level |
 | **PD / PDSession** | Professional Development — training sessions for educators |
+| **Impl. Learning Labs** | Implementation Learning Laboratories — structured PD sessions focused on putting evidence-based practices into use (replaces "PD Planning" in earlier versions) |
+| **Paraprofessional** | A teaching assistant who logs sessions and tracks implementation just like a teacher |
 | **Planned Adaptation** | A change decided before the lesson began |
 | **Reactive Adaptation** | A change made on-the-spot during the lesson |
 | **Responsiveness** | How engaged and participatory students are during the lesson |
@@ -1210,5 +1241,5 @@ Reply appears in Coaching Thread
 
 ---
 
-*Last updated: June 2026*
+*Last updated: June 2026 — added Paraprofessional role, Impl. Learning Labs, Super Admin journey, test accounts*
 *Platform: MathImpl — K–8 Mathematics Implementation Dashboard*
