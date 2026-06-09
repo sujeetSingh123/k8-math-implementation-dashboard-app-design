@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Upload, Save, Paperclip } from 'lucide-react'
+import { Save } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
@@ -11,7 +11,6 @@ import { roleColors } from '../../constants/roles'
 import { instructionalRoutines, implementationStrategies, implementationTiers, instructionalSettings } from '../../data/mockData'
 import { FidelitySection } from './FidelitySection'
 import { AdaptationSubForm } from './AdaptationSubForm'
-import { StudentPerfSummary } from './StudentPerfSummary'
 import type { CoreScores, ExtraScores } from './FidelitySection'
 import type { ImplementationLog, Adaptation, FidelityCheck } from '../../types'
 
@@ -43,9 +42,6 @@ export function DailyLog() {
   const [fidelity, setFidelity] = useState<CoreScores>({ adherence: 3, dosage: 3, quality: 3, responsiveness: 3, confidence: 3 })
   const [extra, setExtra] = useState<ExtraScores>({ feasibility: 3, acceptability: 3, sustainment: 3 })
   const [reflectionNotes, setReflectionNotes] = useState('')
-  const [artifactFile, setArtifactFile] = useState<string | null>(null)
-  const artifactRef = useRef<HTMLInputElement>(null)
-
   const { register, handleSubmit, reset } = useForm<LogForm>({
     defaultValues: fromPlan ? {
       sessionGoal: pendingPlan!.goal ?? '', preInstructionNotes: '', date: pendingPlan!.plannedDate,
@@ -106,7 +102,7 @@ export function DailyLog() {
     setWhatModified([]); setReasons([]); setAdaptationOccurred(false)
     setFidelity({ adherence: 3, dosage: 3, quality: 3, responsiveness: 3, confidence: 3 })
     setExtra({ feasibility: 3, acceptability: 3, sustainment: 3 })
-    setReflectionNotes(''); setArtifactFile(null)
+    setReflectionNotes('')
   }
 
   return (
@@ -178,21 +174,10 @@ export function DailyLog() {
           <div><label className={labelCls}>Message to Coach (optional)</label>
             <textarea {...register('coachMessage')} rows={3} className={inputCls} placeholder="Share any questions, wins, or challenges with your coach..." /></div>
         </Card>
-        {artifactFile && (
-          <div className="flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-xl">
-            <Paperclip size={12} />{artifactFile}
-          </div>
-        )}
         <div className="flex flex-wrap gap-3">
           <Button type="submit" roleColor={roleColor}><Save size={15} />Save Entry</Button>
-          <Button type="button" variant="secondary" roleColor={roleColor} onClick={() => artifactRef.current?.click()}>
-            <Upload size={15} />Upload Artifact
-          </Button>
-          <input ref={artifactRef} type="file" className="hidden" accept=".pdf,.jpg,.png,.doc,.docx"
-            onChange={e => { const f = e.target.files?.[0]; if (f) { setArtifactFile(f.name); toast.success(`Artifact attached: ${f.name}`) } }} />
         </div>
       </form>
-      <StudentPerfSummary />
     </div>
   )
 }
