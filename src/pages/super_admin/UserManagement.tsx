@@ -46,8 +46,9 @@ export function UserManagement() {
     const checks = fidelityChecks.filter(c => c.teacherId === selectedUser.id)
     if (!checks.length) return null
     const n = checks.length
-    const dimAvgs = Object.fromEntries(DIMS.map(d => [d, +(checks.reduce((s, c) => s + (c[d as Dim] ?? 0), 0) / n).toFixed(1)]))
-    const composite = +((DIMS.reduce((s, d) => s + (dimAvgs[d] ?? 0), 0) / DIMS.length).toFixed(2))
+    const dimAvgs = { adherence: 0, dosage: 0, quality: 0, responsiveness: 0 } as Record<Dim, number>
+    DIMS.forEach(d => { dimAvgs[d] = +(checks.reduce((s, c) => s + (c[d as Dim] ?? 0), 0) / n).toFixed(1) })
+    const composite = +((DIMS.reduce((s, d) => s + dimAvgs[d], 0) / DIMS.length).toFixed(2))
     return { ...dimAvgs, composite, n }
   }, [selectedUser, fidelityChecks])
 
@@ -57,7 +58,7 @@ export function UserManagement() {
     if (!recs.length) return null
     const avgScore = (recs.reduce((s, r) => s + r.currentAvg, 0) / recs.length).toFixed(1)
     const avgGrowth = (recs.reduce((s, r) => s + (r.growth ?? 0), 0) / recs.length).toFixed(1)
-    const atBench = Math.round(recs.reduce((s, r) => s + r.atOrAboveBenchmark, 0) / recs.length)
+    const atBench = Math.round(recs.reduce((s, r) => s + (r.atOrAboveBenchmark ?? 0), 0) / recs.length)
     return { avgScore, avgGrowth, atBench, count: recs.length }
   }, [selectedUser, studentDataRecords])
 

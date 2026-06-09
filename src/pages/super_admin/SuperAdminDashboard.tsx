@@ -147,7 +147,7 @@ function StudentsSection() {
     if (!recs.length) return { id, name: schoolNames[id] ?? id, avgScore: '—', avgGrowth: '—', atBench: '—', count: 0 }
     const avgScore = (recs.reduce((s, r) => s + r.currentAvg, 0) / recs.length).toFixed(1)
     const avgGrowth = (recs.reduce((s, r) => s + (r.growth ?? 0), 0) / recs.length).toFixed(1)
-    const atBench = Math.round(recs.reduce((s, r) => s + r.atOrAboveBenchmark, 0) / recs.length)
+    const atBench = Math.round(recs.reduce((s, r) => s + (r.atOrAboveBenchmark ?? 0), 0) / recs.length)
     return { id, name: schoolNames[id] ?? id, avgScore, avgGrowth, atBench: `${atBench}%`, count: recs.length }
   })
   return (

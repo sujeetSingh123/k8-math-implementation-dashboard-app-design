@@ -7,8 +7,9 @@ import { useAppStore } from '../../store/useAppStore'
 
 const roleColor = roleColors.super_admin
 
-function avg(vals: number[]) {
-  return vals.length ? +(vals.reduce((s, v) => s + v, 0) / vals.length).toFixed(1) : 0
+function avg(vals: (number | undefined)[]) {
+  const nums = vals.filter((v): v is number => v !== undefined)
+  return nums.length ? +(nums.reduce((s, v) => s + v, 0) / nums.length).toFixed(1) : 0
 }
 
 export function StudentsPerformanceTab() {

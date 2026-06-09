@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
-  ClipboardList, BookOpen, MessageSquare, Library, GraduationCap,
+  ClipboardList, BookOpen, MessageSquare, Library,
   LayoutDashboard, Users, Inbox, TrendingUp, Building2, Activity, BarChart2,
   Download, X, Shield, LogOut, BarChart, GitBranch, CalendarDays, DollarSign, Award, Globe,
 } from 'lucide-react'

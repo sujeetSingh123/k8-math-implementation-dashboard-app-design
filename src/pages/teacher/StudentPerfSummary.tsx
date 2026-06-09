@@ -26,7 +26,7 @@ export function StudentPerfSummary() {
       )
       const avgScore = (uniqueLatest.reduce((s, r) => s + r.currentAvg, 0) / uniqueLatest.length).toFixed(1)
       const avgGrowth = (uniqueLatest.reduce((s, r) => s + (r.growth ?? 0), 0) / uniqueLatest.length).toFixed(1)
-      const atBench = Math.round(uniqueLatest.reduce((s, r) => s + r.atOrAboveBenchmark, 0) / uniqueLatest.length)
+      const atBench = Math.round(uniqueLatest.reduce((s, r) => s + (r.atOrAboveBenchmark ?? 0), 0) / uniqueLatest.length)
       return { tier, avgScore, avgGrowth: +avgGrowth, atBench, n: uniqueLatest.length }
     }).filter(Boolean) as { tier: string; avgScore: string; avgGrowth: number; atBench: number; n: number }[]
   }, [myRecords])
