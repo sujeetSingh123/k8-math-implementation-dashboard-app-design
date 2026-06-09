@@ -134,8 +134,8 @@ export function FidelityCheck() {
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={chartData} barSize={6}>
               <XAxis dataKey="week" tick={{ fontSize: 10 }} />
-              <YAxis domain={[0, 5]} tick={{ fontSize: 10 }} width={20} />
-              <Tooltip />
+              <YAxis domain={[0, 5]} tick={{ fontSize: 10 }} width={36} tickFormatter={v => `${v * 20}%`} />
+              <Tooltip formatter={(v) => typeof v === 'number' ? `${Math.round(v * 20)}%` : ''} contentStyle={{ borderRadius: 12, fontSize: 12 }} />
               <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
               <Bar dataKey="Adherence" fill="#10B981" />
               <Bar dataKey="Dosage" fill="#3B82F6" />

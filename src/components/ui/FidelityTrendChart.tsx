@@ -13,8 +13,8 @@ export function FidelityTrendChart({ data, roleColor }: { data: TLPoint[]; roleC
       <LineChart data={data} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
         <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-        <YAxis domain={[1, 5]} tick={{ fontSize: 12 }} />
-        <Tooltip formatter={(v) => typeof v === 'number' ? v.toFixed(2) : ''} contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+        <YAxis domain={[1, 5]} tick={{ fontSize: 12 }} tickFormatter={v => `${Math.round(v * 20)}%`} />
+        <Tooltip formatter={(v) => typeof v === 'number' ? `${Math.round(v * 20)}%` : ''} contentStyle={{ borderRadius: 12, fontSize: 12 }} />
         <Legend wrapperStyle={{ fontSize: 11 }} />
         {DIMS.map(([key, color]) => <Line key={key} type="monotone" dataKey={key} name={key.charAt(0).toUpperCase() + key.slice(1)} stroke={color} strokeWidth={1.5} dot={{ r: 2, fill: color }} />)}
         <Line type="monotone" dataKey="composite" name="Composite" stroke={roleColor} strokeWidth={2.5} strokeDasharray="5 3" dot={{ r: 3, fill: roleColor }} />

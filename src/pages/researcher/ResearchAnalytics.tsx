@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts'
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend } from 'recharts'
 import { Database, BookOpen, CheckCircle, MessageSquare } from 'lucide-react'
 import { StatCard } from '../../components/ui/StatCard'
 import { Card } from '../../components/ui/Card'
@@ -104,14 +104,24 @@ export function ResearchAnalytics() {
     : 0
 
   const buckets = getTimeBuckets(period)
-  const trendData = period === 'year'
-    ? (schoolFidelityTrends['SCH01'] ?? []).map(m => ({ month: m.month, adherence: m.adherence }))
+  type FTrendPoint = { month: string; adherence: number; dosage: number; quality: number; responsiveness: number; confidence: number }
+  const avg = (arr: typeof fidelityChecks, key: keyof typeof fidelityChecks[0]) =>
+    parseFloat((arr.reduce((s, c) => s + (c[key] as number), 0) / arr.length).toFixed(1))
+  const trendData: FTrendPoint[] = period === 'year'
+    ? (schoolFidelityTrends['SCH01'] ?? []).map(m => ({
+        month: m.month,
+        adherence: m.adherence, dosage: m.dosage, quality: m.quality,
+        responsiveness: m.responsiveness, confidence: m.confidence,
+      }))
     : buckets.map(b => {
         const checks = fidelityChecks.filter(c => inBucket(c.date, b))
-        const avg = checks.length > 0
-          ? parseFloat((checks.reduce((s, c) => s + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / checks.length).toFixed(1))
-          : null
-        return { month: b.label, adherence: avg }
+        if (!checks.length) return { month: b.label, adherence: 0, dosage: 0, quality: 0, responsiveness: 0, confidence: 0 }
+        return {
+          month: b.label,
+          adherence: avg(checks, 'adherence'), dosage: avg(checks, 'dosage'),
+          quality: avg(checks, 'quality'), responsiveness: avg(checks, 'responsiveness'),
+          confidence: avg(checks, 'confidence'),
+        }
       })
 
   const schoolColumns = [
@@ -140,13 +150,18 @@ export function ResearchAnalytics() {
             <h3 className="text-sm font-semibold text-gray-800">Longitudinal Fidelity Trajectories</h3>
             <TimePeriodSelector value={period} onChange={setPeriod} />
           </div>
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={220}>
             <LineChart data={trendData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
               <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-              <YAxis domain={[2, 5]} tick={{ fontSize: 10 }} width={25} />
-              <Tooltip />
-              <Line type="monotone" dataKey="adherence" name="Avg Adherence" stroke={roleColor} strokeWidth={2.5} dot={{ r: 3, fill: roleColor }} activeDot={{ r: 5, cursor: 'pointer' }} connectNulls />
+              <YAxis domain={[2, 5]} tick={{ fontSize: 10 }} width={38} tickFormatter={v => `${Math.round(v * 20)}%`} />
+              <Tooltip formatter={(v) => typeof v === 'number' ? `${Math.round(v * 20)}%` : ''} contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+              <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
+              <Line type="monotone" dataKey="adherence" name="Adherence" stroke="#8B5CF6" strokeWidth={1.5} dot={{ r: 2 }} connectNulls />
+              <Line type="monotone" dataKey="dosage" name="Dosage" stroke="#3B82F6" strokeWidth={1.5} dot={{ r: 2 }} connectNulls />
+              <Line type="monotone" dataKey="quality" name="Quality" stroke="#10B981" strokeWidth={1.5} dot={{ r: 2 }} connectNulls />
+              <Line type="monotone" dataKey="responsiveness" name="Responsiveness" stroke="#F59E0B" strokeWidth={1.5} dot={{ r: 2 }} connectNulls />
+              <Line type="monotone" dataKey="confidence" name="Confidence" stroke="#EF4444" strokeWidth={1.5} dot={{ r: 2 }} connectNulls />
             </LineChart>
           </ResponsiveContainer>
         </Card>
@@ -215,13 +230,18 @@ export function ResearchAnalytics() {
               <p className="text-sm text-gray-600">{schoolNotes[schoolModal.schoolId] ?? 'No notes available.'}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold text-gray-500 mb-2">Fidelity Trend</p>
-              <ResponsiveContainer width="100%" height={100}>
-                <BarChart data={(schoolFidelityTrends[schoolModal.schoolId] ?? []).slice(-3)}>
+              <p className="text-xs font-semibold text-gray-500 mb-2">Fidelity Trend (Last 3 Months)</p>
+              <ResponsiveContainer width="100%" height={180}>
+                <BarChart data={(schoolFidelityTrends[schoolModal.schoolId] ?? []).slice(-3)} margin={{ top: 4, right: 8, left: -8, bottom: 0 }}>
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                  <YAxis domain={[2, 5]} tick={{ fontSize: 11 }} />
-                  <Tooltip />
-                  <Bar dataKey="adherence" name="Adherence" fill={roleColor} radius={[4, 4, 0, 0]} />
+                  <YAxis domain={[2, 5]} tick={{ fontSize: 10 }} tickFormatter={v => `${Math.round(v * 20)}%`} />
+                  <Tooltip formatter={(v) => typeof v === 'number' ? `${Math.round(v * 20)}%` : ''} contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+                  <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
+                  <Bar dataKey="adherence" name="Adherence" fill="#8B5CF6" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="dosage" name="Dosage" fill="#3B82F6" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="quality" name="Quality" fill="#10B981" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="responsiveness" name="Responsiveness" fill="#F59E0B" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="confidence" name="Confidence" fill="#EF4444" radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

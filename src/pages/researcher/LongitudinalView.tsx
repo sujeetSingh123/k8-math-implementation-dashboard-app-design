@@ -80,8 +80,8 @@ function CompositeTrendChart({ data, filter }: CompositeTrendChartProps) {
       <LineChart data={data} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
         <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-        <YAxis domain={[2, 5]} tick={{ fontSize: 12 }} />
-        <Tooltip formatter={(v) => typeof v === 'number' ? v.toFixed(2) : ''} contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+        <YAxis domain={[2, 5]} tick={{ fontSize: 12 }} tickFormatter={v => `${Math.round(v * 20)}%`} />
+        <Tooltip formatter={(v) => typeof v === 'number' ? `${Math.round(v * 20)}%` : ''} contentStyle={{ borderRadius: 12, fontSize: 12 }} />
         <Legend wrapperStyle={{ fontSize: 12 }} />
         {(filter === 'all' || filter === 'dist1') && (
           <Line type="monotone" dataKey="Riverside USD" stroke={districtMeta.dist1.color} strokeWidth={2.5} strokeDasharray="5 3" dot={false} />
@@ -256,8 +256,8 @@ export function LongitudinalView() {
             <BarChart data={dimensionBreakdown} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
               <XAxis dataKey="dim" tick={{ fontSize: 11 }} />
-              <YAxis domain={[2, 5]} tick={{ fontSize: 12 }} />
-              <Tooltip formatter={(v) => typeof v === 'number' ? v.toFixed(2) : ''} contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+              <YAxis domain={[2, 5]} tick={{ fontSize: 12 }} tickFormatter={v => `${Math.round(v * 20)}%`} />
+              <Tooltip formatter={(v) => typeof v === 'number' ? `${Math.round(v * 20)}%` : ''} contentStyle={{ borderRadius: 12, fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
               {schoolIds.map(id => (
                 <Bar key={id} dataKey={schoolMeta[id].name} fill={schoolMeta[id].color} radius={[4, 4, 0, 0]} />
@@ -292,8 +292,8 @@ export function LongitudinalView() {
               <LineChart data={schoolTrendChartData} margin={{ top: 4, right: 16, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                <YAxis domain={[2, 5]} tick={{ fontSize: 11 }} />
-                <Tooltip formatter={(v) => typeof v === 'number' ? v.toFixed(2) : ''} contentStyle={{ borderRadius: 12, fontSize: 11 }} />
+                <YAxis domain={[2, 5]} tick={{ fontSize: 11 }} tickFormatter={v => `${Math.round(v * 20)}%`} />
+                <Tooltip formatter={(v) => typeof v === 'number' ? `${Math.round(v * 20)}%` : ''} contentStyle={{ borderRadius: 12, fontSize: 11 }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 {dims.map(d => (
                   <Line key={d} type="monotone" dataKey={d.charAt(0).toUpperCase() + d.slice(1)} stroke={dimColors[d]} strokeWidth={1.5} dot={false} />

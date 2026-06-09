@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend } from 'recharts'
 import { AlertTriangle, Settings } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Modal } from '../../components/ui/Modal'
@@ -63,7 +63,11 @@ export function MTSSMonitoring() {
 
   const trendData = monthlyFidelityTrend.map(m => ({
     month: m.month,
-    'Avg Fidelity': parseFloat(((m.adherence + m.dosage + m.quality + m.responsiveness + m.confidence) / 5).toFixed(2)),
+    Adherence: m.adherence,
+    Dosage: m.dosage,
+    Quality: m.quality,
+    Responsiveness: m.responsiveness,
+    Confidence: m.confidence,
   }))
 
   const handleSaveEdits = () => {
@@ -125,13 +129,18 @@ export function MTSSMonitoring() {
           <h2 className="text-sm font-semibold text-gray-800">District-Wide Implementation Fidelity Performance (Sep–May)</h2>
           <Button size="sm" variant="secondary" roleColor={roleColor} onClick={() => toast.info('Generating implementation health trend report PDF…')}>Export</Button>
         </div>
-        <ResponsiveContainer width="100%" height={220}>
-          <LineChart data={trendData} onClick={d => { if (d?.activeLabel) toast.info(`${d.activeLabel}: Avg Fidelity ${trendData.find(t => t.month === d.activeLabel)?.['Avg Fidelity'] ?? '—'}`) }}>
+        <ResponsiveContainer width="100%" height={240}>
+          <LineChart data={trendData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
             <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-            <YAxis domain={[2, 5]} tick={{ fontSize: 11 }} />
-            <Tooltip />
-            <Line type="monotone" dataKey="Avg Fidelity" stroke={roleColor} strokeWidth={2.5} dot={{ r: 4, fill: roleColor }} activeDot={{ r: 6, cursor: 'pointer' }} />
+            <YAxis domain={[2, 5]} tick={{ fontSize: 11 }} tickFormatter={v => `${Math.round(v * 20)}%`} />
+            <Tooltip formatter={(v) => typeof v === 'number' ? `${Math.round(v * 20)}%` : ''} contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+            <Legend wrapperStyle={{ fontSize: 11 }} />
+            <Line type="monotone" dataKey="Adherence" stroke="#8B5CF6" strokeWidth={1.5} dot={{ r: 2 }} />
+            <Line type="monotone" dataKey="Dosage" stroke="#3B82F6" strokeWidth={1.5} dot={{ r: 2 }} />
+            <Line type="monotone" dataKey="Quality" stroke="#10B981" strokeWidth={1.5} dot={{ r: 2 }} />
+            <Line type="monotone" dataKey="Responsiveness" stroke="#F59E0B" strokeWidth={1.5} dot={{ r: 2 }} />
+            <Line type="monotone" dataKey="Confidence" stroke="#EF4444" strokeWidth={1.5} dot={{ r: 2 }} />
           </LineChart>
         </ResponsiveContainer>
       </Card>

@@ -103,8 +103,8 @@ export function TeacherDashboard() {
               <LineChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
                 <XAxis dataKey="week" tick={{ fontSize: 10 }} />
-                <YAxis domain={[1, 5]} tick={{ fontSize: 10 }} width={20} />
-                <Tooltip />
+                <YAxis domain={[1, 5]} tick={{ fontSize: 10 }} width={36} tickFormatter={v => `${Math.round(v * 20)}%`} />
+                <Tooltip formatter={(v) => typeof v === 'number' ? `${Math.round(v * 20)}%` : ''} contentStyle={{ borderRadius: 12, fontSize: 12 }} />
                 <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
                 <Line type="monotone" dataKey="Adherence" stroke="#10B981" strokeWidth={2} dot={false} connectNulls />
                 <Line type="monotone" dataKey="Dosage" stroke="#3B82F6" strokeWidth={2} dot={false} connectNulls />
