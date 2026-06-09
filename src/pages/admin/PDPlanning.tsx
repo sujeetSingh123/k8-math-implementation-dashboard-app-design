@@ -148,7 +148,7 @@ function AddSessionModal({ onClose }: { onClose: () => void }) {
 }
 
 export function PDPlanning() {
-  const { pdSessions } = useAppStore()
+  const { pdSessions, currentRole } = useAppStore()
   const [addOpen, setAddOpen] = useState(false)
 
   const upcoming = pdSessions.filter(s => s.status === 'upcoming')
@@ -167,7 +167,9 @@ export function PDPlanning() {
           <h1 className="text-base font-semibold text-gray-900">Implementation Learning Laboratories</h1>
           <p className="text-xs text-gray-500 mt-0.5">Schedule and manage training sessions and meeting laboratories</p>
         </div>
-        <Button roleColor={roleColor} size="sm" onClick={() => setAddOpen(true)}><Plus size={14} />Add Session</Button>
+        {currentRole === 'researcher' && (
+          <Button roleColor={roleColor} size="sm" onClick={() => setAddOpen(true)}><Plus size={14} />Add Session</Button>
+        )}
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard label="Upcoming Sessions" value={upcoming.length} sub="Scheduled ahead" icon={<CalendarDays size={18} />} iconColor={roleColor} />

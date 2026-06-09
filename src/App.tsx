@@ -21,6 +21,7 @@ import { MTSSMonitoring } from './pages/admin/MTSSMonitoring'
 import { RolesPermissions } from './pages/admin/RolesPermissions'
 import { Organization } from './pages/admin/Organization'
 import { PDPlanning } from './pages/admin/PDPlanning'
+import { TeacherLabs } from './pages/teacher/TeacherLabs'
 import { ResourceManagement } from './pages/admin/ResourceManagement'
 import { AdminIncentives } from './pages/admin/AdminIncentives'
 import { ResearchAnalytics } from './pages/researcher/ResearchAnalytics'
@@ -108,7 +109,7 @@ export default function App() {
         <Route path="/researcher/dsaii" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><DSAIIPathway /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
         <Route path="/researcher/budget" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><BudgetView /></PermissionGate></ProtectedLayout>} />
-        <Route path="/teacher/labs" element={<ProtectedLayout><PDPlanning /></ProtectedLayout>} />
+        <Route path="/teacher/labs" element={<ProtectedLayout><TeacherLabs /></ProtectedLayout>} />
         <Route path="/coach/labs" element={<ProtectedLayout><PDPlanning /></ProtectedLayout>} />
         <Route path="/researcher/labs" element={<ProtectedLayout><PDPlanning /></ProtectedLayout>} />
         <Route path="/messages" element={<ProtectedLayout><MessagesPage /></ProtectedLayout>} />
