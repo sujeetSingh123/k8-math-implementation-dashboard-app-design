@@ -41,6 +41,7 @@ import { SchoolManagement } from './pages/super_admin/SchoolManagement'
 import { UserManagement } from './pages/super_admin/UserManagement'
 import { DistrictAdminDashboard } from './pages/district_admin/DistrictAdminDashboard'
 import { DistrictSchoolsView } from './pages/district_admin/DistrictSchoolsView'
+import { DrillDownDataView } from './pages/shared/DrillDownDataView'
 import { useAppStore } from './store/useAppStore'
 import { PermissionGate } from './components/ui/PermissionGate'
 
@@ -127,6 +128,8 @@ export default function App() {
         <Route path="/district-admin/incentives" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><AdminIncentives /></PermissionGate></ProtectedLayout>} />
         <Route path="/district-admin/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
         <Route path="/district-admin/pd-planning" element={<ProtectedLayout><PermissionGate permissionId="p_manage_org"><PDPlanning /></PermissionGate></ProtectedLayout>} />
+        <Route path="/district-admin/explorer" element={<ProtectedLayout><DrillDownDataView /></ProtectedLayout>} />
+        <Route path="/researcher/explorer" element={<ProtectedLayout><DrillDownDataView /></ProtectedLayout>} />
         <Route path="/super-admin/dashboard" element={<ProtectedLayout><SuperAdminDashboard /></ProtectedLayout>} />
         <Route path="/super-admin/schools" element={<ProtectedLayout><SchoolManagement /></ProtectedLayout>} />
         <Route path="/super-admin/users" element={<ProtectedLayout><UserManagement /></ProtectedLayout>} />

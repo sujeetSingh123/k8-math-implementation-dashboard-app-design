@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import {
   ClipboardList, BookOpen, MessageSquare, Library,
   LayoutDashboard, Users, Inbox, TrendingUp, Building2, Activity, BarChart2,
-  Download, X, Shield, LogOut, BarChart, GitBranch, CalendarDays, DollarSign, Award, Globe,
+  Download, X, Shield, LogOut, BarChart, GitBranch, CalendarDays, DollarSign, Award, Globe, Layers,
 } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { roleColors, roleLabels } from '../../constants/roles'
@@ -113,6 +113,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
         section: 'Overview',
         items: [
           { label: 'District Dashboard', path: '/district-admin/dashboard', icon: <Building2 size={16} />, permission: 'p_view_reports' },
+          { label: 'Data Explorer', path: '/district-admin/explorer', icon: <Layers size={16} />, permission: 'p_view_fidelity' },
           { label: 'MTSS Monitoring', path: '/district-admin/mtss', icon: <Activity size={16} />, permission: 'p_view_fidelity' },
           { label: 'Fidelity Trends', path: '/district-admin/fidelity-trends', icon: <TrendingUp size={16} />, permission: 'p_view_fidelity' },
           { label: 'Student Data', path: '/district-admin/student-data', icon: <BarChart size={16} />, permission: 'p_view_student_data' },
@@ -160,6 +161,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
       section: 'Analytics',
       items: [
         { label: 'Research Analytics', path: '/researcher/analytics', icon: <BarChart2 size={16} />, permission: 'p_view_logs' },
+        { label: 'Data Explorer', path: '/researcher/explorer', icon: <Layers size={16} />, permission: 'p_view_fidelity' },
         { label: 'Longitudinal View', path: '/researcher/longitudinal', icon: <TrendingUp size={16} />, permission: 'p_view_student_data' },
         { label: 'Log Aggregation', path: '/researcher/log-aggregation', icon: <Activity size={16} />, permission: 'p_view_logs' },
         { label: 'Fidelity Trends', path: '/researcher/fidelity-trends', icon: <TrendingUp size={16} />, permission: 'p_view_fidelity' },
