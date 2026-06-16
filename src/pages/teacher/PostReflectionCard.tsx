@@ -129,23 +129,36 @@ export const PostReflectionCard = forwardRef<PostReflectionRef, Props>(({ antici
         </div>
 
         {anticipatesAdaptation && (
-          <div>
-            <label className={labelCls}>If you pre-planned an adaptation, how was it implemented?{req}</label>
-            <div className="flex flex-wrap gap-4 mb-2">
-              {[{ v: 'fully', l: 'Fully' }, { v: 'partially', l: 'Partially' }, { v: 'not_implemented', l: 'Not implemented' }].map(({ v, l }) => (
-                <label key={v} className="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
-                  <input type="radio" checked={adaptImpl === v} onChange={() => setAdaptImpl(v as typeof adaptImpl)} className="accent-emerald-500" name="adaptImpl" />{l}
+          <div className="space-y-2.5">
+            <label className={labelCls}>If you pre-planned adaptation, how was the adaptation implemented?{req}</label>
+            <div className="space-y-3">
+              <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer">
+                <input type="radio" checked={adaptImpl === 'fully'} onChange={() => setAdaptImpl('fully')} className="accent-emerald-500 mt-0.5 flex-shrink-0" name="adaptImpl" />
+                <span>Fully</span>
+              </label>
+              <div>
+                <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer">
+                  <input type="radio" checked={adaptImpl === 'partially'} onChange={() => setAdaptImpl('partially')} className="accent-emerald-500 mt-0.5 flex-shrink-0" name="adaptImpl" />
+                  <span>Partially — please list any adaptation you planned but didn't use, and provide the reason for not using it</span>
                 </label>
-              ))}
+                {adaptImpl === 'partially' && (
+                  <textarea value={adaptPartialNotes} onChange={e => setAdaptPartialNotes(e.target.value)} rows={2}
+                    className={`${inputCls} mt-2 ml-5`}
+                    placeholder="e.g. Skipped extended time — students finished early; dropped visual aid — ran out of time" />
+                )}
+              </div>
+              <div>
+                <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer">
+                  <input type="radio" checked={adaptImpl === 'not_implemented'} onChange={() => setAdaptImpl('not_implemented')} className="accent-emerald-500 mt-0.5 flex-shrink-0" name="adaptImpl" />
+                  <span>Not implemented — please add the reason</span>
+                </label>
+                {adaptImpl === 'not_implemented' && (
+                  <textarea value={adaptNotImplReason} onChange={e => setAdaptNotImplReason(e.target.value)} rows={2}
+                    className={`${inputCls} mt-2 ml-5`}
+                    placeholder="e.g. Student behavior required a different approach; time constraints" />
+                )}
+              </div>
             </div>
-            {adaptImpl === 'partially' && (
-              <textarea value={adaptPartialNotes} onChange={e => setAdaptPartialNotes(e.target.value)} rows={2} className={inputCls}
-                placeholder="List adaptations you planned but didn't use and the reason..." />
-            )}
-            {adaptImpl === 'not_implemented' && (
-              <textarea value={adaptNotImplReason} onChange={e => setAdaptNotImplReason(e.target.value)} rows={2} className={inputCls}
-                placeholder="Please provide the reason for not implementing the adaptation..." />
-            )}
           </div>
         )}
 
