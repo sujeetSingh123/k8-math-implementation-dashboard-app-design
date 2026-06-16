@@ -94,9 +94,9 @@ export function LogAggregation() {
     const counts: Record<string, number> = {}
     filtered.forEach(l => {
       let keys: string[] = []
-      if (category === 'routine') keys = [l.instructionalRoutine]
+      if (category === 'routine') keys = l.instructionalRoutine ? [l.instructionalRoutine] : []
       else if (category === 'ebp') keys = l.ebpComponent
-      else if (category === 'strategy') keys = [l.implementationStrategy]
+      else if (category === 'strategy') keys = l.implementationStrategy ? [l.implementationStrategy] : []
       else if (category === 'tier') keys = [l.tier]
       else if (category === 'completion') keys = [l.lessonCompletion.replace(/_/g, ' ')]
       else keys = [schoolName[l.schoolId] ?? l.schoolId]

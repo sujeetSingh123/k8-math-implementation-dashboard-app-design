@@ -13,15 +13,15 @@ import { StudentDataUploadModal } from '../teacher/StudentDataUploadModal'
 import type { StudentDataRecord } from '../../types'
 
 const tierBadge: Record<string, 'blue' | 'green' | 'purple' | 'red'> = {
-  'Tier 1': 'green', 'Tier 2': 'blue', 'Tier 3': 'purple', 'SPED': 'red',
+  'Tier 1': 'green', 'Tier 2': 'blue', 'Tier 3': 'purple', 'Special Education': 'red',
 }
 const statusColor = (s?: string) =>
   s === 'Verified' ? 'green' : s === 'Submitted' ? 'blue' : 'amber'
 
 const tierLineColors: Record<string, string> = {
-  'Tier 1': '#10B981', 'Tier 2': '#3B82F6', 'Tier 3': '#8B5CF6', 'SPED': '#EF4444',
+  'Tier 1': '#10B981', 'Tier 2': '#3B82F6', 'Tier 3': '#8B5CF6', 'Special Education': '#EF4444',
 }
-const tiers = ['Tier 1', 'Tier 2', 'Tier 3', 'SPED'] as const
+const tiers = ['Tier 1', 'Tier 2', 'Tier 3', 'Special Education'] as const
 
 function RecordDetailModal({ record, teacherName, onClose }: { record: StudentDataRecord; teacherName?: string; onClose: () => void }) {
   const stat = (label: string, value?: number | string | boolean | null) => {

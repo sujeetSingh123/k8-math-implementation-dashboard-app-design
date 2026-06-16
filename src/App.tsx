@@ -31,6 +31,7 @@ import { DataExport } from './pages/researcher/DataExport'
 import { DSAIIPathway } from './pages/researcher/DSAIIPathway'
 import { BudgetView } from './pages/researcher/BudgetView'
 import { DataBrowser } from './pages/researcher/DataBrowser'
+import { DistrictComparison } from './pages/researcher/DistrictComparison'
 import { MyIncentives } from './pages/teacher/MyIncentives'
 import { CoachIncentives } from './pages/coach/CoachIncentives'
 import { FidelityAdaptationView } from './pages/shared/FidelityAdaptationView'
@@ -109,6 +110,7 @@ export default function App() {
         <Route path="/researcher/dsaii" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><DSAIIPathway /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
         <Route path="/researcher/budget" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><BudgetView /></PermissionGate></ProtectedLayout>} />
+        <Route path="/researcher/districts" element={<ProtectedLayout><PermissionGate permissionId="p_view_logs"><DistrictComparison /></PermissionGate></ProtectedLayout>} />
         <Route path="/teacher/labs" element={<ProtectedLayout><TeacherLabs /></ProtectedLayout>} />
         <Route path="/coach/labs" element={<ProtectedLayout><PDPlanning /></ProtectedLayout>} />
         <Route path="/researcher/labs" element={<ProtectedLayout><PDPlanning /></ProtectedLayout>} />

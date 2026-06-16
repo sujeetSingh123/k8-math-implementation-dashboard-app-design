@@ -32,22 +32,12 @@ export function LogDetailView({ log, adaptation, fidelityCheck, studentDataRecor
           {log.adaptationOccurred && <Badge color="purple">Adaptation</Badge>}
         </div>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
-          <div>
-            <p className="text-gray-400">Routine</p>
-            <p className="text-gray-700 font-medium">{log.instructionalRoutine}</p>
-          </div>
-          <div>
-            <p className="text-gray-400">EBP Component</p>
-            <p className="text-gray-700 font-medium">{log.ebpComponent.join(', ')}</p>
-          </div>
-          <div>
-            <p className="text-gray-400">Strategy</p>
-            <p className="text-gray-700 font-medium">{log.implementationStrategy}</p>
-          </div>
-          <div>
-            <p className="text-gray-400">Duration</p>
-            <p className="text-gray-700 font-medium">{log.durationMinutes} min</p>
-          </div>
+          {log.mathSkill && <div><p className="text-gray-400">Math Skill</p><p className="text-gray-700 font-medium">{log.mathSkill}</p></div>}
+          {log.groupSize && <div><p className="text-gray-400">Group Size</p><p className="text-gray-700 font-medium">{log.groupSize}</p></div>}
+          {log.instructionalRoutine && <div><p className="text-gray-400">Routine</p><p className="text-gray-700 font-medium">{log.instructionalRoutine}</p></div>}
+          <div><p className="text-gray-400">EBP Components</p><p className="text-gray-700 font-medium">{log.ebpComponent.join(', ')}</p></div>
+          {log.implementationStrategy && <div><p className="text-gray-400">Strategy</p><p className="text-gray-700 font-medium">{log.implementationStrategy}</p></div>}
+          <div><p className="text-gray-400">Duration</p><p className="text-gray-700 font-medium">{log.durationMinutes} min</p></div>
         </div>
         {log.notes && (
           <div className="text-xs">

@@ -21,15 +21,31 @@ export type ImplementationLog = {
   id: string
   teacherId: string
   schoolId: string
+  sectionName?: string
   date: string
   startTime?: string
-  instructionalRoutine: string
+  instructionalRoutine?: string
+  implementationStrategy?: string
   ebpComponent: string[]
-  implementationStrategy: string
-  tier: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED'
+  tier: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'Special Education'
   instructionalSetting?: InstructionalSetting
+  mathSkill?: string
+  groupSize?: string
+  anticipatesAdaptation?: boolean
+  plannedAdaptationTypes?: string[]
   durationMinutes: number
   lessonCompletion: 'fully' | 'partially' | 'not_completed'
+  ebpsDelivered?: number
+  amountDelivered?: number
+  studentsEngaged?: number
+  effectiveDelivery?: number
+  adaptationImpl?: 'fully' | 'partially' | 'not_implemented'
+  adaptationPartialNotes?: string
+  adaptationNotImplReason?: string
+  unexpectedEvent?: 'good' | 'bad' | 'none'
+  unexpectedDetail?: string
+  unplannedAdaptCauses?: string[]
+  studentAvgScore?: number
   adaptationOccurred: boolean
   notes?: string
 }
@@ -154,7 +170,7 @@ export type StudentDataRecord = {
   date: string
   week?: number
   grade?: string
-  mtssTier: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED'
+  mtssTier: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'Special Education'
   instructionalSetting?: InstructionalSetting
   measureType: MeasureType
   studentsCount?: number
@@ -239,7 +255,7 @@ export type LessonPlan = {
   instructionalRoutine: string
   ebpComponent: string[]
   implementationStrategy: string
-  tier: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED'
+  tier: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'Special Education'
   instructionalSetting?: InstructionalSetting
   plannedDurationMinutes: number
   goal?: string

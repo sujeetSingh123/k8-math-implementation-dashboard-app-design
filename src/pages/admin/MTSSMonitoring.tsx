@@ -27,7 +27,7 @@ const tierMeta: Record<string, { status: 'green' | 'amber' | 'red'; note: string
   'Tier 1 (Universal)': { status: 'green', note: '88% of students receiving core instruction with documented fidelity. Strong district baseline — Lincoln leads at 94%.' },
   'Tier 2 (Targeted)': { status: 'amber', note: '71% of Tier 2-identified students receiving targeted interventions. 3 schools meeting benchmark; Jefferson is below 60%.' },
   'Tier 3 (Intensive)': { status: 'amber', note: '45% of intensive-need students receiving individualized support — below the district target of 70%. Needs immediate attention.' },
-  'SPED Services': { status: 'red', note: 'Only 38% of SPED students have co-teaching or push-in services logged. Coordination with special ed coordinator required.' },
+  'Special Education Services': { status: 'red', note: 'Only 38% of Special Education students have co-teaching or push-in services logged. Coordination with special ed coordinator required.' },
 }
 
 interface ProgressBarProps { label: string; value: number; color?: string; onClick?: () => void }
@@ -50,7 +50,7 @@ const tierCoverage = [
   { label: 'Tier 1 (Universal)', value: 88, color: '#10B981' },
   { label: 'Tier 2 (Targeted)', value: 71, color: '#3B82F6' },
   { label: 'Tier 3 (Intensive)', value: 45, color: '#F59E0B' },
-  { label: 'SPED Services', value: 38, color: '#8B5CF6' },
+  { label: 'Special Education Services', value: 38, color: '#8B5CF6' },
 ]
 
 export function MTSSMonitoring() {

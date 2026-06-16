@@ -22,7 +22,7 @@ const MEASURE_TYPES: MeasureType[] = [
 
 export function StudentDataCard({ logId, defaultTier, defaultDate }: {
   logId?: string
-  defaultTier?: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED'
+  defaultTier?: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'Special Education'
   defaultDate?: string
 }) {
   const { currentUser, addStudentDataRecord } = useAppStore()

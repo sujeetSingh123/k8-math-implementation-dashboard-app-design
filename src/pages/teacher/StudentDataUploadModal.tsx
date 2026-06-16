@@ -47,7 +47,7 @@ const lbl = 'text-xs font-medium text-gray-600 block mb-1.5'
 export function StudentDataUploadModal({ onClose, logId, defaultTier, defaultDate }: {
   onClose: () => void
   logId?: string
-  defaultTier?: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED'
+  defaultTier?: 'Tier 1' | 'Tier 2' | 'Tier 3' | 'Special Education'
   defaultDate?: string
 }) {
   const { currentUser, addStudentDataRecord } = useAppStore()
@@ -77,7 +77,7 @@ export function StudentDataUploadModal({ onClose, logId, defaultTier, defaultDat
   })
 
   const onSubmit = (data: FormData) => {
-    const tier = (mtssTier[0] ?? 'Tier 1') as 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED'
+    const tier = (mtssTier[0] ?? 'Tier 1') as 'Tier 1' | 'Tier 2' | 'Tier 3' | 'Special Education'
     const researchExportId = `EXP-${currentUser.schoolId}-${currentUser.id}-${tier.replace(' ', '')}-W${String(data.week).padStart(2, '0')}`
     const record: StudentDataRecord = {
       id: `sdr-${Date.now()}`,

@@ -150,7 +150,40 @@ function randomBetween(min: number, max: number): number {
 export const instructionalRoutines = ['Number Sense Warm-up', 'Explicit Instruction', 'Guided Practice', 'Problem Solving Task', 'Fluency Practice']
 export const ebpComponents = ['CRA', 'Explicit Modeling', 'Error Correction', 'Distributed Practice', 'Worked Examples']
 export const implementationStrategies = ['Think-aloud', 'Peer-assisted learning', 'Interleaved practice', 'Corrective feedback']
-export const implementationTiers: ImplementationLog['tier'][] = ['Tier 1', 'Tier 2', 'Tier 3', 'SPED']
+export const implementationTiers: ImplementationLog['tier'][] = ['Tier 1', 'Tier 2', 'Tier 3', 'Special Education']
+
+export const plannedAdaptationTypes = [
+  'Time/dosage', 'Examples/problems', 'Grouping structure',
+  'Instructional materials', 'Pacing', 'Language supports',
+  'Behavioral supports', 'Other',
+]
+
+export const unplannedAdaptCauseHierarchy = [
+  {
+    id: 'student-learning', label: 'Student Learning Needs',
+    reasons: ['Students needed more support', 'Prerequisite skills', 'Accommodations', 'Language support', 'Additional practice'],
+  },
+  {
+    id: 'engagement', label: 'Keeping Students Engaged',
+    reasons: ['Students were losing focus', 'Motivation was low', 'The activity needed to be more interactive'],
+  },
+  {
+    id: 'instructional', label: 'Instructional Adjustments',
+    reasons: ['Needed to slow down', 'Speed up', 'Reteach', 'Provide extra examples', 'Differentiate instruction'],
+  },
+  {
+    id: 'time', label: 'Time and Scheduling Constraints',
+    reasons: ['Limited instructional time', 'Interruptions', 'Testing schedules', 'Assemblies', 'Competing priorities'],
+  },
+  {
+    id: 'resources', label: 'Available Resources and Supports',
+    reasons: ['Materials unavailable', 'Technology issues', 'Staffing changes', 'Coaching support changed', 'Classroom resources changed'],
+  },
+  {
+    id: 'classroom-fit', label: 'Making It Fit My Classroom and Students',
+    reasons: ['Adjusted examples/activities', 'Language adjustments', 'Connections to student context', 'Curriculum alignment'],
+  },
+] as const
 export const instructionalSettings: InstructionalSetting[] = ['General Education', 'Pull-out Group', 'Push-in Support', 'Resource Room', 'Co-taught Classroom']
 
 const routines = instructionalRoutines
@@ -428,8 +461,8 @@ export const studentDataRecords: StudentDataRecord[] = [
   { id: 'sdr-18', teacherId: 'T004', schoolId: 'SCH02', date: daysAgo(77), week: 1,  grade: '6', mtssTier: 'Tier 1', instructionalSetting: 'General Education',  measureType: 'CBM-Math Computation',             studentsCount: 24, baselineAvg: 51, currentAvg: 51, growth: 0,   medianPct: 49, atOrAboveBenchmark: 42, belowBenchmark: 58, goalPct: 70, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified', researchExportId: 'EXP-SCH02-T004-Tier1-W01', logId: 'log-T004-7' },
   { id: 'sdr-19', teacherId: 'T004', schoolId: 'SCH02', date: daysAgo(49), week: 5,  grade: '6', mtssTier: 'Tier 1', instructionalSetting: 'General Education',  measureType: 'CBM-Math Computation',             studentsCount: 24, baselineAvg: 51, currentAvg: 55, growth: 4,   medianPct: 53, atOrAboveBenchmark: 46, belowBenchmark: 54, goalPct: 70, metGoal: false, dataSource: 'Research team entry', uploadStatus: 'Needs review', researchExportId: 'EXP-SCH02-T004-Tier1-W05', logId: 'log-T004-5' },
   { id: 'sdr-20', teacherId: 'T004', schoolId: 'SCH02', date: daysAgo(21), week: 9,  grade: '6', mtssTier: 'Tier 1', instructionalSetting: 'General Education',  measureType: 'Unit Assessment',                  studentsCount: 24, baselineAvg: 51, currentAvg: 59, growth: 8,   medianPct: 57, atOrAboveBenchmark: 50, belowBenchmark: 50, goalPct: 70, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Submitted',    researchExportId: 'EXP-SCH02-T004-Tier1-W09', logId: 'log-T004-2' },
-  // T004 SPED
-  { id: 'sdr-21', teacherId: 'T004', schoolId: 'SCH02', date: daysAgo(42), week: 6,  grade: '6', mtssTier: 'SPED',   instructionalSetting: 'Resource Room',      measureType: 'IEP Math Goal Probe',              studentsCount: 4,  baselineAvg: 28, currentAvg: 36, growth: 8,   medianPct: 34, atOrAboveBenchmark: 25, belowBenchmark: 75, interventionGroupAvg: 36, goalPct: 55, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified', researchExportId: 'EXP-SCH02-T004-SPED-W06' },
+  // T004 Special Education
+  { id: 'sdr-21', teacherId: 'T004', schoolId: 'SCH02', date: daysAgo(42), week: 6,  grade: '6', mtssTier: 'Special Education', instructionalSetting: 'Resource Room', measureType: 'IEP Math Goal Probe', studentsCount: 4,  baselineAvg: 28, currentAvg: 36, growth: 8,   medianPct: 34, atOrAboveBenchmark: 25, belowBenchmark: 75, interventionGroupAvg: 36, goalPct: 55, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified', researchExportId: 'EXP-SCH02-T004-SpEd-W06' },
 
   // T005 (Elena) — Washington Middle, Grade 7
   { id: 'sdr-22', teacherId: 'T005', schoolId: 'SCH02', date: daysAgo(77), week: 1,  grade: '7', mtssTier: 'Tier 1', instructionalSetting: 'General Education',  measureType: 'CBM-Math Concepts & Applications', studentsCount: 20, baselineAvg: 67, currentAvg: 67, growth: 0,   medianPct: 65, atOrAboveBenchmark: 60, belowBenchmark: 40, goalPct: 80, metGoal: false, dataSource: 'Teacher upload', uploadStatus: 'Verified', researchExportId: 'EXP-SCH02-T005-Tier1-W01', logId: 'log-T005-6' },
@@ -678,7 +711,7 @@ export const rolePermissions: RolePermissions[] = [
 export const orgMembers: OrgMember[] = [
   { id: 'T001', name: 'Anna Carter', email: 'anna.carter@example.org', initials: 'AC', role: 'teacher', schoolId: 'SCH01', department: 'Grade 3 · Tier 1/2', status: 'active', joinedAt: '2023-08-15' },
   { id: 'T002', name: 'Brian Lee', email: 'brian.lee@example.org', initials: 'BL', role: 'teacher', schoolId: 'SCH01', department: 'Grade 4 · Tier 1', status: 'active', joinedAt: '2022-08-10' },
-  { id: 'T003', name: 'Carla Nguyen', email: 'carla.nguyen@example.org', initials: 'CN', role: 'teacher', schoolId: 'SCH01', department: 'Grade 5 · SPED/Tier 3', status: 'active', joinedAt: '2021-09-01' },
+  { id: 'T003', name: 'Carla Nguyen', email: 'carla.nguyen@example.org', initials: 'CN', role: 'teacher', schoolId: 'SCH01', department: 'Grade 5 · Special Education/Tier 3', status: 'active', joinedAt: '2021-09-01' },
   { id: 'T004', name: 'David Brooks', email: 'david.brooks@example.org', initials: 'DB', role: 'teacher', schoolId: 'SCH02', department: 'Grade 6 · Tier 2', status: 'active', joinedAt: '2024-01-08' },
   { id: 'T005', name: 'Elena Martinez', email: 'elena.martinez@example.org', initials: 'EM', role: 'teacher', schoolId: 'SCH02', department: 'Grade 7 · Tier 1/2', status: 'active', joinedAt: '2023-01-15' },
   { id: 'A001', name: 'Monica Hill', email: 'monica.hill@example.org', initials: 'MH', role: 'admin', schoolId: 'SCH01', department: 'Principal', status: 'active', joinedAt: '2019-07-01' },

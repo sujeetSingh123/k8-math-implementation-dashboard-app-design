@@ -6,7 +6,7 @@ import { roleColors } from '../../constants/roles'
 
 const roleColor = roleColors.teacher
 
-const tierOrder = ['Tier 1', 'Tier 2', 'Tier 3', 'SPED'] as const
+const tierOrder = ['Tier 1', 'Tier 2', 'Tier 3', 'Special Education'] as const
 
 export function StudentPerfSummary() {
   const { currentUser, studentDataRecords } = useAppStore()

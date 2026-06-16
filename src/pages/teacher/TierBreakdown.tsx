@@ -2,21 +2,21 @@ import { useNavigate } from 'react-router-dom'
 import { Card } from '../../components/ui/Card'
 import type { ImplementationLog, FidelityCheck, Adaptation } from '../../types'
 
-const TIERS = ['Tier 1', 'Tier 2', 'Tier 3', 'SPED'] as const
+const TIERS = ['Tier 1', 'Tier 2', 'Tier 3', 'Special Education'] as const
 type Tier = typeof TIERS[number]
 
 const TIER_COLOR: Record<Tier, string> = {
   'Tier 1': '#10B981',
   'Tier 2': '#F59E0B',
   'Tier 3': '#EF4444',
-  'SPED':   '#8B5CF6',
+  'Special Education': '#8B5CF6',
 }
 
 const TIER_PILL: Record<Tier, string> = {
   'Tier 1': 'bg-emerald-50 text-emerald-700',
   'Tier 2': 'bg-amber-50 text-amber-700',
   'Tier 3': 'bg-red-50 text-red-600',
-  'SPED':   'bg-purple-50 text-purple-700',
+  'Special Education': 'bg-purple-50 text-purple-700',
 }
 
 export function TierBreakdown({ logs, checks, adaptations }: {

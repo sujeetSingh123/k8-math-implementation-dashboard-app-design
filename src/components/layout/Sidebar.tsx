@@ -135,6 +135,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
         { label: 'Longitudinal View', path: '/researcher/longitudinal', icon: <TrendingUp size={16} />, permission: 'p_view_student_data' },
         { label: 'Log Aggregation', path: '/researcher/log-aggregation', icon: <Activity size={16} />, permission: 'p_view_logs' },
         { label: 'Fidelity Trends', path: '/researcher/fidelity-trends', icon: <TrendingUp size={16} />, permission: 'p_view_fidelity' },
+        { label: 'Districts & Schools', path: '/researcher/districts', icon: <Building2 size={16} />, permission: 'p_view_logs' },
         { label: 'DSAII Pathway', path: '/researcher/dsaii', icon: <GitBranch size={16} />, permission: 'p_view_reports' },
         { label: 'Impl. Learning Labs', path: '/researcher/labs', icon: <CalendarDays size={16} /> },
       ],

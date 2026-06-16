@@ -66,7 +66,7 @@ export function MyLogs() {
         id: `sdr-${Date.now()}-${i}`,
         teacherId: currentUser.id,
         date: dataModal.date,
-        mtssTier: dataModal.tier as 'Tier 1' | 'Tier 2' | 'Tier 3' | 'SPED',
+        mtssTier: dataModal.tier as 'Tier 1' | 'Tier 2' | 'Tier 3' | 'Special Education',
         measureType: m,
         currentAvg: Number(scores[m]),
         dataSource: 'Teacher upload',
