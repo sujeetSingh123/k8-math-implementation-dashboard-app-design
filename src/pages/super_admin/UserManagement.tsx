@@ -8,7 +8,6 @@ import { Table } from '../../components/ui/Table'
 import { roleColors, roleLabels } from '../../constants/roles'
 import { useAppStore } from '../../store/useAppStore'
 import { AddUserModal } from './AddUserModal'
-import { StudentsPerformanceTab } from './StudentsPerformanceTab'
 import type { Role } from '../../types'
 
 const roleColor = roleColors.super_admin
@@ -29,8 +28,6 @@ export function UserManagement() {
   const [filterSchool, setFilterSchool] = useState('')
   const [filterRole, setFilterRole] = useState('')
   const [selectedUser, setSelectedUser] = useState<UserRow | null>(null)
-  const [pageTab, setPageTab] = useState<'users' | 'students'>('users')
-
   const districtSchoolIds = useMemo(
     () => new Set(schools.filter(s => s.districtId === currentUser.districtId).map(s => s.id)),
     [schools, currentUser.districtId],
@@ -50,7 +47,9 @@ export function UserManagement() {
     .filter(u => !filterRole || u.role === filterRole)
     .map(u => ({ id: u.id, name: u.name, role: u.role, school: getSchoolName(u.schoolId), email: getEmail(u.id) }))
 
-  const roleOptions: Role[] = ['teacher', 'paraprofessional', 'coach', 'admin', 'district_admin', 'researcher']
+  const roleOptions: Role[] = isDistrictAdmin
+    ? ['teacher', 'paraprofessional', 'coach', 'admin']
+    : ['teacher', 'paraprofessional', 'coach', 'admin', 'district_admin', 'researcher']
 
   const userFidelity = useMemo(() => {
     if (!selectedUser) return null
@@ -84,40 +83,28 @@ export function UserManagement() {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-1 bg-gray-100 rounded-xl p-1 max-w-xs">
-        {(['users', 'students'] as const).map(t => (
-          <button key={t} onClick={() => setPageTab(t)}
-            className="flex-1 px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-all"
-            style={pageTab === t ? { backgroundColor: roleColor, color: '#fff' } : { color: '#6B7280' }}>
-            {t === 'users' ? 'All Users' : "Students' Performance"}
-          </button>
-        ))}
-      </div>
-
-      {pageTab === 'students' ? <StudentsPerformanceTab /> : (
-        <Card padding="none">
-          <div className="px-4 sm:px-5 py-4 border-b border-gray-100 flex flex-wrap items-center gap-3">
-            <h2 className="text-sm font-semibold text-gray-800">Users <span className="text-gray-400 font-normal">({rows.length})</span></h2>
-            <div className="flex items-center gap-2 ml-auto flex-wrap">
-              <select value={filterSchool} onChange={e => setFilterSchool(e.target.value)}
-                className="px-2 py-1.5 border border-gray-200 rounded-lg text-xs text-gray-600 focus:outline-none">
-                <option value="">All Schools</option>
-                {visibleSchools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-              <select value={filterRole} onChange={e => setFilterRole(e.target.value)}
-                className="px-2 py-1.5 border border-gray-200 rounded-lg text-xs text-gray-600 focus:outline-none">
-                <option value="">All Roles</option>
-                {roleOptions.map(r => <option key={r} value={r}>{roleLabels[r]}</option>)}
-              </select>
-              <Button size="sm" roleColor={roleColor} onClick={() => setShowAdd(true)}><Plus size={14} /> Add User</Button>
-            </div>
+      <Card padding="none">
+        <div className="px-4 sm:px-5 py-4 border-b border-gray-100 flex flex-wrap items-center gap-3">
+          <h2 className="text-sm font-semibold text-gray-800">Users <span className="text-gray-400 font-normal">({rows.length})</span></h2>
+          <div className="flex items-center gap-2 ml-auto flex-wrap">
+            <select value={filterSchool} onChange={e => setFilterSchool(e.target.value)}
+              className="px-2 py-1.5 border border-gray-200 rounded-lg text-xs text-gray-600 focus:outline-none">
+              <option value="">All Schools</option>
+              {visibleSchools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+            <select value={filterRole} onChange={e => setFilterRole(e.target.value)}
+              className="px-2 py-1.5 border border-gray-200 rounded-lg text-xs text-gray-600 focus:outline-none">
+              <option value="">All Roles</option>
+              {roleOptions.map(r => <option key={r} value={r}>{roleLabels[r]}</option>)}
+            </select>
+            <Button size="sm" roleColor={roleColor} onClick={() => setShowAdd(true)}><Plus size={14} /> Add User</Button>
           </div>
-          <Table columns={columns as Parameters<typeof Table>[0]['columns']}
-            data={rows as unknown as Record<string, unknown>[]}
-            emptyMessage="No users found." emptyIcon={<Users size={24} />}
-            onRowClick={(row) => setSelectedUser(row as unknown as UserRow)} />
-        </Card>
-      )}
+        </div>
+        <Table columns={columns as Parameters<typeof Table>[0]['columns']}
+          data={rows as unknown as Record<string, unknown>[]}
+          emptyMessage="No users found." emptyIcon={<Users size={24} />}
+          onRowClick={(row) => setSelectedUser(row as unknown as UserRow)} />
+      </Card>
 
       <AddUserModal open={showAdd} onClose={() => setShowAdd(false)} />
 

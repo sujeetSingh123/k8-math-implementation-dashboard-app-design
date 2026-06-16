@@ -41,6 +41,8 @@ import { SchoolManagement } from './pages/super_admin/SchoolManagement'
 import { UserManagement } from './pages/super_admin/UserManagement'
 import { DistrictAdminDashboard } from './pages/district_admin/DistrictAdminDashboard'
 import { DistrictSchoolsView } from './pages/district_admin/DistrictSchoolsView'
+import { DistrictLongitudinalView } from './pages/district_admin/DistrictLongitudinalView'
+import { DistrictLogAggregation } from './pages/district_admin/DistrictLogAggregation'
 import { DrillDownDataView } from './pages/shared/DrillDownDataView'
 import { useAppStore } from './store/useAppStore'
 import { PermissionGate } from './components/ui/PermissionGate'
@@ -129,6 +131,9 @@ export default function App() {
         <Route path="/district-admin/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
         <Route path="/district-admin/pd-planning" element={<ProtectedLayout><PermissionGate permissionId="p_manage_org"><PDPlanning /></PermissionGate></ProtectedLayout>} />
         <Route path="/district-admin/explorer" element={<ProtectedLayout><DrillDownDataView /></ProtectedLayout>} />
+        <Route path="/district-admin/longitudinal" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><DistrictLongitudinalView /></PermissionGate></ProtectedLayout>} />
+        <Route path="/district-admin/log-aggregation" element={<ProtectedLayout><PermissionGate permissionId="p_view_logs"><DistrictLogAggregation /></PermissionGate></ProtectedLayout>} />
+        <Route path="/district-admin/teacher/:teacherId" element={<ProtectedLayout><PermissionGate permissionId="p_view_logs"><TeacherDetailPage /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/explorer" element={<ProtectedLayout><DrillDownDataView /></ProtectedLayout>} />
         <Route path="/super-admin/dashboard" element={<ProtectedLayout><SuperAdminDashboard /></ProtectedLayout>} />
         <Route path="/super-admin/schools" element={<ProtectedLayout><SchoolManagement /></ProtectedLayout>} />

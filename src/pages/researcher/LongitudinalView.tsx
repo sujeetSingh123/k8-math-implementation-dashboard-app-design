@@ -249,7 +249,7 @@ function StudentCharts({ entities, title }: { entities: SdEntity[]; title: strin
 
 const TEACHER_PALETTE = ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444', '#EC4899', '#06B6D4']
 
-function StudentTeacherLevel({ recs, navigate }: { recs: StudentDataRecord[]; navigate: (path: string) => void }) {
+function StudentTeacherLevel({ recs, navigate, teacherBasePath }: { recs: StudentDataRecord[]; navigate: (path: string) => void; teacherBasePath: string }) {
   const { users } = useAppStore()
   const teacherIds = [...new Set(recs.map(r => r.teacherId))]
   const teacherEntities: SdEntity[] = teacherIds.map((tid, i) => ({
@@ -265,7 +265,7 @@ function StudentTeacherLevel({ recs, navigate }: { recs: StudentDataRecord[]; na
         {teacherEntities.map(e => {
           const s = sdStats(e.recs)
           return (
-            <button key={e.id} onClick={() => navigate(`/researcher/teacher/${e.id}`)}
+            <button key={e.id} onClick={() => navigate(`${teacherBasePath}/${e.id}`)}
               className="text-left rounded-xl border border-gray-200 p-4 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer bg-white">
               <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: `${e.color}20`, color: e.color }}>Teacher</span>
               <p className="text-xs text-gray-400 mt-2 mb-0.5">{e.name}</p>
@@ -285,10 +285,10 @@ function SectionHeading({ label }: { label: string }) {
   return <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider pt-2">{label}</p>
 }
 
-export function LongitudinalView() {
+export function LongitudinalView({ lockedDistrictId, teacherBasePath = '/researcher/teacher' }: { lockedDistrictId?: string; teacherBasePath?: string } = {}) {
   const { studentDataRecords } = useAppStore()
   const navigate = useNavigate()
-  const [districtId, setDistrictId] = useState<string | null>(null)
+  const [districtId, setDistrictId] = useState<string | null>(lockedDistrictId ?? null)
   const [schoolId, setSchoolId] = useState<string | null>(null)
 
   const schoolDistMap = useMemo(() => Object.fromEntries(schools.map(s => [s.id, s.districtId])), [])
@@ -313,11 +313,16 @@ export function LongitudinalView() {
       }))
     : [], [districtId, studentDataRecords])
 
-  const crumbs = [
-    { label: 'All Districts', onClick: districtId ? () => { setDistrictId(null); setSchoolId(null) } : undefined },
-    ...(districtId ? [{ label: DIST_META[districtId].name, onClick: schoolId ? () => setSchoolId(null) : undefined }] : []),
-    ...(schoolId ? [{ label: SCH_META[schoolId]?.name ?? schoolId }] : []),
-  ]
+  const crumbs = lockedDistrictId
+    ? [
+        { label: DIST_META[lockedDistrictId]?.name ?? lockedDistrictId, onClick: schoolId ? () => setSchoolId(null) : undefined },
+        ...(schoolId ? [{ label: SCH_META[schoolId]?.name ?? schoolId }] : []),
+      ]
+    : [
+        { label: 'All Districts', onClick: districtId ? () => { setDistrictId(null); setSchoolId(null) } : undefined },
+        ...(districtId ? [{ label: DIST_META[districtId].name, onClick: schoolId ? () => setSchoolId(null) : undefined }] : []),
+        ...(schoolId ? [{ label: SCH_META[schoolId]?.name ?? schoolId }] : []),
+      ]
 
   return (
     <div className="space-y-4">
@@ -354,7 +359,7 @@ export function LongitudinalView() {
       <SectionHeading label="Student Data" />
       {!districtId && <StudentEntityCards entities={districtEntities} onSelect={setDistrictId} />}
       {districtId && !schoolId && <StudentEntityCards entities={schoolEntities} onSelect={setSchoolId} />}
-      {districtId && schoolId && <StudentTeacherLevel recs={sdScoped} navigate={navigate} />}
+      {districtId && schoolId && <StudentTeacherLevel recs={sdScoped} navigate={navigate} teacherBasePath={teacherBasePath} />}
       {!schoolId && sdScoped.length > 0 && (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">

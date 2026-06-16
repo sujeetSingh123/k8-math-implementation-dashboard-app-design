@@ -228,12 +228,12 @@ function LogCharts({ entities, period, category }: { entities: LogEntity[]; peri
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-export function LogAggregation() {
+export function LogAggregation({ lockedDistrictId, teacherBasePath = '/researcher/teacher' }: { lockedDistrictId?: string; teacherBasePath?: string } = {}) {
   const { implementationLogs, users } = useAppStore()
   const navigate = useNavigate()
   const [period, setPeriod] = useState<Period>('month')
   const [category, setCategory] = useState<Category>('routine')
-  const [districtId, setDistrictId] = useState<string | null>(null)
+  const [districtId, setDistrictId] = useState<string | null>(lockedDistrictId ?? null)
   const [schoolId, setSchoolId] = useState<string | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
 
@@ -318,12 +318,18 @@ export function LogAggregation() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, selectedUser, schoolId, districtId, scopedLogs, periodLogs, schoolDistMap, users])
 
-  const crumbs = [
-    { label: 'All Districts', onClick: districtId ? () => { setDistrictId(null); setSchoolId(null); setUserId(null) } : undefined },
-    ...(districtId ? [{ label: DIST_META[districtId].name, onClick: schoolId ? () => { setSchoolId(null); setUserId(null) } : undefined }] : []),
-    ...(schoolId ? [{ label: SCH_META[schoolId]?.name ?? schoolId, onClick: userId ? () => setUserId(null) : undefined }] : []),
-    ...(userId && selectedUser ? [{ label: selectedUser.name }] : []),
-  ]
+  const crumbs = lockedDistrictId
+    ? [
+        { label: DIST_META[lockedDistrictId]?.name ?? lockedDistrictId, onClick: schoolId ? () => { setSchoolId(null); setUserId(null) } : undefined },
+        ...(schoolId ? [{ label: SCH_META[schoolId]?.name ?? schoolId, onClick: userId ? () => setUserId(null) : undefined }] : []),
+        ...(userId && selectedUser ? [{ label: selectedUser.name }] : []),
+      ]
+    : [
+        { label: 'All Districts', onClick: districtId ? () => { setDistrictId(null); setSchoolId(null); setUserId(null) } : undefined },
+        ...(districtId ? [{ label: DIST_META[districtId].name, onClick: schoolId ? () => { setSchoolId(null); setUserId(null) } : undefined }] : []),
+        ...(schoolId ? [{ label: SCH_META[schoolId]?.name ?? schoolId, onClick: userId ? () => setUserId(null) : undefined }] : []),
+        ...(userId && selectedUser ? [{ label: selectedUser.name }] : []),
+      ]
 
   const drillIntoTop = !districtId ? (id: string) => setDistrictId(id) : !schoolId ? (id: string) => setSchoolId(id) : undefined
 
@@ -383,7 +389,7 @@ export function LogAggregation() {
           onSelect={(id) => {
             const u = users.find(u => u.id === id)
             if (u?.role === 'coach') setUserId(id)
-            else navigate(`/researcher/teacher/${id}`)
+            else navigate(`${teacherBasePath}/${id}`)
           }}
         />
       )}
