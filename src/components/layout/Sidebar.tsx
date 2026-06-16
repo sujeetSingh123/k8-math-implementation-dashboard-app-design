@@ -78,10 +78,8 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
       {
         section: 'Overview',
         items: [
-          { label: 'School Overview', path: '/admin/overview', icon: <Building2 size={16} />, permission: 'p_view_reports' },
-          { label: 'MTSS Monitoring', path: '/admin/mtss', icon: <Activity size={16} />, permission: 'p_view_fidelity' },
-          { label: 'Fidelity Trends', path: '/admin/fidelity-trends', icon: <TrendingUp size={16} />, permission: 'p_view_fidelity' },
-          { label: 'Student Data', path: '/admin/student-data', icon: <BarChart size={16} />, permission: 'p_view_student_data' },
+          { label: 'Longitudinal View', path: '/admin/longitudinal', icon: <TrendingUp size={16} />, permission: 'p_view_fidelity' },
+          { label: 'Log Aggregation', path: '/admin/log-aggregation', icon: <Activity size={16} />, permission: 'p_view_logs' },
         ],
       },
       {

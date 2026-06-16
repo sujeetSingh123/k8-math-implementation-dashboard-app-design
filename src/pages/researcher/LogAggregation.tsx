@@ -228,13 +228,14 @@ function LogCharts({ entities, period, category }: { entities: LogEntity[]; peri
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-export function LogAggregation({ lockedDistrictId, teacherBasePath = '/researcher/teacher' }: { lockedDistrictId?: string; teacherBasePath?: string } = {}) {
+export function LogAggregation({ lockedDistrictId, lockedSchoolId, teacherBasePath = '/researcher/teacher' }: { lockedDistrictId?: string; lockedSchoolId?: string; teacherBasePath?: string } = {}) {
   const { implementationLogs, users } = useAppStore()
   const navigate = useNavigate()
+  const lockedSchoolDistrict = lockedSchoolId ? schools.find(s => s.id === lockedSchoolId)?.districtId ?? null : null
   const [period, setPeriod] = useState<Period>('month')
   const [category, setCategory] = useState<Category>('routine')
-  const [districtId, setDistrictId] = useState<string | null>(lockedDistrictId ?? null)
-  const [schoolId, setSchoolId] = useState<string | null>(null)
+  const [districtId, setDistrictId] = useState<string | null>(lockedSchoolId ? lockedSchoolDistrict : (lockedDistrictId ?? null))
+  const [schoolId, setSchoolId] = useState<string | null>(lockedSchoolId ?? null)
   const [userId, setUserId] = useState<string | null>(null)
 
   const schoolDistMap = useMemo(() => Object.fromEntries(schools.map(s => [s.id, s.districtId])), [])
@@ -318,7 +319,12 @@ export function LogAggregation({ lockedDistrictId, teacherBasePath = '/researche
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, selectedUser, schoolId, districtId, scopedLogs, periodLogs, schoolDistMap, users])
 
-  const crumbs = lockedDistrictId
+  const crumbs = lockedSchoolId
+    ? [
+        { label: SCH_META[lockedSchoolId]?.name ?? lockedSchoolId, onClick: userId ? () => setUserId(null) : undefined },
+        ...(userId && selectedUser ? [{ label: selectedUser.name }] : []),
+      ]
+    : lockedDistrictId
     ? [
         { label: DIST_META[lockedDistrictId]?.name ?? lockedDistrictId, onClick: schoolId ? () => { setSchoolId(null); setUserId(null) } : undefined },
         ...(schoolId ? [{ label: SCH_META[schoolId]?.name ?? schoolId, onClick: userId ? () => setUserId(null) : undefined }] : []),

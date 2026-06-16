@@ -285,11 +285,12 @@ function SectionHeading({ label }: { label: string }) {
   return <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider pt-2">{label}</p>
 }
 
-export function LongitudinalView({ lockedDistrictId, teacherBasePath = '/researcher/teacher' }: { lockedDistrictId?: string; teacherBasePath?: string } = {}) {
+export function LongitudinalView({ lockedDistrictId, lockedSchoolId, teacherBasePath = '/researcher/teacher' }: { lockedDistrictId?: string; lockedSchoolId?: string; teacherBasePath?: string } = {}) {
   const { studentDataRecords } = useAppStore()
   const navigate = useNavigate()
-  const [districtId, setDistrictId] = useState<string | null>(lockedDistrictId ?? null)
-  const [schoolId, setSchoolId] = useState<string | null>(null)
+  const lockedSchoolDistrict = lockedSchoolId ? schools.find(s => s.id === lockedSchoolId)?.districtId ?? null : null
+  const [districtId, setDistrictId] = useState<string | null>(lockedSchoolId ? lockedSchoolDistrict : (lockedDistrictId ?? null))
+  const [schoolId, setSchoolId] = useState<string | null>(lockedSchoolId ?? null)
 
   const schoolDistMap = useMemo(() => Object.fromEntries(schools.map(s => [s.id, s.districtId])), [])
 
@@ -313,7 +314,9 @@ export function LongitudinalView({ lockedDistrictId, teacherBasePath = '/researc
       }))
     : [], [districtId, studentDataRecords])
 
-  const crumbs = lockedDistrictId
+  const crumbs = lockedSchoolId
+    ? [{ label: SCH_META[lockedSchoolId]?.name ?? lockedSchoolId }]
+    : lockedDistrictId
     ? [
         { label: DIST_META[lockedDistrictId]?.name ?? lockedDistrictId, onClick: schoolId ? () => setSchoolId(null) : undefined },
         ...(schoolId ? [{ label: SCH_META[schoolId]?.name ?? schoolId }] : []),

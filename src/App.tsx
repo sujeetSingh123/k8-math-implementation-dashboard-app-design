@@ -43,6 +43,8 @@ import { DistrictAdminDashboard } from './pages/district_admin/DistrictAdminDash
 import { DistrictSchoolsView } from './pages/district_admin/DistrictSchoolsView'
 import { DistrictLongitudinalView } from './pages/district_admin/DistrictLongitudinalView'
 import { DistrictLogAggregation } from './pages/district_admin/DistrictLogAggregation'
+import { SchoolLongitudinalView } from './pages/admin/SchoolLongitudinalView'
+import { SchoolLogAggregation } from './pages/admin/SchoolLogAggregation'
 import { DrillDownDataView } from './pages/shared/DrillDownDataView'
 import { useAppStore } from './store/useAppStore'
 import { PermissionGate } from './components/ui/PermissionGate'
@@ -54,7 +56,7 @@ function DefaultRedirect() {
     teacher: '/teacher/dashboard',
     paraprofessional: '/teacher/dashboard',
     coach: '/coach/dashboard',
-    admin: '/admin/overview',
+    admin: '/admin/longitudinal',
     district_admin: '/district-admin/dashboard',
     researcher: '/researcher/analytics',
     super_admin: '/super-admin/dashboard',
@@ -105,6 +107,9 @@ export default function App() {
         <Route path="/admin/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
         <Route path="/admin/resources" element={<ProtectedLayout><PermissionGate permissionId="p_manage_org"><ResourceManagement /></PermissionGate></ProtectedLayout>} />
         <Route path="/admin/incentives" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><AdminIncentives /></PermissionGate></ProtectedLayout>} />
+        <Route path="/admin/longitudinal" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><SchoolLongitudinalView /></PermissionGate></ProtectedLayout>} />
+        <Route path="/admin/log-aggregation" element={<ProtectedLayout><PermissionGate permissionId="p_view_logs"><SchoolLogAggregation /></PermissionGate></ProtectedLayout>} />
+        <Route path="/admin/teacher/:teacherId" element={<ProtectedLayout><PermissionGate permissionId="p_view_logs"><TeacherDetailPage /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/student-data" element={<ProtectedLayout><PermissionGate permissionId="p_view_student_data"><StudentDataView /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/analytics" element={<ProtectedLayout><PermissionGate permissionId="p_view_logs"><ResearchAnalytics /></PermissionGate></ProtectedLayout>} />
         <Route path="/researcher/longitudinal" element={<ProtectedLayout><PermissionGate permissionId="p_view_student_data"><LongitudinalView /></PermissionGate></ProtectedLayout>} />
