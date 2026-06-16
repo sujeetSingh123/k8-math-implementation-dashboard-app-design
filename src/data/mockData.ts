@@ -119,12 +119,16 @@ export const users: User[] = [
   { id: 'C001', name: 'Rachel Stone', initials: 'RS', role: 'coach', schoolId: 'SCH01' },
   { id: 'R001', name: 'Dr. Jing Researcher', initials: 'JR', role: 'researcher', schoolId: 'SCH01' },
   { id: 'SA001', name: 'Alex Super', initials: 'AS', role: 'super_admin', schoolId: 'DISTRICT' },
+  { id: 'DA001', name: 'Margaret Rivera', initials: 'MR', role: 'district_admin', schoolId: 'DISTRICT', districtId: 'dist1' },
+  { id: 'DA002', name: 'Charles Lee', initials: 'CL', role: 'district_admin', schoolId: 'DISTRICT', districtId: 'dist2' },
   // Testing accounts — clean-slate users for QA
   { id: 'TEST_T', name: 'Testing – Teacher', initials: 'TT', role: 'teacher', schoolId: 'SCH01', coachId: 'C001' },
   { id: 'TEST_P', name: 'Testing – Para', initials: 'TP', role: 'paraprofessional', schoolId: 'SCH01', coachId: 'C001' },
   { id: 'TEST_C', name: 'Testing – Coach', initials: 'TC', role: 'coach', schoolId: 'SCH01' },
   { id: 'TEST_A', name: 'Testing – School Admin', initials: 'TA', role: 'admin', schoolId: 'SCH01' },
-  { id: 'TEST_SA', name: 'Testing – District Admin', initials: 'TD', role: 'super_admin', schoolId: 'DISTRICT' },
+  { id: 'TEST_SA', name: 'Testing – Platform Admin', initials: 'PA', role: 'super_admin', schoolId: 'DISTRICT' },
+  { id: 'TEST_DA1', name: 'Testing – District 1 Admin', initials: 'D1', role: 'district_admin', schoolId: 'DISTRICT', districtId: 'dist1' },
+  { id: 'TEST_DA2', name: 'Testing – District 2 Admin', initials: 'D2', role: 'district_admin', schoolId: 'DISTRICT', districtId: 'dist2' },
   { id: 'TEST_R', name: 'Testing – Researcher', initials: 'TR', role: 'researcher', schoolId: 'SCH01' },
 ]
 
@@ -177,11 +181,11 @@ export const unplannedAdaptCauseHierarchy = [
   },
   {
     id: 'resources', label: 'Available Resources and Supports',
-    reasons: ['Materials unavailable', 'Technology issues', 'Staffing changes', 'Coaching support changed', 'Classroom resources changed'],
+    reasons: ['Materials unavailable or changed', 'Technology unavailable or changed', 'Staffing changes', 'Substitute teacher', 'Coaching support unavailable', 'Classroom resources unavailable'],
   },
   {
     id: 'classroom-fit', label: 'Making It Fit My Classroom and Students',
-    reasons: ['Adjusted examples/activities', 'Language adjustments', 'Connections to student context', 'Curriculum alignment'],
+    reasons: ['Adjusting examples or activities', 'Language adjustments', 'Connections to student context', 'Local context fit', 'Curriculum alignment'],
   },
 ] as const
 export const instructionalSettings: InstructionalSetting[] = ['General Education', 'Pull-out Group', 'Push-in Support', 'Resource Room', 'Co-taught Classroom']
@@ -650,12 +654,16 @@ export const mockCredentials: MockCredential[] = [
   { email: 'researcher@demo.com', password: 'demo1234', userId: 'R001' },
   { email: 'superadmin@example.org', password: 'demo1234', userId: 'SA001' },
   { email: 'superadmin@demo.com', password: 'demo1234', userId: 'SA001' },
+  { email: 'margaret.rivera@dist1.edu', password: 'demo1234', userId: 'DA001' },
+  { email: 'charles.lee@dist2.edu', password: 'demo1234', userId: 'DA002' },
   // Testing accounts
   { email: 'test.teacher@demo.com', password: 'demo1234', userId: 'TEST_T' },
   { email: 'test.para@demo.com', password: 'demo1234', userId: 'TEST_P' },
   { email: 'test.coach@demo.com', password: 'demo1234', userId: 'TEST_C' },
   { email: 'test.admin@demo.com', password: 'demo1234', userId: 'TEST_A' },
   { email: 'test.district@demo.com', password: 'demo1234', userId: 'TEST_SA' },
+  { email: 'test.dist1@demo.com', password: 'demo1234', userId: 'TEST_DA1' },
+  { email: 'test.dist2@demo.com', password: 'demo1234', userId: 'TEST_DA2' },
   { email: 'test.researcher@demo.com', password: 'demo1234', userId: 'TEST_R' },
 ]
 
@@ -698,6 +706,10 @@ export const rolePermissions: RolePermissions[] = [
     permissionIds: permissions.map(p => p.id),
   },
   {
+    role: 'district_admin',
+    permissionIds: permissions.map(p => p.id),
+  },
+  {
     role: 'researcher',
     permissionIds: ['p_view_logs', 'p_view_fidelity', 'p_export_data', 'p_view_student_data', 'p_view_reports', 'p_generate_reports', 'p_manage_org'],
   },
@@ -719,6 +731,10 @@ export const orgMembers: OrgMember[] = [
   { id: 'C001', name: 'Rachel Stone', email: 'rachel.stone@example.org', initials: 'RS', role: 'coach', schoolId: 'SCH01', department: 'Implementation Coach', status: 'active', joinedAt: '2020-08-01' },
   { id: 'R001', name: 'Dr. Jing Researcher', email: 'researcher@example.org', initials: 'JR', role: 'researcher', schoolId: 'SCH01', department: 'Research Team', status: 'active', joinedAt: '2022-03-14' },
   { id: 'SA001', name: 'Alex Super', email: 'superadmin@example.org', initials: 'AS', role: 'super_admin', schoolId: 'DISTRICT', department: 'District Office', status: 'active', joinedAt: '2020-01-01' },
+  { id: 'DA001', name: 'Margaret Rivera', email: 'margaret.rivera@dist1.edu', initials: 'MR', role: 'district_admin', schoolId: 'DISTRICT', department: 'Riverside District Office', status: 'active', joinedAt: '2021-07-01' },
+  { id: 'DA002', name: 'Charles Lee', email: 'charles.lee@dist2.edu', initials: 'CL', role: 'district_admin', schoolId: 'DISTRICT', department: 'Lakeside District Office', status: 'active', joinedAt: '2022-01-01' },
+  { id: 'TEST_DA1', name: 'Testing – District 1 Admin', email: 'test.dist1@demo.com', initials: 'D1', role: 'district_admin', schoolId: 'DISTRICT', department: 'Testing', status: 'active', joinedAt: '2024-01-01' },
+  { id: 'TEST_DA2', name: 'Testing – District 2 Admin', email: 'test.dist2@demo.com', initials: 'D2', role: 'district_admin', schoolId: 'DISTRICT', department: 'Testing', status: 'active', joinedAt: '2024-01-01' },
   { id: 'P001', name: 'Sarah Kim', email: 'sarah.kim@example.org', initials: 'SK', role: 'paraprofessional', schoolId: 'SCH01', department: 'Grade 4 · Support', status: 'active', joinedAt: '2024-08-20' },
   { id: 'P002', name: 'Marcus Webb', email: 'marcus.webb@example.org', initials: 'MW', role: 'paraprofessional', schoolId: 'SCH02', department: 'Grade 6 · Support', status: 'active', joinedAt: '2024-08-20' },
 ]

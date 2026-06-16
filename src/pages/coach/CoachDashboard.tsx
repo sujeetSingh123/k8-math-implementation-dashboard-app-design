@@ -17,8 +17,8 @@ import { getTimeBuckets, inBucket } from '../../utils/timePeriod'
 const roleColor = roleColors.coach
 
 function getBarColor(avg: number): string {
-  if (avg >= 4.0) return '#10B981'
-  if (avg >= 3.0) return '#F59E0B'
+  if (avg >= 80) return '#10B981'
+  if (avg >= 60) return '#F59E0B'
   return '#EF4444'
 }
 
@@ -40,13 +40,14 @@ export function CoachDashboard() {
     const checks = fidelityChecks.filter(f => f.teacherId === t.id)
     const adpts = adaptations.filter(a => a.teacherId === t.id)
     const logRate = logs.length ? Math.round(logs.filter(l => l.lessonCompletion !== 'not_completed').length / logs.length * 100) : 0
-    const avgFidelity = checks.length ? parseFloat((checks.reduce((s, c) => s + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / checks.length).toFixed(1)) : 0
+    const rawFidelity = checks.length ? checks.reduce((s, c) => s + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / checks.length : 0
+    const avgFidelity = Math.round(rawFidelity * 20)
     return { id: t.id, name: t.name.split(' ')[0], fullName: t.name, logRate, avgFidelity, consistent: adpts.filter(a => a.fidelityType === 'consistent').length, inconsistent: adpts.filter(a => a.fidelityType === 'inconsistent').length }
   })
 
-  const onTrack = teacherStats.filter(t => t.avgFidelity >= 4.0).length
+  const onTrack = teacherStats.filter(t => t.avgFidelity >= 80).length
   const avgLogRate = teacherStats.length > 0 ? Math.round(teacherStats.reduce((s, t) => s + t.logRate, 0) / teacherStats.length) : 0
-  const fidelityConcerns = teacherStats.filter(t => t.avgFidelity < 3.0).length
+  const fidelityConcerns = teacherStats.filter(t => t.avgFidelity < 60).length
 
   const reasonCounts: Record<string, number> = {}
   adaptations.filter(a => myTeachers.some(t => t.id === a.teacherId)).forEach(a => a.reasons.forEach(r => { reasonCounts[r] = (reasonCounts[r] ?? 0) + 1 }))
@@ -76,7 +77,7 @@ export function CoachDashboard() {
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         <div className="cursor-pointer" onClick={() => navigate('/coach/caseload')}>
-          <StatCard label="Teachers On Track" value={`${onTrack}/${myTeachers.length}`} sub="Fidelity ≥ 4.0" icon={<Users size={18} />} iconColor={roleColor} />
+          <StatCard label="Teachers On Track" value={`${onTrack}/${myTeachers.length}`} sub="Fidelity ≥ 80%" icon={<Users size={18} />} iconColor={roleColor} />
         </div>
         <div className="cursor-pointer" onClick={() => toast.info(`Average log rate across caseload: ${avgLogRate}%`)}>
           <StatCard label="Avg Log Rate" value={`${avgLogRate}%`} sub="Across caseload" icon={<TrendingUp size={18} />} iconColor={roleColor} />
@@ -85,7 +86,7 @@ export function CoachDashboard() {
           <StatCard label="Response Rate" value="85%" sub="Last 30 days" icon={<MessageSquare size={18} />} iconColor={roleColor} />
         </div>
         <div className="cursor-pointer" onClick={() => { if (fidelityConcerns > 0) navigate('/coach/caseload'); else toast.success('No fidelity concerns right now!') }}>
-          <StatCard label="Fidelity Concerns" value={fidelityConcerns} sub="Below 3.0" icon={<AlertTriangle size={18} />} iconColor="#EF4444" />
+          <StatCard label="Fidelity Concerns" value={fidelityConcerns} sub="Below 60%" icon={<AlertTriangle size={18} />} iconColor="#EF4444" />
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -96,9 +97,9 @@ export function CoachDashboard() {
           </div>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={teacherStats} layout="vertical">
-              <XAxis type="number" domain={[0, 5]} tick={{ fontSize: 10 }} />
+              <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10 }} tickFormatter={v => `${v}%`} />
               <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={55} />
-              <Tooltip formatter={(v) => typeof v === 'number' ? v.toFixed(1) : v} />
+              <Tooltip formatter={(v) => typeof v === 'number' ? `${v}%` : v} />
               <Bar dataKey="avgFidelity" radius={[0, 4, 4, 0]} cursor="pointer"
                 onClick={(data) => navigate(`/coach/teacher/${data.payload.id}`)}>
                 {teacherStats.map((entry, i) => <Cell key={i} fill={getBarColor(entry.avgFidelity)} />)}
@@ -165,7 +166,7 @@ export function CoachDashboard() {
           <button key={log.id} onClick={() => setSelectedLog(log)}
             className="w-full px-4 py-2.5 text-left hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-50 last:border-0 flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs font-medium text-gray-700 truncate">{teacherById[log.teacherId] ?? log.teacherId} · {log.date} · {log.instructionalRoutine}</p>
+              <p className="text-xs font-medium text-gray-700 truncate">{teacherById[log.teacherId] ?? log.teacherId} · {log.date} · {log.instructionalRoutine ?? log.mathSkill ?? '—'}</p>
             </div>
             <div className="flex items-center gap-1 flex-shrink-0">
               <Badge color={log.adaptationOccurred ? 'purple' : 'blue'}>{log.tier}</Badge>

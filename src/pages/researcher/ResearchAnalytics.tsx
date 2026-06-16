@@ -86,8 +86,8 @@ export function ResearchAnalytics() {
       key: 'avgFidelity', header: 'Avg Fidelity',
       render: (row: SchoolRow) => (
         <div className="space-y-1 min-w-[80px]">
-          <span className="text-sm font-semibold text-gray-700">{row.avgFidelity !== null ? `${row.avgFidelity} / 5` : '—'}</span>
-          {row.avgFidelity !== null && <MiniBar value={row.avgFidelity} max={5} />}
+          <span className="text-sm font-semibold text-gray-700">{row.avgFidelity !== null ? `${Math.round(row.avgFidelity * 20)}%` : '—'}</span>
+          {row.avgFidelity !== null && <MiniBar value={Math.round(row.avgFidelity * 20)} />}
         </div>
       ),
     },
@@ -116,7 +116,7 @@ export function ResearchAnalytics() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard label="Schools in Study" value={String(schools.length)} sub="Active sites" icon={<Database size={18} />} iconColor={roleColor} />
         <StatCard label="Impl. Logs" value={String(totalLogs)} sub="All schools" icon={<BookOpen size={18} />} iconColor={roleColor} />
-        <StatCard label="Avg Fidelity" value={String(globalAvgFidelity)} sub="Out of 5" icon={<TrendingUp size={18} />} iconColor={roleColor} />
+        <StatCard label="Avg Fidelity" value={globalAvgFidelity !== '—' ? `${Math.round(Number(globalAvgFidelity) * 20)}%` : '—'} sub="All schools" icon={<TrendingUp size={18} />} iconColor={roleColor} />
         <StatCard label="Data Completeness" value={`${avgCompleteness}%`} sub="Across all measures" icon={<CheckCircle size={18} />} iconColor={roleColor} />
       </div>
 
@@ -159,7 +159,7 @@ export function ResearchAnalytics() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
                 { l: 'Log Rate', v: schoolModal.logRate !== null ? `${schoolModal.logRate}%` : '—' },
-                { l: 'Avg Fidelity', v: schoolModal.avgFidelity !== null ? `${schoolModal.avgFidelity}/5` : '—' },
+                { l: 'Avg Fidelity', v: schoolModal.avgFidelity !== null ? `${Math.round(schoolModal.avgFidelity * 20)}%` : '—' },
                 { l: 'Adaptations', v: String(schoolModal.adaptations) },
                 { l: 'Completeness', v: `${schoolModal.completeness}%` },
               ].map(({ l, v }) => (

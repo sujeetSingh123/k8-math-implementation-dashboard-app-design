@@ -61,7 +61,7 @@ export function LogDetailView({ log, adaptation, fidelityCheck, studentDataRecor
               ] as const
             ).map(d => (
               <div key={d.label}>
-                <p className="text-sm font-bold" style={{ color: roleColor }}>{d.value.toFixed(1)}</p>
+                <p className="text-sm font-bold" style={{ color: roleColor }}>{Math.round(d.value * 20)}%</p>
                 <p className="text-xs text-gray-400">{d.label}</p>
               </div>
             ))}

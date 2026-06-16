@@ -1,4 +1,4 @@
-export type Role = 'teacher' | 'paraprofessional' | 'coach' | 'admin' | 'researcher' | 'super_admin'
+export type Role = 'teacher' | 'paraprofessional' | 'coach' | 'admin' | 'district_admin' | 'researcher' | 'super_admin'
 
 export type User = {
   id: string
@@ -7,6 +7,12 @@ export type User = {
   role: Role
   schoolId: string
   coachId?: string
+  districtId?: string
+}
+
+export type District = {
+  id: string
+  name: string
 }
 
 export type School = {

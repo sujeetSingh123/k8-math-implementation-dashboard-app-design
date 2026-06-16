@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type {
   Role,
   User,
+  District,
   School,
   MockCredential,
   ImplementationLog,
@@ -27,6 +28,7 @@ import type {
 } from '../types'
 import {
   users as initialUsers,
+  districts as initialDistricts,
   schools as initialSchools,
   implementationLogs,
   adaptations,
@@ -64,6 +66,7 @@ interface AppStore {
   currentRole: Role
   currentUser: User
   users: User[]
+  districts: District[]
   schools: School[]
   credentials: MockCredential[]
   notifications: Notification[]
@@ -90,6 +93,7 @@ interface AppStore {
 
   login: (email: string, password: string) => boolean
   logout: () => void
+  addDistrict: (district: District) => void
   addSchool: (school: School) => void
   addUser: (user: User, email: string) => void
   addLog: (log: ImplementationLog) => void
@@ -131,6 +135,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   currentRole: 'teacher',
   currentUser: defaultUser,
   users: initialUsers,
+  districts: initialDistricts,
   schools: initialSchools,
   credentials: initialCredentials,
   notifications,
@@ -168,6 +173,9 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   logout: () =>
     set({ isAuthenticated: false, currentUser: defaultUser, currentRole: 'teacher' }),
+
+  addDistrict: (district) =>
+    set((state) => ({ districts: [...state.districts, district] })),
 
   addSchool: (school) =>
     set((state) => ({ schools: [...state.schools, school] })),

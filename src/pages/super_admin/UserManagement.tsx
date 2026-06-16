@@ -14,7 +14,7 @@ import type { Role } from '../../types'
 const roleColor = roleColors.super_admin
 
 const roleBadgeColor: Record<string, 'green' | 'blue' | 'amber' | 'purple' | 'red'> = {
-  teacher: 'green', coach: 'blue', admin: 'amber', researcher: 'purple', super_admin: 'red',
+  teacher: 'green', coach: 'blue', admin: 'amber', district_admin: 'red', researcher: 'purple', super_admin: 'red',
 }
 
 const DIMS = ['adherence', 'dosage', 'quality', 'responsiveness'] as const
@@ -23,23 +23,34 @@ type Dim = typeof DIMS[number]
 type UserRow = { id: string; name: string; role: Role; school: string; email: string }
 
 export function UserManagement() {
-  const { users, schools, orgMembers, implementationLogs, fidelityChecks, studentDataRecords } = useAppStore()
+  const { currentUser, users, schools, orgMembers, implementationLogs, fidelityChecks, studentDataRecords } = useAppStore()
+  const isDistrictAdmin = currentUser.role === 'district_admin'
   const [showAdd, setShowAdd] = useState(false)
   const [filterSchool, setFilterSchool] = useState('')
   const [filterRole, setFilterRole] = useState('')
   const [selectedUser, setSelectedUser] = useState<UserRow | null>(null)
   const [pageTab, setPageTab] = useState<'users' | 'students'>('users')
 
+  const districtSchoolIds = useMemo(
+    () => new Set(schools.filter(s => s.districtId === currentUser.districtId).map(s => s.id)),
+    [schools, currentUser.districtId],
+  )
+
+  const visibleSchools = isDistrictAdmin
+    ? schools.filter(s => s.districtId === currentUser.districtId)
+    : schools
+
   const getSchoolName = (schoolId: string) => schools.find(s => s.id === schoolId)?.name ?? schoolId
   const getEmail = (userId: string) => orgMembers.find(m => m.id === userId)?.email ?? '—'
 
   const rows: UserRow[] = users
-    .filter(u => u.role !== 'super_admin')
+    .filter(u => u.role !== 'super_admin' && u.role !== 'district_admin')
+    .filter(u => !isDistrictAdmin || districtSchoolIds.has(u.schoolId))
     .filter(u => !filterSchool || u.schoolId === filterSchool)
     .filter(u => !filterRole || u.role === filterRole)
     .map(u => ({ id: u.id, name: u.name, role: u.role, school: getSchoolName(u.schoolId), email: getEmail(u.id) }))
 
-  const roleOptions: Role[] = ['teacher', 'paraprofessional', 'coach', 'admin', 'researcher']
+  const roleOptions: Role[] = ['teacher', 'paraprofessional', 'coach', 'admin', 'district_admin', 'researcher']
 
   const userFidelity = useMemo(() => {
     if (!selectedUser) return null
@@ -91,7 +102,7 @@ export function UserManagement() {
               <select value={filterSchool} onChange={e => setFilterSchool(e.target.value)}
                 className="px-2 py-1.5 border border-gray-200 rounded-lg text-xs text-gray-600 focus:outline-none">
                 <option value="">All Schools</option>
-                {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                {visibleSchools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
               <select value={filterRole} onChange={e => setFilterRole(e.target.value)}
                 className="px-2 py-1.5 border border-gray-200 rounded-lg text-xs text-gray-600 focus:outline-none">

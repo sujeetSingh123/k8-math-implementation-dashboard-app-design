@@ -119,9 +119,9 @@ export function DSAIIPathway() {
       title: 'Implementation Outcomes',
       status: implStatus,
       metrics: [
-        { label: 'Avg Fidelity', value: avgFidelity.toFixed(1) + '/5' },
-        { label: 'Avg Feasibility', value: avgFeas > 0 ? avgFeas.toFixed(1) + '/5' : 'N/A' },
-        { label: 'Avg Acceptability', value: avgAcc > 0 ? avgAcc.toFixed(1) + '/5' : 'N/A' },
+        { label: 'Avg Fidelity', value: avgFidelity > 0 ? `${Math.round(avgFidelity * 20)}%` : 'N/A' },
+        { label: 'Avg Feasibility', value: avgFeas > 0 ? `${Math.round(avgFeas * 20)}%` : 'N/A' },
+        { label: 'Avg Acceptability', value: avgAcc > 0 ? `${Math.round(avgAcc * 20)}%` : 'N/A' },
       ],
     },
     {

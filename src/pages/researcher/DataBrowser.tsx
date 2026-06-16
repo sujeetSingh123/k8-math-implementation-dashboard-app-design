@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Users, ClipboardList, BarChart2, Activity, ChevronRight } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
 import { Modal } from '../../components/ui/Modal'
@@ -94,8 +94,8 @@ function UserDetailModal({ user, onClose }: { user: User; onClose: () => void })
                 <button key={l.id} onClick={() => setLogModal(l)}
                   className="w-full flex items-center justify-between gap-3 px-3 py-2.5 bg-gray-50 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors text-left">
                   <div className="min-w-0">
-                    <p className="text-xs font-medium text-gray-800">{l.date} · {l.instructionalRoutine}</p>
-                    <p className="text-xs text-gray-400">{l.implementationStrategy} · {l.durationMinutes} min</p>
+                    <p className="text-xs font-medium text-gray-800">{l.date} · {l.instructionalRoutine ?? l.mathSkill ?? '—'}</p>
+                    <p className="text-xs text-gray-400">{l.implementationStrategy ?? l.groupSize ?? '—'} · {l.durationMinutes} min</p>
                   </div>
                   <div className="flex gap-1 flex-shrink-0">
                     <Badge color="blue">{l.tier}</Badge>
@@ -118,14 +118,14 @@ function UserDetailModal({ user, onClose }: { user: User; onClose: () => void })
                   <div key={c.id} className="flex items-center justify-between gap-3 px-3 py-2.5 bg-gray-50 rounded-lg">
                     <p className="text-xs font-medium text-gray-800">{c.date}</p>
                     <div className="flex gap-3 text-xs text-gray-500">
-                      <span>Adh {c.adherence}</span>
-                      <span>Dos {c.dosage}</span>
-                      <span>Qual {c.quality}</span>
-                      <span>Resp {c.responsiveness}</span>
-                      <span>Conf {c.confidence}</span>
+                      <span>Adh {Math.round(c.adherence * 20)}%</span>
+                      <span>Dos {Math.round(c.dosage * 20)}%</span>
+                      <span>Qual {Math.round(c.quality * 20)}%</span>
+                      <span>Resp {Math.round(c.responsiveness * 20)}%</span>
+                      <span>Conf {Math.round(c.confidence * 20)}%</span>
                     </div>
                     <span className="text-sm font-bold flex-shrink-0" style={{ color: composite >= 4 ? '#10B981' : composite >= 3 ? '#F59E0B' : '#EF4444' }}>
-                      {composite}
+                      {Math.round(composite * 20)}%
                     </span>
                   </div>
                 )
@@ -166,7 +166,9 @@ function UserDetailModal({ user, onClose }: { user: User; onClose: () => void })
 export function DataBrowser() {
   const { schools, users, implementationLogs, studentDataRecords, fidelityChecks } = useAppStore()
   const navigate = useNavigate()
-  const [selectedSchool, setSelectedSchool] = useState(schools[0]?.id ?? '')
+  const location = useLocation()
+  const preselectedSchool = (location.state as { schoolId?: string } | null)?.schoolId
+  const [selectedSchool, setSelectedSchool] = useState(preselectedSchool ?? schools[0]?.id ?? '')
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
 
   const schoolTeachers = useMemo(
@@ -222,8 +224,8 @@ export function DataBrowser() {
           <Users size={20} style={{ color: roleColor }} />
         </div>
         <div>
-          <h2 className="text-lg font-bold text-gray-900">Data Browser</h2>
-          <p className="text-sm text-gray-500">Browse all identifiable data by school, teacher, and coach</p>
+          <h2 className="text-lg font-bold text-gray-900">Teacher Data</h2>
+          <p className="text-sm text-gray-500">Browse all teacher logs, fidelity, and student data by school</p>
         </div>
       </div>
 

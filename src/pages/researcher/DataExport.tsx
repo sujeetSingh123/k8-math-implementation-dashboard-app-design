@@ -58,7 +58,7 @@ export function DataExport() {
         coach_id: teacher?.coachId ?? '—',   // code, not name
         date: l.date,
         tier: l.tier,
-        routine: l.instructionalRoutine,
+        routine: l.instructionalRoutine ?? l.mathSkill ?? null,
         completion: l.lessonCompletion,
         adaptation: l.adaptationOccurred ? 'Yes' : 'No',
       }

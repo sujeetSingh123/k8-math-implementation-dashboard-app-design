@@ -130,7 +130,7 @@ export const PostReflectionCard = forwardRef<PostReflectionRef, Props>(({ antici
 
         {anticipatesAdaptation && (
           <div>
-            <label className={labelCls}>How was the pre-planned adaptation implemented?{req}</label>
+            <label className={labelCls}>If you pre-planned an adaptation, how was it implemented?{req}</label>
             <div className="flex flex-wrap gap-4 mb-2">
               {[{ v: 'fully', l: 'Fully' }, { v: 'partially', l: 'Partially' }, { v: 'not_implemented', l: 'Not implemented' }].map(({ v, l }) => (
                 <label key={v} className="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
@@ -186,7 +186,7 @@ export const PostReflectionCard = forwardRef<PostReflectionRef, Props>(({ antici
         )}
 
         <div>
-          <label className={labelCls}>Student average score today <span className="text-gray-400 font-normal">(optional, 0–100)</span></label>
+          <label className={labelCls}>If students had an assessment today, what is their average score? <span className="text-gray-400 font-normal">(optional, 0–100 — saved to student data)</span></label>
           <input type="number" min={0} max={100} value={studentScore} onChange={e => setStudentScore(e.target.value)}
             className="w-36 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300" placeholder="e.g. 78" />
         </div>

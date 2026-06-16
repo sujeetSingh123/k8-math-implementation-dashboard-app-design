@@ -96,11 +96,16 @@ export function StudentDataView() {
     if (role === 'teacher') return users.filter(u => u.id === currentUser.id)
     if (role === 'coach') return users.filter(u => u.role === 'teacher' && u.coachId === currentUser.id)
     if (role === 'admin') return users.filter(u => u.role === 'teacher' && u.schoolId === currentUser.schoolId)
+    if (role === 'district_admin') {
+      const distSchoolIds = new Set(schools.filter(s => s.districtId === currentUser.districtId).map(s => s.id))
+      return users.filter(u => u.role === 'teacher' && distSchoolIds.has(u.schoolId))
+    }
     return users.filter(u => u.role === 'teacher') // researcher / super_admin
-  }, [role, currentUser])
+  }, [role, currentUser, schools])
 
   const scopedSchools = useMemo(() => {
     if (role === 'admin') return schools.filter(s => s.id === currentUser.schoolId)
+    if (role === 'district_admin') return schools.filter(s => s.districtId === currentUser.districtId)
     if (role === 'researcher' || role === 'super_admin') return schools
     return []
   }, [role, currentUser, schools])

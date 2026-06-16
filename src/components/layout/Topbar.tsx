@@ -11,10 +11,19 @@ interface TopbarProps {
 }
 
 export function Topbar({ title, onMenuClick }: TopbarProps) {
-  const { currentRole, currentUser, notifications, logout } = useAppStore()
+  const { currentRole, currentUser, notifications, schools, districts, orgMembers, logout } = useAppStore()
   const navigate = useNavigate()
   const roleColor = roleColors[currentRole]
   const unreadCount = notifications.filter(n => n.userId === currentUser.id && !n.readAt).length
+
+  const email = orgMembers.find(m => m.id === currentUser.id)?.email
+
+  const contextLabel = (() => {
+    if (currentRole === 'super_admin') return 'All Districts'
+    if (currentRole === 'district_admin') return districts.find(d => d.id === currentUser.districtId)?.name ?? 'District'
+    if (currentRole === 'researcher') return 'All Districts'
+    return schools.find(s => s.id === currentUser.schoolId)?.name ?? currentUser.schoolId
+  })()
 
   const [showNotifications, setShowNotifications] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
@@ -83,20 +92,9 @@ export function Topbar({ title, onMenuClick }: TopbarProps) {
             <div className="absolute right-0 top-11 w-48 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
               <div className="px-4 py-3 border-b border-gray-100">
                 <p className="text-sm font-semibold text-gray-800">{currentUser.name}</p>
-                <p className="text-xs text-gray-400 mb-2">{roleLabels[currentRole]}</p>
-                <div className="flex flex-wrap gap-1">
-                  <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
-                    {currentUser.id}
-                  </span>
-                  <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
-                    {currentUser.schoolId}
-                  </span>
-                  {currentUser.coachId && (
-                    <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
-                      {currentUser.coachId}
-                    </span>
-                  )}
-                </div>
+                <p className="text-xs font-medium mb-0.5" style={{ color: roleColor }}>{roleLabels[currentRole]}</p>
+                <p className="text-xs text-gray-400">{contextLabel}</p>
+                {email && <p className="text-xs text-gray-400 mt-0.5">{email}</p>}
               </div>
               <button
                 onClick={() => setShowUserMenu(false)}

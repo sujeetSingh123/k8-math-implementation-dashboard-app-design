@@ -88,7 +88,6 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
         section: 'Management',
         items: [
           { label: 'Organization', path: '/admin/organization', icon: <Users size={16} />, permission: 'p_view_users' },
-          { label: 'Roles & Permissions', path: '/admin/roles', icon: <Shield size={16} />, permission: 'p_assign_roles' },
           { label: 'Impl. Learning Labs', path: '/admin/pd-planning', icon: <CalendarDays size={16} />, permission: 'p_manage_org' },
         ],
       },
@@ -108,23 +107,52 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
       { section: 'Communication', items: [msgItem] },
     ]
   }
-  if (role === 'super_admin') {
+  if (role === 'district_admin') {
     return [
       {
-        section: 'District',
+        section: 'Overview',
         items: [
-          { label: 'Overview', path: '/super-admin/dashboard', icon: <Globe size={16} /> },
-          { label: 'Schools', path: '/super-admin/schools', icon: <Building2 size={16} /> },
-          { label: 'Users', path: '/super-admin/users', icon: <Users size={16} /> },
+          { label: 'District Dashboard', path: '/district-admin/dashboard', icon: <Building2 size={16} />, permission: 'p_view_reports' },
+          { label: 'MTSS Monitoring', path: '/district-admin/mtss', icon: <Activity size={16} />, permission: 'p_view_fidelity' },
+          { label: 'Fidelity Trends', path: '/district-admin/fidelity-trends', icon: <TrendingUp size={16} />, permission: 'p_view_fidelity' },
+          { label: 'Student Data', path: '/district-admin/student-data', icon: <BarChart size={16} />, permission: 'p_view_student_data' },
+        ],
+      },
+      {
+        section: 'Management',
+        items: [
+          { label: 'Schools', path: '/district-admin/schools', icon: <Building2 size={16} />, permission: 'p_view_users' },
+          { label: 'Users', path: '/district-admin/users', icon: <Users size={16} />, permission: 'p_view_users' },
+          { label: 'Impl. Learning Labs', path: '/district-admin/pd-planning', icon: <CalendarDays size={16} />, permission: 'p_manage_org' },
         ],
       },
       {
         section: 'Resources',
         items: [
-          { label: 'Impl. Learning Labs', path: '/super-admin/labs', icon: <CalendarDays size={16} /> },
+          { label: 'Resource Library', path: '/district-admin/library', icon: <Library size={16} /> },
+          { label: 'Manage Resources', path: '/admin/resources', icon: <Library size={16} />, permission: 'p_manage_org' },
+        ],
+      },
+      {
+        section: 'Incentives',
+        items: [
+          { label: 'My Incentives', path: '/district-admin/incentives', icon: <Award size={16} />, permission: 'p_view_reports' },
         ],
       },
       { section: 'Communication', items: [msgItem] },
+    ]
+  }
+  if (role === 'super_admin') {
+    return [
+      {
+        section: 'Platform',
+        items: [
+          { label: 'Platform Overview', path: '/super-admin/dashboard', icon: <Globe size={16} /> },
+          { label: 'Districts & Schools', path: '/super-admin/schools', icon: <Building2 size={16} /> },
+          { label: 'All Users', path: '/super-admin/users', icon: <Users size={16} /> },
+          { label: 'Roles & Permissions', path: '/admin/roles', icon: <Shield size={16} /> },
+        ],
+      },
     ]
   }
   return [
@@ -144,7 +172,7 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
       section: 'Data',
       items: [
         { label: 'Student Data', path: '/researcher/student-data', icon: <BarChart size={16} />, permission: 'p_view_student_data' },
-        { label: 'Data Browser', path: '/researcher/data-browser', icon: <Users size={16} />, permission: 'p_view_logs' },
+        { label: 'Teacher Data', path: '/researcher/data-browser', icon: <Users size={16} />, permission: 'p_view_logs' },
         { label: 'Export Data', path: '/researcher/export', icon: <Download size={16} />, permission: 'p_export_data' },
         { label: 'Resource Library', path: '/researcher/library', icon: <Library size={16} /> },
         { label: 'Manage Resources', path: '/admin/resources', icon: <Library size={16} /> },

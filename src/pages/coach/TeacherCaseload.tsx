@@ -43,13 +43,13 @@ export function TeacherCaseload() {
     const lastMsg = cycle?.messages.slice(-1)[0]
     const status = getStatus(avgFidelity)
     const miniChart = [
-      { dim: 'Adh', score: checks.reduce((s, c) => s + c.adherence, 0) / Math.max(checks.length, 1) },
-      { dim: 'Dos', score: checks.reduce((s, c) => s + c.dosage, 0) / Math.max(checks.length, 1) },
-      { dim: 'Qual', score: checks.reduce((s, c) => s + c.quality, 0) / Math.max(checks.length, 1) },
-      { dim: 'Resp', score: checks.reduce((s, c) => s + c.responsiveness, 0) / Math.max(checks.length, 1) },
-      { dim: 'Conf', score: checks.reduce((s, c) => s + c.confidence, 0) / Math.max(checks.length, 1) },
+      { dim: 'Adh', score: Math.round(checks.reduce((s, c) => s + c.adherence, 0) / Math.max(checks.length, 1) * 20) },
+      { dim: 'Dos', score: Math.round(checks.reduce((s, c) => s + c.dosage, 0) / Math.max(checks.length, 1) * 20) },
+      { dim: 'Qual', score: Math.round(checks.reduce((s, c) => s + c.quality, 0) / Math.max(checks.length, 1) * 20) },
+      { dim: 'Resp', score: Math.round(checks.reduce((s, c) => s + c.responsiveness, 0) / Math.max(checks.length, 1) * 20) },
+      { dim: 'Conf', score: Math.round(checks.reduce((s, c) => s + c.confidence, 0) / Math.max(checks.length, 1) * 20) },
     ]
-    return { teacher: t, logs, logRate, avgFidelity: avgFidelity.toFixed(1), adaptCount, lastMsg, status, miniChart }
+    return { teacher: t, logs, logRate, avgFidelity: `${Math.round(avgFidelity * 20)}%`, adaptCount, lastMsg, status, miniChart }
   })
 
   const pendingCount = teacherData.filter(d => d.status.label !== 'On Track').length
@@ -143,8 +143,8 @@ export function TeacherCaseload() {
                     <ResponsiveContainer width="100%" height={100}>
                       <BarChart data={d.miniChart} barSize={18}>
                         <XAxis dataKey="dim" tick={{ fontSize: 10 }} />
-                        <YAxis domain={[0, 5]} tick={{ fontSize: 10 }} width={20} />
-                        <Tooltip />
+                        <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} width={28} tickFormatter={v => `${v}%`} />
+                        <Tooltip formatter={(v) => typeof v === 'number' ? `${v}%` : v} />
                         <Bar dataKey="score" fill={roleColor} radius={[4, 4, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
@@ -191,7 +191,7 @@ export function TeacherCaseload() {
                       </Badge>
                       {log.adaptationOccurred && <Badge color="blue">Adaptation</Badge>}
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5">{log.instructionalRoutine} · {log.ebpComponent.join(', ')} · {log.durationMinutes}min</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{log.instructionalRoutine ?? log.mathSkill ?? '—'} · {log.ebpComponent.join(', ')} · {log.durationMinutes}min</p>
                   </div>
                   <ChevronRight size={14} className="text-gray-400 flex-shrink-0" />
                 </button>

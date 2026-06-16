@@ -43,7 +43,8 @@ export function AddUserModal({ open, onClose }: Props) {
   const roleOptions: { value: Role; label: string }[] = [
     { value: 'teacher', label: 'Teacher' },
     { value: 'coach', label: 'Coach' },
-    { value: 'admin', label: 'Administrator' },
+    { value: 'admin', label: 'Principal of School' },
+    { value: 'district_admin', label: 'Principal of District' },
     { value: 'researcher', label: 'Researcher' },
   ]
 

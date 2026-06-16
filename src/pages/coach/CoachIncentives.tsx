@@ -8,11 +8,11 @@ import { roleColors } from '../../constants/roles'
 import {
   calcCoachBreakdown, calcTeacherBreakdown, rateTierLabel, fidelityPerfTierLabel,
   calcLogRate, getSemester, filterLogsBySemester, filterFidelityBySemester,
-  filterStudentDataBySemester, currentSemester, sortSemesters,
+  currentSemester, sortSemesters,
 } from '../../utils/incentiveCalc'
 
 export function CoachIncentives() {
-  const { currentUser, users, implementationLogs, fidelityChecks, studentDataRecords, incentives } = useAppStore()
+  const { currentUser, users, implementationLogs, fidelityChecks, incentives } = useAppStore()
   const roleColor = roleColors[currentUser.role]
 
   const teachers = useMemo(() => users.filter(u => u.role === 'teacher' && u.coachId === currentUser.id), [users, currentUser.id])
@@ -35,7 +35,6 @@ export function CoachIncentives() {
 
   const semLogs = useMemo(() => filterLogsBySemester(implementationLogs, selected), [implementationLogs, selected])
   const semChecks = useMemo(() => filterFidelityBySemester(fidelityChecks, selected), [fidelityChecks, selected])
-  const semStudentData = useMemo(() => filterStudentDataBySemester(studentDataRecords, selected), [studentDataRecords, selected])
 
   const coachCalc = useMemo(
     () => calcCoachBreakdown(currentUser, users, semLogs, semChecks),
@@ -43,10 +42,10 @@ export function CoachIncentives() {
   )
   const teacherCalcs = useMemo(
     () => teachers.map(t => ({
-      ...calcTeacherBreakdown(t, semLogs, semStudentData),
+      ...calcTeacherBreakdown(t, semLogs),
       logRate: calcLogRate(semLogs, t.id),
     })),
-    [teachers, semLogs, semStudentData],
+    [teachers, semLogs],
   )
 
   const semApproved = useMemo(() => mine.filter(i => i.status === 'approved' && getSemester(i.awardedAt) === selected), [mine, selected])
@@ -162,12 +161,12 @@ export function CoachIncentives() {
                 <p className="text-sm font-medium text-gray-800">Teacher Fidelity Performance Bonus</p>
                 <p className="text-xs text-gray-400">
                   {hasFidelityData
-                    ? `Caseload avg fidelity: ${coachCalc.avgTeacherFidelity.toFixed(1)}/5 · ${fidelityPerfTierLabel(coachCalc.avgTeacherFidelity)}`
+                    ? `Caseload avg fidelity: ${Math.round(coachCalc.avgTeacherFidelity * 20)}% · ${fidelityPerfTierLabel(coachCalc.avgTeacherFidelity)}`
                     : 'No fidelity checks submitted yet'}
                 </p>
               </div>
               {hasFidelityData && (
-                <Badge color={fidelityColor}>{coachCalc.avgTeacherFidelity.toFixed(1)}</Badge>
+                <Badge color={fidelityColor}>{Math.round(coachCalc.avgTeacherFidelity * 20)}%</Badge>
               )}
             </div>
             <span className="text-base font-bold text-gray-900">${coachCalc.teacherPerfBonus}</span>
@@ -180,9 +179,9 @@ export function CoachIncentives() {
                 <p className="text-sm font-medium text-gray-800">All Teachers On Track Bonus</p>
                 <p className="text-xs text-gray-400">
                   {coachCalc.allOnTrack
-                    ? 'All teachers have avg fidelity ≥ 4.0 · +$25'
+                    ? 'All teachers have avg fidelity ≥ 80% · +$25'
                     : hasFidelityData
-                      ? 'Not all teachers at ≥ 4.0 average yet'
+                      ? 'Not all teachers at ≥ 80% average yet'
                       : 'No fidelity data yet'}
                 </p>
               </div>
@@ -198,23 +197,22 @@ export function CoachIncentives() {
 
         <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-500 space-y-1">
           <p><strong>Log Rate Tiers (caseload avg):</strong> 81–100% → +$30 · 71–80% → +$20 · 60–70% → +$10</p>
-          <p><strong>Teacher Fidelity Bonus:</strong> caseload avg ≥ 4.0 → +$50 · ≥ 3.5 → +$30 · ≥ 3.0 → +$15</p>
-          <p><strong>All On Track Bonus:</strong> +$25 when every teacher's avg fidelity ≥ 4.0</p>
+          <p><strong>Teacher Fidelity Bonus:</strong> caseload avg ≥ 80% → +$50 · ≥ 70% → +$30 · ≥ 60% → +$15</p>
+          <p><strong>All On Track Bonus:</strong> +$25 when every teacher's avg fidelity ≥ 80%</p>
         </div>
       </Card>
 
       <Card title={`Caseload Teacher Earnings — ${selected}`}>
         <div className="flex items-center gap-2 mb-3">
           <Users size={14} style={{ color: roleColor }} />
-          <span className="text-xs text-gray-500">Individual semester projections (incl. student performance bonuses)</span>
+          <span className="text-xs text-gray-500">Individual semester projections based on log rate and completion</span>
         </div>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100">
               <th className="text-left py-2 text-xs font-semibold text-gray-400 uppercase">Teacher</th>
               <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase">Log Rate</th>
-              <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">2-Wk</th>
-              <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase hidden md:table-cell">Growth</th>
+              <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase hidden sm:table-cell">2-Wk Bonus</th>
               <th className="text-right py-2 text-xs font-semibold text-gray-400 uppercase">Total</th>
             </tr>
           </thead>
@@ -224,18 +222,13 @@ export function CoachIncentives() {
                 <td className="py-2.5 font-medium text-gray-800">{t.name}</td>
                 <td className="py-2.5 text-center"><Badge color={tc(t.logRate)}>{t.logRate}%</Badge></td>
                 <td className="py-2.5 text-center text-gray-600 hidden sm:table-cell">{t.twoWeekPerfect} × $5</td>
-                <td className="py-2.5 text-center hidden md:table-cell">
-                  {t.avgStudentGrowth > 0
-                    ? <Badge color={t.avgStudentGrowth >= 10 ? 'green' : 'amber'}>{t.avgStudentGrowth}%</Badge>
-                    : <span className="text-xs text-gray-400">—</span>}
-                </td>
                 <td className="py-2.5 text-right font-bold text-gray-800">${t.total}</td>
               </tr>
             ))}
           </tbody>
           <tfoot>
             <tr className="border-t border-gray-200">
-              <td colSpan={4} className="py-2 text-xs font-semibold text-gray-400 uppercase">Caseload Total</td>
+              <td colSpan={3} className="py-2 text-xs font-semibold text-gray-400 uppercase">Caseload Total</td>
               <td className="py-2 text-right font-bold text-gray-900">${teacherCalcs.reduce((s, t) => s + t.total, 0)}</td>
             </tr>
           </tfoot>

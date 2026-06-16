@@ -228,7 +228,7 @@ export function SuperAdminDashboard() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-lg font-semibold text-gray-900">District Overview</h1>
+        <h1 className="text-lg font-semibold text-gray-900">Platform Overview</h1>
         <div className="flex gap-2">
           <Button size="sm" roleColor={roleColor} onClick={() => navigate('/super-admin/schools')}>
             <Building2 size={14} /> Manage Schools
@@ -240,7 +240,7 @@ export function SuperAdminDashboard() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-        <StatCard label="Schools" value={String(schools.length)} sub="In district" icon={<Building2 size={18} />} iconColor={roleColor} />
+        <StatCard label="All Schools" value={String(schools.length)} sub="All districts" icon={<Building2 size={18} />} iconColor={roleColor} />
         <StatCard label="Total Staff" value={String(totalStaff)} sub="All schools" icon={<Users size={18} />} iconColor={roleColor} />
         <StatCard label="Teachers" value={String(teachers)} sub={`${coaches} coaches`} icon={<Shield size={18} />} iconColor={roleColor} />
         <StatCard label="Researchers" value={String(researchers)} sub="In study" icon={<BarChart2 size={18} />} iconColor={roleColor} />

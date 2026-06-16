@@ -39,6 +39,8 @@ import { MessagesPage } from './pages/shared/MessagesPage'
 import { SuperAdminDashboard } from './pages/super_admin/SuperAdminDashboard'
 import { SchoolManagement } from './pages/super_admin/SchoolManagement'
 import { UserManagement } from './pages/super_admin/UserManagement'
+import { DistrictAdminDashboard } from './pages/district_admin/DistrictAdminDashboard'
+import { DistrictSchoolsView } from './pages/district_admin/DistrictSchoolsView'
 import { useAppStore } from './store/useAppStore'
 import { PermissionGate } from './components/ui/PermissionGate'
 
@@ -50,6 +52,7 @@ function DefaultRedirect() {
     paraprofessional: '/teacher/dashboard',
     coach: '/coach/dashboard',
     admin: '/admin/overview',
+    district_admin: '/district-admin/dashboard',
     researcher: '/researcher/analytics',
     super_admin: '/super-admin/dashboard',
   }
@@ -115,6 +118,15 @@ export default function App() {
         <Route path="/coach/labs" element={<ProtectedLayout><PDPlanning /></ProtectedLayout>} />
         <Route path="/researcher/labs" element={<ProtectedLayout><PDPlanning /></ProtectedLayout>} />
         <Route path="/messages" element={<ProtectedLayout><MessagesPage /></ProtectedLayout>} />
+        <Route path="/district-admin/dashboard" element={<ProtectedLayout><DistrictAdminDashboard /></ProtectedLayout>} />
+        <Route path="/district-admin/schools" element={<ProtectedLayout><DistrictSchoolsView /></ProtectedLayout>} />
+        <Route path="/district-admin/users" element={<ProtectedLayout><PermissionGate permissionId="p_view_users"><UserManagement /></PermissionGate></ProtectedLayout>} />
+        <Route path="/district-admin/mtss" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><MTSSMonitoring /></PermissionGate></ProtectedLayout>} />
+        <Route path="/district-admin/fidelity-trends" element={<ProtectedLayout><PermissionGate permissionId="p_view_fidelity"><FidelityAdaptationView /></PermissionGate></ProtectedLayout>} />
+        <Route path="/district-admin/student-data" element={<ProtectedLayout><PermissionGate permissionId="p_view_student_data"><StudentDataView /></PermissionGate></ProtectedLayout>} />
+        <Route path="/district-admin/incentives" element={<ProtectedLayout><PermissionGate permissionId="p_view_reports"><AdminIncentives /></PermissionGate></ProtectedLayout>} />
+        <Route path="/district-admin/library" element={<ProtectedLayout><ResourceLibrary /></ProtectedLayout>} />
+        <Route path="/district-admin/pd-planning" element={<ProtectedLayout><PermissionGate permissionId="p_manage_org"><PDPlanning /></PermissionGate></ProtectedLayout>} />
         <Route path="/super-admin/dashboard" element={<ProtectedLayout><SuperAdminDashboard /></ProtectedLayout>} />
         <Route path="/super-admin/schools" element={<ProtectedLayout><SchoolManagement /></ProtectedLayout>} />
         <Route path="/super-admin/users" element={<ProtectedLayout><UserManagement /></ProtectedLayout>} />

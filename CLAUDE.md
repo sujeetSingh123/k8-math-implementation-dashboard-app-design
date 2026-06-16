@@ -25,16 +25,24 @@
 - Add `.claude/` to `.gitignore` — worktree dirs get committed as git submodule references otherwise
 
 ## Roles
-Six roles are defined in `src/types/index.ts` as `type Role`:
+Seven roles are defined in `src/types/index.ts` as `type Role`:
 
-| Role | Color | Notes |
-|---|---|---|
-| `teacher` | #10B981 (green) | Core logging role |
-| `paraprofessional` | #059669 (dark emerald) | Same sidebar/permissions as teacher |
-| `coach` | #3B82F6 (blue) | Manages teacher caseload |
-| `admin` | #F59E0B (amber) | School-level admin |
-| `super_admin` | #EF4444 (red) | District-level admin |
-| `researcher` | #8B5CF6 (purple) | Full data access, manages budget |
+| Role | Label | Color | Scope |
+|---|---|---|---|
+| `teacher` | Teacher | #10B981 (green) | School — core logging role |
+| `paraprofessional` | Paraprofessional | #059669 (dark emerald) | School — same sidebar/permissions as teacher |
+| `coach` | Coach | #3B82F6 (blue) | School — manages teacher caseload |
+| `admin` | Principal of School | #F59E0B (amber) | School — sees only their school |
+| `district_admin` | Principal of District | #EA580C (orange) | District — sees all schools in their district |
+| `researcher` | Researcher | #8B5CF6 (purple) | Platform — all districts, full data access |
+| `super_admin` | Platform Admin | #EF4444 (red) | Platform — adds districts/schools, all data |
+
+### Organization Hierarchy
+- **Super Admin** creates districts and schools; platform-level view of everything
+- **district_admin** (Principal of District) manages one district; has `districtId` field set; `schoolId: 'DISTRICT'`
+- **admin** (Principal of School) manages one school; `schoolId` points to their school
+- **coach/teacher/paraprofessional** are school-scoped
+- **researcher** has read access to all districts
 
 ## Key Components
 
@@ -45,7 +53,7 @@ Two-level EBP picker. Props: `selectedEBPs`, `selectedComponents`, `onEBPsChange
 Shared Recharts multi-line chart. Export type `TLPoint = { label, adherence, dosage, quality, responsiveness, composite }`. Props: `data: TLPoint[]`, `roleColor: string`.
 
 ### SchoolDistrictFidelity (`src/pages/shared/SchoolDistrictFidelity.tsx`)
-Shows school fidelity table + district fidelity trend + student performance by school. Props: `role`, `currentSchoolId`, `roleColor`. Researcher/super_admin see all schools; others see only their school.
+Shows school fidelity table + district fidelity trend + student performance by school. Props: `role`, `currentSchoolId`, `roleColor`, `districtId?`. Researcher/super_admin see all schools; district_admin sees their district's schools (via `districtId` prop); others see only their school.
 
 ### StudentPerfSummary (`src/pages/teacher/StudentPerfSummary.tsx`)
 Teacher-side student performance summary card. Groups records by MTSS tier. Returns `null` if teacher has no student data records.
@@ -84,8 +92,15 @@ Below the form: `<StudentPerfSummary />` (shows teacher's own student data)
 - Incentives: My Incentives
 - Communication: Messages
 
-**Super Admin:**
-- District: Overview, Schools, Users
+**District Admin (Principal of District):**
+- Overview: District Dashboard, MTSS Monitoring, Fidelity Trends, Student Data
+- Management: Schools, Users, Impl. Learning Labs
+- Resources: Resource Library, Manage Resources
+- Incentives: My Incentives
+- Communication: Messages
+
+**Super Admin (Platform Admin):**
+- Platform: Platform Overview, Districts & Schools, All Users
 - Resources: Impl. Learning Labs
 - Communication: Messages
 
@@ -100,11 +115,13 @@ Two districts (`dist1`, `dist2`) with four schools (`SCH01`–`SCH04`) in mock d
 
 ## Test Accounts
 All use password `demo1234`:
-- `test.teacher@demo.com`
-- `test.coach@demo.com`
-- `test.admin@demo.com`
-- `test.district@demo.com` (super_admin)
-- `test.researcher@demo.com`
+- `test.teacher@demo.com` (teacher, SCH01)
+- `test.coach@demo.com` (coach, SCH01)
+- `test.admin@demo.com` (Principal of School, SCH01)
+- `test.dist1@demo.com` (Principal of District, dist1 — Riverside Unified)
+- `test.dist2@demo.com` (Principal of District, dist2 — Lakeside)
+- `test.district@demo.com` (Platform Admin / super_admin)
+- `test.researcher@demo.com` (researcher, all districts)
 
 ## Node Version
 Use Node 20 via nvm: `source ~/.nvm/nvm.sh && nvm use 20.19.0`

@@ -134,12 +134,12 @@ function SchoolMetricsTable({ schoolIds, onSelect, districtLabel, districtLast, 
                 <td className="py-2.5 text-center">
                   <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold text-white"
                     style={{ backgroundColor: comp >= 4 ? '#10B981' : comp >= 3.5 ? '#F59E0B' : '#EF4444' }}>
-                    {comp.toFixed(2)}
+                    {Math.round(comp * 20)}%
                   </span>
                 </td>
                 {dims.map(d => (
                   <td key={d} className="py-2.5 text-center text-xs text-gray-600 hidden md:table-cell">
-                    <span className="font-medium" style={{ color: dimColors[d] }}>{last[d].toFixed(1)}</span>
+                    <span className="font-medium" style={{ color: dimColors[d] }}>{Math.round(last[d] * 20)}%</span>
                   </td>
                 ))}
                 <td className="py-2.5 text-center text-xs font-semibold text-emerald-600">+{g}</td>
@@ -156,12 +156,12 @@ function SchoolMetricsTable({ schoolIds, onSelect, districtLabel, districtLast, 
             <td className="py-2.5 text-center">
               <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold text-white"
                 style={{ backgroundColor: distComp >= 4 ? '#10B981' : distComp >= 3.5 ? '#F59E0B' : '#EF4444' }}>
-                {distComp.toFixed(2)}
+                {Math.round(distComp * 20)}%
               </span>
             </td>
             {dims.map(d => (
               <td key={d} className="py-2.5 text-center text-xs text-gray-600 hidden md:table-cell">
-                {districtLast[d].toFixed(1)}
+                {Math.round(districtLast[d] * 20)}%
               </td>
             ))}
             <td className="py-2.5 text-center text-xs font-semibold text-emerald-600">+{distGrowth}</td>
@@ -236,8 +236,7 @@ export function LongitudinalView() {
           <StatCard
             key={id}
             label={schoolMeta[id].name}
-            value={composite(allSchoolTrends[id][8]).toFixed(2)}
-            unit="/5"
+            value={`${Math.round(composite(allSchoolTrends[id][8]) * 20)}%`}
             color={schoolMeta[id].color}
           />
         ))}
@@ -284,7 +283,7 @@ export function LongitudinalView() {
               {dims.map(d => (
                 <div key={d} className="bg-gray-50 rounded-lg px-3 py-2 text-center">
                   <p className="text-xs text-gray-400 capitalize">{d}</p>
-                  <p className="text-base font-bold" style={{ color: dimColors[d] }}>{selectedTrend[8][d].toFixed(1)}</p>
+                  <p className="text-base font-bold" style={{ color: dimColors[d] }}>{Math.round(selectedTrend[8][d] * 20)}%</p>
                 </div>
               ))}
             </div>

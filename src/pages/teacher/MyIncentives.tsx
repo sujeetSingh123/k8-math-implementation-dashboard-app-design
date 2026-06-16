@@ -6,13 +6,13 @@ import { Badge } from '../../components/ui/Badge'
 import { useAppStore } from '../../store/useAppStore'
 import { roleColors } from '../../constants/roles'
 import {
-  calcTeacherBreakdown, rateTierLabel, studentGrowthTierLabel,
-  getSemester, filterLogsBySemester, filterStudentDataBySemester,
+  calcTeacherBreakdown, rateTierLabel,
+  getSemester, filterLogsBySemester,
   currentSemester, sortSemesters,
 } from '../../utils/incentiveCalc'
 
 export function MyIncentives() {
-  const { currentUser, implementationLogs, studentDataRecords, incentives } = useAppStore()
+  const { currentUser, implementationLogs, incentives } = useAppStore()
   const roleColor = roleColors[currentUser.role]
 
   const mine = useMemo(
@@ -32,13 +32,11 @@ export function MyIncentives() {
   const [selected, setSelected] = useState(() => currentSemester())
 
   const semLogs = useMemo(() => filterLogsBySemester(implementationLogs, selected), [implementationLogs, selected])
-  const semStudentData = useMemo(() => filterStudentDataBySemester(studentDataRecords, selected), [studentDataRecords, selected])
-  const calc = useMemo(() => calcTeacherBreakdown(currentUser, semLogs, semStudentData), [currentUser, semLogs, semStudentData])
+  const calc = useMemo(() => calcTeacherBreakdown(currentUser, semLogs), [currentUser, semLogs])
   const semApproved = useMemo(() => mine.filter(i => i.status === 'approved' && getSemester(i.awardedAt) === selected), [mine, selected])
   const semPending  = useMemo(() => mine.filter(i => i.status === 'pending'  && getSemester(i.awardedAt) === selected), [mine, selected])
 
   const tierColor = calc.logRate >= 81 ? 'green' : calc.logRate >= 71 ? 'blue' : calc.logRate >= 60 ? 'amber' : 'red'
-  const hasStudentData = calc.avgStudentGrowth > 0 || calc.benchmarkRate > 0
 
   return (
     <div className="space-y-5">
@@ -99,43 +97,6 @@ export function MyIncentives() {
             <span className="text-base font-bold text-gray-900">${calc.rateBonus}</span>
           </div>
 
-          {/* Student performance bonuses */}
-          <div className="flex items-center justify-between py-2.5 border-b border-gray-50">
-            <div className="flex items-center gap-2">
-              <div>
-                <p className="text-sm font-medium text-gray-800">Student Growth Bonus</p>
-                <p className="text-xs text-gray-400">
-                  {hasStudentData
-                    ? `Avg growth: ${calc.avgStudentGrowth}% · ${studentGrowthTierLabel(calc.avgStudentGrowth)}`
-                    : 'No student data submitted yet'}
-                </p>
-              </div>
-              {hasStudentData && (
-                <Badge color={calc.avgStudentGrowth >= 10 ? 'green' : calc.avgStudentGrowth >= 5 ? 'amber' : 'red'}>
-                  {calc.avgStudentGrowth}%
-                </Badge>
-              )}
-            </div>
-            <span className="text-base font-bold text-gray-900">${calc.studentPerfBonus}</span>
-          </div>
-
-          <div className="flex items-center justify-between py-2.5 border-b border-gray-50">
-            <div className="flex items-center gap-2">
-              <div>
-                <p className="text-sm font-medium text-gray-800">Benchmark Achievement Bonus</p>
-                <p className="text-xs text-gray-400">
-                  {hasStudentData
-                    ? `${calc.benchmarkRate}% of students at/above benchmark · ${calc.benchmarkRate >= 80 ? '+$25 (≥80%)' : '$0 (below 80%)'}`
-                    : 'No benchmark data submitted yet'}
-                </p>
-              </div>
-              {hasStudentData && (
-                <Badge color={calc.benchmarkRate >= 80 ? 'green' : 'amber'}>{calc.benchmarkRate}%</Badge>
-              )}
-            </div>
-            <span className="text-base font-bold text-gray-900">${calc.studentBenchmarkBonus}</span>
-          </div>
-
           <div className="flex items-center justify-between pt-2">
             <p className="text-sm font-bold text-gray-900">Formula Total</p>
             <span className="text-xl font-bold" style={{ color: roleColor }}>${calc.total}</span>
@@ -145,8 +106,6 @@ export function MyIncentives() {
         <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-500 space-y-1">
           <p><strong>Log Rate Tiers:</strong> 81–100% → +$30 · 71–80% → +$20 · 60–70% → +$10</p>
           <p><strong>2-Week Bonus:</strong> $5 per 2-week window with 100% fully-completed logs</p>
-          <p><strong>Student Growth Bonus:</strong> ≥20% avg growth → +$50 · ≥10% → +$30 · ≥5% → +$15</p>
-          <p><strong>Benchmark Bonus:</strong> ≥80% of students at/above benchmark → +$25</p>
         </div>
       </Card>
 

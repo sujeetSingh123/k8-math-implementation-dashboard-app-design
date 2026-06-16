@@ -15,13 +15,19 @@ interface Props {
   role: Role
   currentSchoolId: string
   roleColor: string
+  districtId?: string
 }
 
-export function SchoolDistrictFidelity({ role, currentSchoolId, roleColor }: Props) {
+export function SchoolDistrictFidelity({ role, currentSchoolId, roleColor, districtId: propDistrictId }: Props) {
   const isResearcher = role === 'researcher' || role === 'super_admin'
-  const districtId = schools.find(s => s.id === currentSchoolId)?.districtId ?? 'dist1'
+  const isDistrictAdmin = role === 'district_admin'
+  const districtId = propDistrictId ?? schools.find(s => s.id === currentSchoolId)?.districtId ?? 'dist1'
 
-  const visibleSchools = isResearcher ? schools : schools.filter(s => s.id === currentSchoolId)
+  const visibleSchools = isResearcher
+    ? schools
+    : isDistrictAdmin && propDistrictId
+      ? schools.filter(s => s.districtId === propDistrictId)
+      : schools.filter(s => s.id === currentSchoolId)
 
   // School fidelity table - last month (May)
   const schoolRows = visibleSchools.map(s => {
@@ -31,11 +37,11 @@ export function SchoolDistrictFidelity({ role, currentSchoolId, roleColor }: Pro
     return {
       id: s.id,
       name: s.name,
-      adherence: may.adherence.toFixed(1),
-      dosage: may.dosage.toFixed(1),
-      quality: may.quality.toFixed(1),
-      responsiveness: may.responsiveness.toFixed(1),
-      avg: composite(may).toFixed(2),
+      adherence: `${Math.round(may.adherence * 20)}%`,
+      dosage: `${Math.round(may.dosage * 20)}%`,
+      quality: `${Math.round(may.quality * 20)}%`,
+      responsiveness: `${Math.round(may.responsiveness * 20)}%`,
+      avg: `${Math.round(composite(may) * 20)}%`,
     }
   })
 

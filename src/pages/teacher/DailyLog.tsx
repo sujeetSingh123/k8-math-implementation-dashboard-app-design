@@ -14,7 +14,7 @@ import type { PostReflectionRef } from './PostReflectionCard'
 const roleColor = '#10B981'
 
 export function DailyLog() {
-  const { currentUser, implementationLogs, coachingCycles, addLog, addFidelityCheck, sendMessage } = useAppStore()
+  const { currentUser, implementationLogs, coachingCycles, addLog, addFidelityCheck, sendMessage, addStudentDataRecord } = useAppStore()
   const today = new Date().toISOString().split('T')[0]
   const todaySections = implementationLogs.filter(l => l.teacherId === currentUser.id && l.date === today)
 
@@ -79,6 +79,21 @@ export function DailyLog() {
       responsiveness: postData.fidelity.studentsEngaged,
       confidence: Math.round(avg4 * 10) / 10,
     })
+
+    if (postData.studentAvgScore !== undefined) {
+      addStudentDataRecord({
+        id: `sdr-log-${Date.now()}`,
+        teacherId: currentUser.id,
+        schoolId: currentUser.schoolId,
+        date: postData.date,
+        mtssTier: preData.tiers[0],
+        measureType: 'Unit Assessment',
+        currentAvg: postData.studentAvgScore,
+        logId,
+        dataSource: 'Teacher upload',
+        uploadStatus: 'Submitted',
+      })
+    }
 
     if (coachMessage.trim() && teacherCycle) {
       sendMessage(teacherCycle.id, {

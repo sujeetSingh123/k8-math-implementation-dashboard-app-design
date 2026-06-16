@@ -133,7 +133,7 @@ export function MyLogs() {
                   </div>
                 </div>
                 <p className="text-xs text-gray-500">
-                  {log.instructionalRoutine} · {log.ebpComponent.join(', ')} · {log.implementationStrategy} · {log.durationMinutes} min
+                  {log.instructionalRoutine ?? log.mathSkill ?? '—'} · {log.ebpComponent.join(', ')} · {log.implementationStrategy ?? '—'} · {log.durationMinutes} min
                 </p>
                 {log.notes && (
                   <p className="text-xs text-gray-400 italic mt-1">"{log.notes}"</p>
@@ -173,7 +173,7 @@ export function MyLogs() {
         <Modal open onClose={() => setDataModal(null)} title={`Add Student Data — ${dataModal.date}`}>
           <div className="space-y-4">
             <div className="bg-gray-50 rounded-xl px-3 py-2 text-xs text-gray-600">
-              <span className="font-medium">{dataModal.instructionalRoutine}</span>
+              <span className="font-medium">{dataModal.instructionalRoutine ?? dataModal.mathSkill ?? '—'}</span>
               {' · '}{dataModal.tier}{' · '}{dataModal.durationMinutes} min
             </div>
             <div>

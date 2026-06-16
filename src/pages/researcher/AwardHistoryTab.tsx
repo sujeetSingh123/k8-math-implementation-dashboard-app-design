@@ -94,7 +94,7 @@ export function AwardHistoryTab({ semester, onAward }: Props) {
                     </td>
                     <td className="py-2.5 text-center text-gray-600">{t.logCount}</td>
                     <td className="py-2.5 text-center font-medium" style={{ color: t.avgFidelity >= 4 ? '#10B981' : t.avgFidelity >= 3.5 ? '#F59E0B' : '#EF4444' }}>
-                      {t.avgFidelity > 0 ? t.avgFidelity.toFixed(1) : '—'}
+                      {t.avgFidelity > 0 ? `${Math.round(t.avgFidelity * 20)}%` : '—'}
                     </td>
                     <td className="py-2.5 text-center text-gray-600">{t.trainings}</td>
                     <td className="py-2.5 text-center font-semibold text-gray-800">${t.totalAwards}</td>

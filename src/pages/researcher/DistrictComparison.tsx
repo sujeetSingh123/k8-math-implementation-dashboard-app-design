@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
-import { Building2, School } from 'lucide-react'
+import { Building2, School, ArrowRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
 import { districts, schools } from '../../data/mockData'
 import { Card } from '../../components/ui/Card'
@@ -18,7 +19,7 @@ const METRIC_DEFS = [
   { key: 'teacherCount' as const,    label: 'Teachers',          unit: '',   max: null },
   { key: 'logCount' as const,        label: 'Impl. Logs',        unit: '',   max: null },
   { key: 'completionRate' as const,  label: 'Completion Rate',   unit: '%',  max: 100 },
-  { key: 'avgFidelity' as const,     label: 'Avg Fidelity',      unit: '/5', max: 5 },
+  { key: 'avgFidelity' as const,     label: 'Avg Fidelity',      unit: '%',  max: 100 },
   { key: 'avgStudentScore' as const, label: 'Avg Student Score', unit: '%',  max: 100 },
   { key: 'adaptationCount' as const, label: 'Adaptations',       unit: '',   max: null },
 ]
@@ -44,7 +45,7 @@ function computeEntityMetrics(
     teacherCount: teachers.length,
     logCount: logs.length,
     completionRate: logs.length ? Math.round((completedLogs.length / logs.length) * 100) : null,
-    avgFidelity: fidScores.length ? parseFloat((fidScores.reduce((a, b) => a + b, 0) / fidScores.length).toFixed(2)) : null,
+    avgFidelity: fidScores.length ? parseFloat((fidScores.reduce((a, b) => a + b, 0) / fidScores.length * 20).toFixed(1)) : null,
     avgStudentScore: records.length ? Math.round(records.reduce((s, r) => s + r.currentAvg, 0) / records.length) : null,
     adaptationCount: adaptList.length,
   }
@@ -130,7 +131,7 @@ function DistrictsTab() {
               </div>
             </div>
             <div className="grid grid-cols-3 gap-2">
-              {[{ l: 'Logs', v: e.logCount, u: '' }, { l: 'Completion', v: e.completionRate, u: '%' }, { l: 'Avg Fidelity', v: e.avgFidelity, u: '/5' }].map(({ l, v, u }) => (
+              {[{ l: 'Logs', v: e.logCount, u: '' }, { l: 'Completion', v: e.completionRate, u: '%' }, { l: 'Avg Fidelity', v: e.avgFidelity, u: '%' }].map(({ l, v, u }) => (
                 <div key={l} className="bg-gray-50 rounded-lg p-2 text-center">
                   <p className="text-base font-bold text-gray-900">{v !== null ? `${v}${u}` : '—'}</p>
                   <p className="text-xs text-gray-400">{l}</p>
@@ -148,6 +149,7 @@ function DistrictsTab() {
 function SchoolsTab() {
   const [selectedDistrict, setSelectedDistrict] = useState('dist1')
   const storeData = useAppStore()
+  const navigate = useNavigate()
   const districtSchools = schools.filter(s => s.districtId === selectedDistrict)
   const entities = useMemo(() =>
     districtSchools.map(s => computeEntityMetrics([s.id], s.id, s.name, storeData)),
@@ -178,14 +180,20 @@ function SchoolsTab() {
               </div>
               <p className="text-sm font-bold text-gray-900">{e.name}</p>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              {[{ l: 'Teachers', v: e.teacherCount, u: '' }, { l: 'Logs', v: e.logCount, u: '' }, { l: 'Fidelity', v: e.avgFidelity, u: '/5' }].map(({ l, v, u }) => (
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              {[{ l: 'Teachers', v: e.teacherCount, u: '' }, { l: 'Logs', v: e.logCount, u: '' }, { l: 'Fidelity', v: e.avgFidelity, u: '%' }].map(({ l, v, u }) => (
                 <div key={l} className="bg-gray-50 rounded-lg p-2 text-center">
                   <p className="text-base font-bold text-gray-900">{v !== null ? `${v}${u}` : '—'}</p>
                   <p className="text-xs text-gray-400">{l}</p>
                 </div>
               ))}
             </div>
+            <button
+              onClick={() => navigate('/researcher/data-browser', { state: { schoolId: e.id } })}
+              className="flex items-center gap-1 text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity"
+              style={{ color: roleColor }}>
+              View Teachers <ArrowRight size={12} />
+            </button>
           </Card>
         ))}
       </div>

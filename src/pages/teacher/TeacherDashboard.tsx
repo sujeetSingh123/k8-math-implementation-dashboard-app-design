@@ -27,7 +27,7 @@ export function TeacherDashboard() {
   const logCompletionRate = myLogs.length > 0
     ? Math.round((myLogs.filter(l => l.lessonCompletion === 'fully').length / myLogs.length) * 100) : 0
   const avgFidelity = myChecks.length > 0
-    ? (myChecks.reduce((sum, c) => sum + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / myChecks.length).toFixed(1)
+    ? `${Math.round((myChecks.reduce((sum, c) => sum + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / myChecks.length) * 20)}%`
     : '—'
   const thisMonthAdaptations = myAdaptations.filter(a => {
     const d = new Date(a.date); const now = new Date()

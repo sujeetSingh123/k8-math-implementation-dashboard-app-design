@@ -53,7 +53,7 @@ function compScore(c: FidelityCheck) {
 }
 
 export function FidelityAdaptationView() {
-  const { currentUser, fidelityChecks, adaptations } = useAppStore()
+  const { currentUser, fidelityChecks, adaptations, schools } = useAppStore()
   const [period, setPeriod] = useState<Period>('month')
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>('all')
 
@@ -65,8 +65,12 @@ export function FidelityAdaptationView() {
     if (isTeacher) return all.filter(u => u.id === currentUser.id)
     if (currentUser.role === 'coach') return all.filter(u => u.coachId === currentUser.id)
     if (currentUser.role === 'admin') return all.filter(u => u.schoolId === currentUser.schoolId)
+    if (currentUser.role === 'district_admin') {
+      const distSchoolIds = new Set(schools.filter(s => s.districtId === currentUser.districtId).map(s => s.id))
+      return all.filter(u => distSchoolIds.has(u.schoolId))
+    }
     return all
-  }, [currentUser, isTeacher])
+  }, [currentUser, isTeacher, schools])
 
   const teacherIds = useMemo(() => {
     if (isTeacher) return [currentUser.id]
@@ -165,7 +169,7 @@ export function FidelityAdaptationView() {
 
       {/* Summary stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard label="Avg Fidelity" value={String(avgFidelity)} unit="/5" color={roleColor} />
+        <StatCard label="Avg Fidelity" value={`${Math.round(avgFidelity * 20)}%`} color={roleColor} />
         <StatCard label="Fidelity Checks" value={String(filteredChecks.length)} color={roleColor} />
         <StatCard label="Adaptations" value={String(filteredAdaptations.length)} color={roleColor} />
         <StatCard label="Consistent" value={`${consistentPct}%`} sub="FRAME-IS" color="#10B981" />
@@ -197,7 +201,7 @@ export function FidelityAdaptationView() {
       </div>
 
       {!isTeacher && (
-        <SchoolDistrictFidelity role={currentUser.role} currentSchoolId={currentUser.schoolId} roleColor={roleColor} />
+        <SchoolDistrictFidelity role={currentUser.role} currentSchoolId={currentUser.schoolId} roleColor={roleColor} districtId={currentUser.districtId} />
       )}
     </div>
   )

@@ -5,6 +5,7 @@ export const roleColors: Record<Role, string> = {
   paraprofessional: '#059669',
   coach: '#3B82F6',
   admin: '#F59E0B',
+  district_admin: '#EA580C',
   researcher: '#8B5CF6',
   super_admin: '#EF4444',
 }
@@ -13,9 +14,10 @@ export const roleLabels: Record<Role, string> = {
   teacher: 'Teacher',
   paraprofessional: 'Paraprofessional',
   coach: 'Coach',
-  admin: 'Administrator',
+  admin: 'Principal of School',
+  district_admin: 'Principal of District',
   researcher: 'Researcher',
-  super_admin: 'Super Admin',
+  super_admin: 'Platform Admin',
 }
 
 export const sessionTypeColors: Record<'coaching' | 'lab' | 'training', string> = {

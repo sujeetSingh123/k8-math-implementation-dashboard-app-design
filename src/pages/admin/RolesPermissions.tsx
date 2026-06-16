@@ -9,9 +9,10 @@ const roleDescriptions: Record<Role, string> = {
   teacher: 'Classroom teachers implementing math curricula',
   paraprofessional: 'Paraprofessionals supporting math instruction',
   coach: 'Instructional coaches supporting teachers',
-  admin: 'School and district administrators',
+  admin: 'Principal of School — school-level administrator',
+  district_admin: 'Principal of District — manages all schools in their district',
   researcher: 'External researchers and data analysts',
-  super_admin: 'District-level super administrators',
+  super_admin: 'Platform Admin — manages all districts and schools',
 }
 
 const permissionGates: Record<string, string> = {

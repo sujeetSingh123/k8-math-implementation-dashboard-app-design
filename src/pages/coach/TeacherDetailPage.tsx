@@ -42,7 +42,7 @@ export function TeacherDetailPage() {
   const logCompletionRate = myLogs.length > 0
     ? Math.round((myLogs.filter(l => l.lessonCompletion === 'fully').length / myLogs.length) * 100) : 0
   const avgFidelity = myChecks.length > 0
-    ? (myChecks.reduce((sum, c) => sum + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / myChecks.length).toFixed(1)
+    ? `${Math.round((myChecks.reduce((sum, c) => sum + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / myChecks.length) * 20)}%`
     : '—'
   const thisMonthAdaptations = myAdaptations.filter(a => {
     const d = new Date(a.date); const now = new Date()
@@ -125,8 +125,8 @@ export function TeacherDetailPage() {
               <LineChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
                 <XAxis dataKey="week" tick={{ fontSize: 10 }} />
-                <YAxis domain={[1, 5]} tick={{ fontSize: 10 }} width={20} />
-                <Tooltip />
+                <YAxis domain={[1, 5]} tick={{ fontSize: 10 }} width={32} tickFormatter={v => `${Math.round(v * 20)}%`} />
+                <Tooltip formatter={(v) => typeof v === 'number' ? `${Math.round(v * 20)}%` : ''} />
                 <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
                 <Line type="monotone" dataKey="Adherence" stroke="#10B981" strokeWidth={2} dot={false} connectNulls />
                 <Line type="monotone" dataKey="Dosage" stroke="#3B82F6" strokeWidth={2} dot={false} connectNulls />
