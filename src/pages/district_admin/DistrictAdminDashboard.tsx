@@ -91,7 +91,7 @@ export function DistrictAdminDashboard() {
           </div>
           <div>
             <h2 className="text-lg font-bold text-gray-900">{myDistrict?.name ?? 'District Overview'}</h2>
-            <p className="text-sm text-gray-500">Principal of District · {mySchools.length} schools</p>
+            <p className="text-sm text-gray-500">Superintendent · {mySchools.length} schools</p>
           </div>
         </div>
         <div className="flex gap-2">

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts'
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts'
 import { ArrowLeft, ClipboardList, CheckSquare, BookOpen, MessageSquare, GraduationCap } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { users } from '../../data/mockData'
@@ -16,7 +16,7 @@ const roleColor = roleColors.teacher
 export function TeacherDetailPage() {
   const { teacherId } = useParams<{ teacherId: string }>()
   const navigate = useNavigate()
-  const { implementationLogs, fidelityChecks, adaptations, coachingCycles, pdSessions, trainingAttendances } = useAppStore()
+  const { implementationLogs, fidelityChecks, adaptations, coachingCycles, pdSessions, trainingAttendances, studentDataRecords } = useAppStore()
   const [period, setPeriod] = useState<TimePeriod>('week')
 
   const teacher = users.find(u => u.id === teacherId)
@@ -77,6 +77,23 @@ export function TeacherDetailPage() {
     const count = (myCycle?.messages ?? []).filter(m => m.senderId === myCycle?.coachId && inBucket(m.createdAt, b)).length
     return { week: b.label, Messages: count }
   })
+
+  const myRecords = studentDataRecords.filter(r => r.teacherId === teacher.id).sort((a, b) => (a.week ?? 0) - (b.week ?? 0))
+  const activeTiers = [...new Set(myRecords.map(r => r.mtssTier))]
+  const allWeeks = [...new Set(myRecords.map(r => r.week ?? 0))].sort((a, b) => a - b)
+  const tierColors: Record<string, string> = { 'Tier 1': '#10B981', 'Tier 2': '#3B82F6', 'Tier 3': '#F59E0B', 'Special Education': '#8B5CF6' }
+  const studentChartData = allWeeks.map(wk => {
+    const entry: Record<string, number | string> = { week: `Wk ${wk}` }
+    myRecords.filter(r => (r.week ?? 0) === wk).forEach(r => { entry[r.mtssTier] = r.currentAvg })
+    return entry
+  })
+  const avgGoalByTier = Object.fromEntries(
+    activeTiers.map(t => {
+      const tierRecs = myRecords.filter(r => r.mtssTier === t)
+      const avg = Math.round(tierRecs.reduce((s, r) => s + (r.goalPct ?? 0), 0) / tierRecs.length)
+      return [t, avg]
+    })
+  )
 
   return (
     <div className="space-y-4">
@@ -189,6 +206,36 @@ export function TeacherDetailPage() {
             <Bar dataKey="Missed" stackId="a" fill="#EF4444" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
+      </Card>
+
+      <Card>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-800">Student Performance</h3>
+          <span className="text-xs text-gray-400">Current avg % · dashed = goal</span>
+        </div>
+        {myRecords.length === 0 ? (
+          <div className="flex items-center justify-center py-8 text-gray-400">
+            <p className="text-sm">No student data recorded yet.</p>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={studentChartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+              <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+              <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} width={36} tickFormatter={v => `${v}%`} />
+              <Tooltip formatter={(v) => typeof v === 'number' ? `${v}%` : ''} contentStyle={{ borderRadius: 8, fontSize: 11 }} />
+              <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
+              {activeTiers.map(tier => (
+                <Line key={tier} type="monotone" dataKey={tier} stroke={tierColors[tier] ?? '#6B7280'}
+                  strokeWidth={2} dot={{ r: 3 }} connectNulls />
+              ))}
+              {activeTiers.map(tier => (
+                <ReferenceLine key={`goal-${tier}`} y={avgGoalByTier[tier]} stroke={tierColors[tier] ?? '#6B7280'}
+                  strokeDasharray="4 3" strokeOpacity={0.5} />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+        )}
       </Card>
     </div>
   )

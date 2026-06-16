@@ -44,7 +44,7 @@ export function AddUserModal({ open, onClose }: Props) {
     { value: 'teacher', label: 'Teacher' },
     { value: 'coach', label: 'Coach' },
     { value: 'admin', label: 'Principal of School' },
-    { value: 'district_admin', label: 'Principal of District' },
+    { value: 'district_admin', label: 'Superintendent' },
     { value: 'researcher', label: 'Researcher' },
   ]
 

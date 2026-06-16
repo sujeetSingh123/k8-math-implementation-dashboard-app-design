@@ -197,18 +197,24 @@ export type StudentDataRecord = {
   logId?: string
 }
 
+export type SessionCheckIn = {
+  userId: string
+  checkedInAt: string
+  approved?: boolean
+}
+
 export type PDSession = {
   id: string
   title: string
   type: 'training' | 'lab' | 'coaching'
   scheduledDate: string
+  startTime?: string
   durationHours: number
-  targetAudience: string
+  targetAudience: Role[]
   facilitator: string
   location: string
-  enrolledCount: number
-  capacity: number
   status: 'upcoming' | 'completed' | 'cancelled'
+  checkIns: SessionCheckIn[]
   description?: string
 }
 

@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   ClipboardList, BookOpen, MessageSquare, Library,
-  LayoutDashboard, Users, Inbox, TrendingUp, Building2, Activity, BarChart2,
+  LayoutDashboard, Users, Inbox, TrendingUp, Building2, Activity,
   Download, X, Shield, LogOut, BarChart, GitBranch, CalendarDays, DollarSign, Award, Globe, Layers,
 } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
@@ -160,12 +160,8 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
     {
       section: 'Analytics',
       items: [
-        { label: 'Research Analytics', path: '/researcher/analytics', icon: <BarChart2 size={16} />, permission: 'p_view_logs' },
-        { label: 'Data Explorer', path: '/researcher/explorer', icon: <Layers size={16} />, permission: 'p_view_fidelity' },
         { label: 'Longitudinal View', path: '/researcher/longitudinal', icon: <TrendingUp size={16} />, permission: 'p_view_student_data' },
         { label: 'Log Aggregation', path: '/researcher/log-aggregation', icon: <Activity size={16} />, permission: 'p_view_logs' },
-        { label: 'Fidelity Trends', path: '/researcher/fidelity-trends', icon: <TrendingUp size={16} />, permission: 'p_view_fidelity' },
-        { label: 'Districts & Schools', path: '/researcher/districts', icon: <Building2 size={16} />, permission: 'p_view_logs' },
         { label: 'DSAII Pathway', path: '/researcher/dsaii', icon: <GitBranch size={16} />, permission: 'p_view_reports' },
         { label: 'Impl. Learning Labs', path: '/researcher/labs', icon: <CalendarDays size={16} /> },
       ],
@@ -173,8 +169,6 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
     {
       section: 'Data',
       items: [
-        { label: 'Student Data', path: '/researcher/student-data', icon: <BarChart size={16} />, permission: 'p_view_student_data' },
-        { label: 'Teacher Data', path: '/researcher/data-browser', icon: <Users size={16} />, permission: 'p_view_logs' },
         { label: 'Export Data', path: '/researcher/export', icon: <Download size={16} />, permission: 'p_export_data' },
         { label: 'Resource Library', path: '/researcher/library', icon: <Library size={16} /> },
         { label: 'Manage Resources', path: '/admin/resources', icon: <Library size={16} /> },

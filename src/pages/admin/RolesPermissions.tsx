@@ -10,7 +10,7 @@ const roleDescriptions: Record<Role, string> = {
   paraprofessional: 'Paraprofessionals supporting math instruction',
   coach: 'Instructional coaches supporting teachers',
   admin: 'Principal of School — school-level administrator',
-  district_admin: 'Principal of District — manages all schools in their district',
+  district_admin: 'Superintendent — manages all schools in their district',
   researcher: 'External researchers and data analysts',
   super_admin: 'Platform Admin — manages all districts and schools',
 }

@@ -113,6 +113,8 @@ interface AppStore {
   checkOutTraining: (id: string) => void
   addStudentDataRecord: (record: StudentDataRecord) => void
   addPDSession: (session: PDSession) => void
+  checkInSession: (sessionId: string, userId: string) => void
+  approveCheckIn: (sessionId: string, userId: string, approved: boolean) => void
   updateDeterminant: (key: string, value: number) => void
   addResource: (resource: Resource) => void
   updateResource: (id: string, updates: Partial<Resource>) => void
@@ -363,6 +365,25 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   addPDSession: (session) =>
     set((state) => ({ pdSessions: [session, ...state.pdSessions] })),
+
+  checkInSession: (sessionId, userId) =>
+    set((state) => ({
+      pdSessions: state.pdSessions.map(s =>
+        s.id !== sessionId || s.checkIns.some(c => c.userId === userId)
+          ? s
+          : { ...s, checkIns: [...s.checkIns, { userId, checkedInAt: new Date().toISOString() }] }
+      ),
+    })),
+
+  approveCheckIn: (sessionId, userId, approved) =>
+    set((state) => ({
+      pdSessions: state.pdSessions.map(s =>
+        s.id !== sessionId ? s : {
+          ...s,
+          checkIns: s.checkIns.map(c => c.userId === userId ? { ...c, approved } : c),
+        }
+      ),
+    })),
 
   updateDeterminant: (key, value) =>
     set((state) => ({

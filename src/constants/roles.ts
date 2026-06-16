@@ -15,7 +15,7 @@ export const roleLabels: Record<Role, string> = {
   paraprofessional: 'Paraprofessional',
   coach: 'Coach',
   admin: 'Principal of School',
-  district_admin: 'Principal of District',
+  district_admin: 'Superintendent',
   researcher: 'Researcher',
   super_admin: 'Platform Admin',
 }
