@@ -6,8 +6,8 @@
 - Type check: `npm run type-check`
 
 ## Stack
-- Vite + React 18 + TypeScript + Tailwind CSS v4
-- React Router v6 for routing
+- Vite + React 19 + TypeScript + Tailwind CSS v4
+- React Router v7 for routing
 - Zustand for global state (`src/store/useAppStore.ts`)
 - Recharts for data visualization
 - Lucide React for icons
@@ -33,13 +33,13 @@ Seven roles are defined in `src/types/index.ts` as `type Role`:
 | `paraprofessional` | Paraprofessional | #059669 (dark emerald) | School — same sidebar/permissions as teacher |
 | `coach` | Coach | #3B82F6 (blue) | School — manages teacher caseload |
 | `admin` | Principal of School | #F59E0B (amber) | School — sees only their school |
-| `district_admin` | Principal of District | #EA580C (orange) | District — sees all schools in their district |
+| `district_admin` | Superintendent | #EA580C (orange) | District — sees all schools in their district |
 | `researcher` | Researcher | #8B5CF6 (purple) | Platform — all districts, full data access |
 | `super_admin` | Platform Admin | #EF4444 (red) | Platform — adds districts/schools, all data |
 
 ### Organization Hierarchy
 - **Super Admin** creates districts and schools; platform-level view of everything
-- **district_admin** (Principal of District) manages one district; has `districtId` field set; `schoolId: 'DISTRICT'`
+- **district_admin** (Superintendent) manages one district; has `districtId` field set; `schoolId: 'DISTRICT'`
 - **admin** (Principal of School) manages one school; `schoolId` points to their school
 - **coach/teacher/paraprofessional** are school-scoped
 - **researcher** has read access to all districts
@@ -47,7 +47,7 @@ Seven roles are defined in `src/types/index.ts` as `type Role`:
 ## Key Components
 
 ### EBPSelector (`src/components/ui/EBPSelector.tsx`)
-Two-level EBP picker. Props: `selectedEBPs`, `selectedComponents`, `onEBPsChange`, `onComponentsChange`. Uses `ebpHierarchy as const` from mockData for type safety (readonly tuple).
+Two-level EBP picker. Props: `selectedEBPs`, `selectedComponents`, `onChangeEBPs`, `onChangeComponents`, `roleColor`. Uses `ebpHierarchy as const` from mockData for type safety (readonly tuple).
 
 ### FidelityTrendChart (`src/components/ui/FidelityTrendChart.tsx`)
 Shared Recharts multi-line chart. Export type `TLPoint = { label, adherence, dosage, quality, responsiveness, composite }`. Props: `data: TLPoint[]`, `roleColor: string`.
@@ -85,28 +85,26 @@ Below the form: `<StudentPerfSummary />` (shows teacher's own student data)
 - Insights: Coach Dashboard, Fidelity Trends, Incentives
 - Communication: Messages
 
-**Admin:**
-- Overview: School Overview, MTSS Monitoring, Fidelity Trends, Student Data
-- Management: Organization, Roles & Permissions, Impl. Learning Labs
+**Admin (Principal of School):**
+- Overview: Longitudinal View, Log Aggregation
+- Management: Organization, Impl. Learning Labs
 - Resources: Resource Library, Manage Resources
 - Incentives: My Incentives
 - Communication: Messages
 
-**District Admin (Principal of District):**
-- Overview: District Dashboard, MTSS Monitoring, Fidelity Trends, Student Data
+**District Admin (Superintendent):**
+- Overview: Longitudinal View, Log Aggregation
 - Management: Schools, Users, Impl. Learning Labs
 - Resources: Resource Library, Manage Resources
 - Incentives: My Incentives
 - Communication: Messages
 
 **Super Admin (Platform Admin):**
-- Platform: Platform Overview, Districts & Schools, All Users
-- Resources: Impl. Learning Labs
-- Communication: Messages
+- Platform: Platform Overview, Districts & Schools, All Users, Roles & Permissions
 
 **Researcher:**
-- Analytics: Research Analytics, Longitudinal View, Log Aggregation, Fidelity Trends, DSAII Pathway, Impl. Learning Labs
-- Data: Student Data, Data Browser, Export Data, Resource Library, Manage Resources
+- Analytics: Longitudinal View, Log Aggregation, DSAII Pathway, Impl. Learning Labs
+- Data: Export Data, Resource Library, Manage Resources
 - Budget: Budget & Incentives
 - Communication: Messages
 
@@ -115,13 +113,21 @@ Two districts (`dist1`, `dist2`) with four schools (`SCH01`–`SCH04`) in mock d
 
 ## Test Accounts
 All use password `demo1234`:
+
+**Dedicated test users (isolated data):**
 - `test.teacher@demo.com` (teacher, SCH01)
+- `test.para@demo.com` (paraprofessional, SCH01)
 - `test.coach@demo.com` (coach, SCH01)
 - `test.admin@demo.com` (Principal of School, SCH01)
-- `test.dist1@demo.com` (Principal of District, dist1 — Riverside Unified)
-- `test.dist2@demo.com` (Principal of District, dist2 — Lakeside)
+- `test.dist1@demo.com` (Superintendent, dist1 — Riverside Unified)
+- `test.dist2@demo.com` (Superintendent, dist2 — Lakeside)
 - `test.district@demo.com` (Platform Admin / super_admin)
 - `test.researcher@demo.com` (researcher, all districts)
+
+**Shared demo users (shared mock data):**
+- `teacher@demo.com` / `coach@demo.com` / `admin@demo.com` / `researcher@demo.com` / `superadmin@demo.com`
+- `margaret.rivera@dist1.edu` (Superintendent, dist1) / `charles.lee@dist2.edu` (Superintendent, dist2)
+- `anna.carter@example.org`, `brian.lee@example.org`, etc. (named teacher/paraprofessional/admin accounts)
 
 ## Node Version
 Use Node 20 via nvm: `source ~/.nvm/nvm.sh && nvm use 20.19.0`
