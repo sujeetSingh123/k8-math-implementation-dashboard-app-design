@@ -14,13 +14,12 @@ import { getTimeBuckets, inBucket } from '../../utils/timePeriod'
 const roleColor = roleColors.teacher
 
 export function TeacherDashboard() {
-  const { currentUser, implementationLogs, fidelityChecks, adaptations, coachingCycles, notifications, pdSessions, trainingAttendances } = useAppStore()
+  const { currentUser, implementationLogs, fidelityChecks, coachingCycles, notifications, pdSessions, trainingAttendances } = useAppStore()
   const navigate = useNavigate()
   const [period, setPeriod] = useState<TimePeriod>('week')
 
   const myLogs = implementationLogs.filter(l => l.teacherId === currentUser.id)
   const myChecks = fidelityChecks.filter(f => f.teacherId === currentUser.id)
-  const myAdaptations = adaptations.filter(a => a.teacherId === currentUser.id)
   const myCycle = coachingCycles.find(c => c.teacherId === currentUser.id)
   const unreadMessages = notifications.filter(n => n.userId === currentUser.id && !n.readAt && n.type === 'coaching_followup').length
 
@@ -29,9 +28,9 @@ export function TeacherDashboard() {
   const avgFidelity = myChecks.length > 0
     ? `${Math.round((myChecks.reduce((sum, c) => sum + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / myChecks.length) * 20)}%`
     : '—'
-  const thisMonthAdaptations = myAdaptations.filter(a => {
-    const d = new Date(a.date); const now = new Date()
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+  const thisMonthAdaptations = myLogs.filter(l => {
+    const d = new Date(l.date); const now = new Date()
+    return l.adaptationOccurred && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
   }).length
 
   const mySessions = pdSessions
@@ -49,10 +48,15 @@ export function TeacherDashboard() {
     return { week: b.label, Adherence: avg('adherence'), Dosage: avg('dosage'), Quality: avg('quality'), Responsiveness: avg('responsiveness'), Confidence: avg('confidence') }
   })
 
-  const reasonCounts: Record<string, number> = {}
-  myAdaptations.forEach(a => a.reasons.forEach(r => { reasonCounts[r] = (reasonCounts[r] ?? 0) + 1 }))
-  const reasonData = Object.entries(reasonCounts).sort((a, b) => b[1] - a[1])
+  const adaptCauseCounts: Record<string, number> = {}
+  myLogs.forEach(l => l.unplannedAdaptCauses?.forEach(r => { adaptCauseCounts[r] = (adaptCauseCounts[r] ?? 0) + 1 }))
+  const adaptCauseData = Object.entries(adaptCauseCounts).sort((a, b) => b[1] - a[1])
     .map(([name, count]) => ({ name: name.length > 18 ? name.slice(0, 18) + '…' : name, count }))
+
+  const ebpCounts: Record<string, number> = {}
+  myLogs.forEach(l => l.ebpComponent.forEach(e => { ebpCounts[e] = (ebpCounts[e] ?? 0) + 1 }))
+  const ebpData = Object.entries(ebpCounts).sort((a, b) => b[1] - a[1]).slice(0, 6)
+    .map(([name, count]) => ({ name: name.length > 20 ? name.slice(0, 20) + '…' : name, count }))
 
   const weeklyLogData = buckets.map(b => {
     const wkLogs = myLogs.filter(l => inBucket(l.date, b))
@@ -86,7 +90,7 @@ export function TeacherDashboard() {
         <div className="cursor-pointer" onClick={handleCoachClick}><StatCard label="Messages" value={myCycle?.messages.length ?? 0} sub={unreadMessages > 0 ? `${unreadMessages} unread` : 'All read'} icon={<MessageSquare size={18} />} iconColor={roleColor} /></div>
         <div className="cursor-pointer" onClick={handleTrainingClick}><StatCard label="Training" value={`${attendedCount}/${mySessions.length}`} sub="Sessions attended" icon={<GraduationCap size={18} />} iconColor={roleColor} /></div>
       </div>
-      <TierBreakdown logs={myLogs} checks={myChecks} adaptations={myAdaptations} />
+      <TierBreakdown logs={myLogs} checks={myChecks} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <div className="flex items-center justify-between mb-3">
@@ -117,23 +121,36 @@ export function TeacherDashboard() {
         </Card>
         <Card>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-gray-800">Adaptation Reasons</h3>
-          <button onClick={() => navigate('/teacher/adaptations')} className="text-xs text-emerald-600 hover:text-emerald-800 cursor-pointer">View all →</button>
-        </div>
-        {reasonData.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-            <p className="text-sm mb-2">No adaptations documented yet.</p>
+            <h3 className="text-sm font-semibold text-gray-800">EBP Components Used</h3>
+            <button onClick={() => navigate('/teacher/logs')} className="text-xs text-emerald-600 hover:text-emerald-800 cursor-pointer">View logs →</button>
           </div>
-        ) : (
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={reasonData} layout="vertical">
-              <XAxis type="number" tick={{ fontSize: 10 }} />
-              <YAxis dataKey="name" type="category" tick={{ fontSize: 9 }} width={90} />
-              <Tooltip />
-              <Bar dataKey="count" fill={roleColor} radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
+          {ebpData.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-4">No EBP data yet.</p>
+          ) : (
+            <ResponsiveContainer width="100%" height={150}>
+              <BarChart data={ebpData} layout="vertical">
+                <XAxis type="number" tick={{ fontSize: 10 }} />
+                <YAxis dataKey="name" type="category" tick={{ fontSize: 9 }} width={110} />
+                <Tooltip />
+                <Bar dataKey="count" fill={roleColor} radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+          <div className="mt-3 pt-3 border-t border-gray-100">
+            <p className="text-xs font-semibold text-gray-500 mb-2">Unplanned Adapt Causes</p>
+            {adaptCauseData.length === 0 ? (
+              <p className="text-xs text-gray-400 py-2">No unplanned adaptations yet.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={100}>
+                <BarChart data={adaptCauseData.slice(0, 4)} layout="vertical">
+                  <XAxis type="number" tick={{ fontSize: 9 }} />
+                  <YAxis dataKey="name" type="category" tick={{ fontSize: 9 }} width={110} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#8B5CF6" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
         </Card>
       </div>
       <Card>

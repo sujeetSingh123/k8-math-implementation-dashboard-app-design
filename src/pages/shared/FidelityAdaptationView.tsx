@@ -53,7 +53,7 @@ function compScore(c: FidelityCheck) {
 }
 
 export function FidelityAdaptationView() {
-  const { currentUser, fidelityChecks, adaptations, schools } = useAppStore()
+  const { currentUser, fidelityChecks, implementationLogs, schools } = useAppStore()
   const [period, setPeriod] = useState<Period>('month')
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>('all')
 
@@ -83,9 +83,9 @@ export function FidelityAdaptationView() {
     fidelityChecks.filter(c => teacherIds.includes(c.teacherId) && c.date >= start),
     [fidelityChecks, teacherIds, start])
 
-  const filteredAdaptations = useMemo(() =>
-    adaptations.filter(a => teacherIds.includes(a.teacherId) && a.date >= start),
-    [adaptations, teacherIds, start])
+  const filteredAdaptedLogs = useMemo(() =>
+    implementationLogs.filter(l => teacherIds.includes(l.teacherId) && l.date >= start && l.adaptationOccurred),
+    [implementationLogs, teacherIds, start])
 
   const fidelityTimeline = useMemo((): TLPoint[] => {
     type Bucket = { n: number; sums: Record<string, number>; comp: number }
@@ -106,23 +106,23 @@ export function FidelityAdaptationView() {
   }, [filteredChecks, period])
 
   const adaptationTimeline = useMemo(() => {
-    const buckets: Record<string, { consistent: number; inconsistent: number }> = {}
-    filteredAdaptations.forEach(a => {
-      const key = getBucket(a.date, period)
-      if (!buckets[key]) buckets[key] = { consistent: 0, inconsistent: 0 }
-      if (a.fidelityType === 'consistent') buckets[key].consistent++
-      else buckets[key].inconsistent++
+    const buckets: Record<string, { planned: number; reactive: number }> = {}
+    filteredAdaptedLogs.forEach(l => {
+      const key = getBucket(l.date, period)
+      if (!buckets[key]) buckets[key] = { planned: 0, reactive: 0 }
+      if (l.anticipatesAdaptation) buckets[key].planned++
+      if (l.unexpectedEvent !== 'none') buckets[key].reactive++
     })
     return Object.entries(buckets)
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([key, v]) => ({ label: bucketLabel(key, period), ...v, total: v.consistent + v.inconsistent }))
-  }, [filteredAdaptations, period])
+      .map(([key, v]) => ({ label: bucketLabel(key, period), ...v, total: v.planned + v.reactive }))
+  }, [filteredAdaptedLogs, period])
 
   const avgFidelity = filteredChecks.length
     ? +(filteredChecks.reduce((s, c) => s + compScore(c), 0) / filteredChecks.length).toFixed(2)
     : 0
-  const consistentPct = filteredAdaptations.length
-    ? Math.round(filteredAdaptations.filter(a => a.fidelityType === 'consistent').length / filteredAdaptations.length * 100)
+  const plannedPct = filteredAdaptedLogs.length
+    ? Math.round(filteredAdaptedLogs.filter(l => l.anticipatesAdaptation).length / filteredAdaptedLogs.length * 100)
     : 0
 
   return (
@@ -171,8 +171,8 @@ export function FidelityAdaptationView() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard label="Avg Fidelity" value={`${Math.round(avgFidelity * 20)}%`} color={roleColor} />
         <StatCard label="Fidelity Checks" value={String(filteredChecks.length)} color={roleColor} />
-        <StatCard label="Adaptations" value={String(filteredAdaptations.length)} color={roleColor} />
-        <StatCard label="Consistent" value={`${consistentPct}%`} sub="FRAME-IS" color="#10B981" />
+        <StatCard label="Adaptations" value={String(filteredAdaptedLogs.length)} color={roleColor} />
+        <StatCard label="Planned" value={`${plannedPct}%`} sub="Pre-planned adapt." color="#10B981" />
       </div>
 
       {/* Charts */}
@@ -192,8 +192,8 @@ export function FidelityAdaptationView() {
                 <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                 <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="consistent" name="Consistent" stackId="a" fill="#10B981" />
-                <Bar dataKey="inconsistent" name="Inconsistent" stackId="a" fill="#F59E0B" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="planned" name="Planned" stackId="a" fill="#10B981" />
+                <Bar dataKey="reactive" name="Reactive" stackId="a" fill="#F59E0B" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}

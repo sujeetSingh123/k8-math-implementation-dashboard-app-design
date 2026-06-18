@@ -38,11 +38,11 @@ export function CoachDashboard() {
   const teacherStats = myTeachers.map(t => {
     const logs = implementationLogs.filter(l => l.teacherId === t.id)
     const checks = fidelityChecks.filter(f => f.teacherId === t.id)
-    const adpts = adaptations.filter(a => a.teacherId === t.id)
     const logRate = logs.length ? Math.round(logs.filter(l => l.lessonCompletion !== 'not_completed').length / logs.length * 100) : 0
     const rawFidelity = checks.length ? checks.reduce((s, c) => s + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / checks.length : 0
     const avgFidelity = Math.round(rawFidelity * 20)
-    return { id: t.id, name: t.name.split(' ')[0], fullName: t.name, logRate, avgFidelity, consistent: adpts.filter(a => a.fidelityType === 'consistent').length, inconsistent: adpts.filter(a => a.fidelityType === 'inconsistent').length }
+    const adaptedLogs = logs.filter(l => l.adaptationOccurred)
+    return { id: t.id, name: t.name.split(' ')[0], fullName: t.name, logRate, avgFidelity, planned: adaptedLogs.filter(l => l.anticipatesAdaptation).length, reactive: adaptedLogs.filter(l => l.unexpectedEvent !== 'none').length }
   })
 
   const onTrack = teacherStats.filter(t => t.avgFidelity >= 80).length
@@ -50,7 +50,7 @@ export function CoachDashboard() {
   const fidelityConcerns = teacherStats.filter(t => t.avgFidelity < 60).length
 
   const reasonCounts: Record<string, number> = {}
-  adaptations.filter(a => myTeachers.some(t => t.id === a.teacherId)).forEach(a => a.reasons.forEach(r => { reasonCounts[r] = (reasonCounts[r] ?? 0) + 1 }))
+  implementationLogs.filter(l => myTeachers.some(t => t.id === l.teacherId)).forEach(l => l.unplannedAdaptCauses?.forEach(r => { reasonCounts[r] = (reasonCounts[r] ?? 0) + 1 }))
   const topReasons = Object.entries(reasonCounts).sort((a, b) => b[1] - a[1]).slice(0, 3)
 
   const TEACHER_COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EF4444']
@@ -109,8 +109,8 @@ export function CoachDashboard() {
         </Card>
         <Card>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-gray-800">Consistent vs Inconsistent</h3>
-            <button onClick={() => toast.info('Green = fidelity-consistent adaptations, amber = inconsistent.')} className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer">What's this?</button>
+            <h3 className="text-sm font-semibold text-gray-800">Planned vs Reactive Adaptations</h3>
+            <button onClick={() => toast.info('Green = pre-planned adaptations, amber = reactive to unexpected events.')} className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer">What's this?</button>
           </div>
           <ResponsiveContainer width="100%" height={140}>
             <BarChart data={teacherStats}>
@@ -118,8 +118,8 @@ export function CoachDashboard() {
               <YAxis tick={{ fontSize: 10 }} />
               <Tooltip />
               <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
-              <Bar dataKey="consistent" name="Consistent" stackId="a" fill="#10B981" />
-              <Bar dataKey="inconsistent" name="Inconsistent" stackId="a" fill="#F59E0B" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="planned" name="Planned" stackId="a" fill="#10B981" />
+              <Bar dataKey="reactive" name="Reactive" stackId="a" fill="#F59E0B" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
           <div className="mt-3 pt-3 border-t border-gray-100">
@@ -166,7 +166,7 @@ export function CoachDashboard() {
           <button key={log.id} onClick={() => setSelectedLog(log)}
             className="w-full px-4 py-2.5 text-left hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-50 last:border-0 flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs font-medium text-gray-700 truncate">{teacherById[log.teacherId] ?? log.teacherId} · {log.date} · {log.instructionalRoutine ?? log.mathSkill ?? '—'}</p>
+              <p className="text-xs font-medium text-gray-700 truncate">{teacherById[log.teacherId] ?? log.teacherId} · {log.date} · {log.mathSkill ?? '—'}</p>
             </div>
             <div className="flex items-center gap-1 flex-shrink-0">
               <Badge color={log.adaptationOccurred ? 'purple' : 'blue'}>{log.tier}</Badge>

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { Card } from '../../components/ui/Card'
-import type { ImplementationLog, FidelityCheck, Adaptation } from '../../types'
+import type { ImplementationLog, FidelityCheck } from '../../types'
 
 const TIERS = ['Tier 1', 'Tier 2', 'Tier 3', 'Special Education'] as const
 type Tier = typeof TIERS[number]
@@ -19,10 +19,9 @@ const TIER_PILL: Record<Tier, string> = {
   'Special Education': 'bg-purple-50 text-purple-700',
 }
 
-export function TierBreakdown({ logs, checks, adaptations }: {
+export function TierBreakdown({ logs, checks }: {
   logs: ImplementationLog[]
   checks: FidelityCheck[]
-  adaptations: Adaptation[]
 }) {
   const navigate = useNavigate()
   const activeTiers = TIERS.filter(t => logs.some(l => l.tier === t))
@@ -48,7 +47,7 @@ export function TierBreakdown({ logs, checks, adaptations }: {
                 sum + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0
               ) / tierChecks.length).toFixed(1)
             : '—'
-          const adaptCount = adaptations.filter(a => tierLogIds.has(a.logId)).length
+          const adaptCount = tierLogs.filter(l => l.adaptationOccurred).length
           const color = TIER_COLOR[tier]
 
           return (
