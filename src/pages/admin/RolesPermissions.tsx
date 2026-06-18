@@ -37,7 +37,7 @@ const categoryLabels: Record<string, string> = {
   organization: 'Organization',
 }
 
-const roles: Role[] = ['teacher', 'coach', 'admin', 'researcher']
+const roles: Role[] = ['teacher', 'paraprofessional', 'coach', 'admin', 'district_admin', 'researcher']
 const categories = ['data', 'users', 'coaching', 'reports', 'organization']
 
 export function RolesPermissions() {
@@ -66,7 +66,7 @@ export function RolesPermissions() {
       </div>
 
       {/* Role Selector Tabs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
         {roles.map((role) => (
           <button
             key={role}
@@ -121,7 +121,7 @@ export function RolesPermissions() {
               <div className="space-y-2">
                 {permsByCategory(cat).map((perm) => {
                   const enabled = hasPermission(perm.id)
-                  const isAdminRole = activeRole === 'admin'
+                  const isAdminRole = activeRole === 'admin' || activeRole === 'district_admin'
                   return (
                     <div
                       key={perm.id}

@@ -8,10 +8,13 @@ import type { Role } from '../../types'
 
 const roleColor = roleColors.super_admin
 
+const SCHOOL_ROLES: Role[] = ['teacher', 'paraprofessional', 'coach', 'admin']
+
 type UserForm = {
   name: string
   email: string
-  role: Role
+  role: Role | ''
+  districtId: string
   schoolId: string
 }
 
@@ -21,27 +24,42 @@ interface Props {
 }
 
 export function AddUserModal({ open, onClose }: Props) {
-  const { schools, addUser } = useAppStore()
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<UserForm>()
+  const { districts, schools, addUser } = useAppStore()
+  const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<UserForm>({
+    defaultValues: { role: '', districtId: '', schoolId: '' },
+  })
+
+  const role = watch('role') as Role | ''
+  const districtId = watch('districtId')
+
+  const needsDistrict = !!role && role !== 'researcher'
+  const needsSchool = SCHOOL_ROLES.includes(role as Role)
+  const filteredSchools = districtId ? schools.filter(s => s.districtId === districtId) : []
 
   const handleClose = () => { onClose(); reset() }
 
   const onSubmit = (data: UserForm) => {
-    const initials = data.name
-      .split(' ')
-      .filter(Boolean)
-      .map(w => w[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
+    const initials = data.name.split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2)
     const id = `USR${Date.now()}`
-    addUser({ id, name: data.name, initials, role: data.role, schoolId: data.schoolId }, data.email)
+
+    let schoolId = data.schoolId
+    let districtId: string | undefined
+
+    if (data.role === 'district_admin') {
+      schoolId = 'DISTRICT'
+      districtId = data.districtId
+    } else if (data.role === 'researcher') {
+      schoolId = 'PLATFORM'
+    }
+
+    addUser({ id, name: data.name, initials, role: data.role as Role, schoolId, districtId }, data.email)
     toast.success(`${data.name} added as ${data.role}. Password: demo1234`)
     handleClose()
   }
 
   const roleOptions: { value: Role; label: string }[] = [
     { value: 'teacher', label: 'Teacher' },
+    { value: 'paraprofessional', label: 'Paraprofessional' },
     { value: 'coach', label: 'Coach' },
     { value: 'admin', label: 'Principal of School' },
     { value: 'district_admin', label: 'Superintendent' },
@@ -79,14 +97,43 @@ export function AddUserModal({ open, onClose }: Props) {
           </select>
           {errors.role && <p className="mt-1 text-xs text-red-500">{errors.role.message}</p>}
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">School</label>
-          <select {...register('schoolId', { required: 'School is required' })} className={inputCls}>
-            <option value="">Select school…</option>
-            {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </select>
-          {errors.schoolId && <p className="mt-1 text-xs text-red-500">{errors.schoolId.message}</p>}
-        </div>
+
+        {needsDistrict && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">District</label>
+            <select
+              {...register('districtId', { required: needsDistrict ? 'District is required' : false })}
+              className={inputCls}
+            >
+              <option value="">Select district…</option>
+              {districts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+            </select>
+            {errors.districtId && <p className="mt-1 text-xs text-red-500">{errors.districtId.message}</p>}
+          </div>
+        )}
+
+        {needsSchool && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">School</label>
+            <select
+              {...register('schoolId', { required: needsSchool ? 'School is required' : false })}
+              className={inputCls}
+              disabled={!districtId}
+            >
+              <option value="">{districtId ? 'Select school…' : 'Select a district first'}</option>
+              {filteredSchools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+            {errors.schoolId && <p className="mt-1 text-xs text-red-500">{errors.schoolId.message}</p>}
+          </div>
+        )}
+
+        {role === 'district_admin' && (
+          <p className="text-xs text-gray-400">Superintendent has district-wide access — no specific school assignment.</p>
+        )}
+        {role === 'researcher' && (
+          <p className="text-xs text-gray-400">Researcher has platform-wide access — no district or school assignment needed.</p>
+        )}
+
         <p className="text-xs text-gray-400">
           Default login password: <span className="font-mono font-medium text-gray-600">demo1234</span>
         </p>

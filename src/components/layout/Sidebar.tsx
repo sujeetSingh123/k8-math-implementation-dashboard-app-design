@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import {
   ClipboardList, BookOpen, MessageSquare, Library,
   LayoutDashboard, Users, Inbox, TrendingUp, Building2, Activity,
-  Download, X, Shield, LogOut, BarChart, GitBranch, CalendarDays, DollarSign, Award, Globe,
+  Download, X, Shield, LogOut, BarChart, GitBranch, CalendarDays, DollarSign, Award,
 } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { roleColors, roleLabels } from '../../constants/roles'
@@ -143,7 +143,6 @@ function getNav(role: Role, unreadCounts: Record<string, number>): NavSection[] 
       {
         section: 'Platform',
         items: [
-          { label: 'Platform Overview', path: '/super-admin/dashboard', icon: <Globe size={16} /> },
           { label: 'Districts & Schools', path: '/super-admin/schools', icon: <Building2 size={16} /> },
           { label: 'All Users', path: '/super-admin/users', icon: <Users size={16} /> },
           { label: 'Roles & Permissions', path: '/admin/roles', icon: <Shield size={16} /> },

@@ -117,11 +117,17 @@ export function MyLogs() {
                     {log.startTime && (
                       <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md">{log.startTime}</span>
                     )}
+                    {log.sectionName && (
+                      <span className="text-xs font-medium text-gray-600">{log.sectionName}</span>
+                    )}
                     <Badge color={completionColor(log.lessonCompletion)}>
                       {log.lessonCompletion.replace('_', ' ')}
                     </Badge>
                     <Badge color="blue">{log.tier}</Badge>
                     {log.adaptationOccurred && <Badge color="purple">Adapted</Badge>}
+                    {log.unexpectedEvent && log.unexpectedEvent !== 'none' && (
+                      <Badge color={log.unexpectedEvent === 'good' ? 'green' : 'red'}>Unexpected</Badge>
+                    )}
                   </button>
                   <div className="flex gap-1.5">
                     <Button size="sm" variant="secondary" roleColor={roleColor} onClick={() => openAdd(log)}>
@@ -133,7 +139,7 @@ export function MyLogs() {
                   </div>
                 </div>
                 <p className="text-xs text-gray-500">
-                  {log.instructionalRoutine ?? log.mathSkill ?? '—'} · {log.ebpComponent.join(', ')} · {log.implementationStrategy ?? '—'} · {log.durationMinutes} min
+                  {log.mathSkill ?? '—'}{log.groupSize ? ` · ${log.groupSize}` : ''} · {log.ebpComponent.join(', ')} · {log.durationMinutes} min
                 </p>
                 {log.notes && (
                   <p className="text-xs text-gray-400 italic mt-1">"{log.notes}"</p>
@@ -173,8 +179,8 @@ export function MyLogs() {
         <Modal open onClose={() => setDataModal(null)} title={`Add Student Data — ${dataModal.date}`}>
           <div className="space-y-4">
             <div className="bg-gray-50 rounded-xl px-3 py-2 text-xs text-gray-600">
-              <span className="font-medium">{dataModal.instructionalRoutine ?? dataModal.mathSkill ?? '—'}</span>
-              {' · '}{dataModal.tier}{' · '}{dataModal.durationMinutes} min
+              <span className="font-medium">{dataModal.mathSkill ?? '—'}</span>
+              {' · '}{dataModal.tier}{dataModal.groupSize ? ` · ${dataModal.groupSize}` : ''}{' · '}{dataModal.durationMinutes} min
             </div>
             <div>
               <label className="text-xs font-medium text-gray-600 block mb-2">Scores</label>

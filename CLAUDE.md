@@ -100,7 +100,7 @@ Below the form: `<StudentPerfSummary />` (shows teacher's own student data)
 - Communication: Messages
 
 **Super Admin (Platform Admin):**
-- Platform: Platform Overview, Districts & Schools, All Users, Roles & Permissions
+- Platform: Districts & Schools, All Users, Roles & Permissions
 
 **Researcher:**
 - Analytics: Longitudinal View, Log Aggregation, DSAII Pathway, Impl. Learning Labs

@@ -30,15 +30,37 @@ export function LogDetailView({ log, adaptation, fidelityCheck, studentDataRecor
           <Badge color={completionColor}>{log.lessonCompletion.replace('_', ' ')}</Badge>
           <Badge color="blue">{log.tier}</Badge>
           {log.adaptationOccurred && <Badge color="purple">Adaptation</Badge>}
+          {log.unexpectedEvent && log.unexpectedEvent !== 'none' && (
+            <Badge color={log.unexpectedEvent === 'good' ? 'green' : 'red'}>Unexpected — {log.unexpectedEvent}</Badge>
+          )}
         </div>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+          {log.sectionName && <div className="col-span-2"><p className="text-gray-400">Section</p><p className="text-gray-700 font-medium">{log.sectionName}</p></div>}
           {log.mathSkill && <div><p className="text-gray-400">Math Skill</p><p className="text-gray-700 font-medium">{log.mathSkill}</p></div>}
           {log.groupSize && <div><p className="text-gray-400">Group Size</p><p className="text-gray-700 font-medium">{log.groupSize}</p></div>}
-          {log.instructionalRoutine && <div><p className="text-gray-400">Routine</p><p className="text-gray-700 font-medium">{log.instructionalRoutine}</p></div>}
-          <div><p className="text-gray-400">EBP Components</p><p className="text-gray-700 font-medium">{log.ebpComponent.join(', ')}</p></div>
-          {log.implementationStrategy && <div><p className="text-gray-400">Strategy</p><p className="text-gray-700 font-medium">{log.implementationStrategy}</p></div>}
           <div><p className="text-gray-400">Duration</p><p className="text-gray-700 font-medium">{log.durationMinutes} min</p></div>
+          <div className="col-span-2"><p className="text-gray-400">EBP Components</p><p className="text-gray-700 font-medium">{log.ebpComponent.join(', ')}</p></div>
+          {log.anticipatesAdaptation && log.plannedAdaptationTypes && log.plannedAdaptationTypes.length > 0 && (
+            <div className="col-span-2"><p className="text-gray-400">Planned Adaptations</p><p className="text-gray-700 font-medium">{log.plannedAdaptationTypes.join(', ')}</p></div>
+          )}
         </div>
+        {log.adaptationImpl && (
+          <div className="text-xs space-y-0.5">
+            <p className="text-gray-400">Adaptation Implementation</p>
+            <p className="text-purple-700 font-medium capitalize">{log.adaptationImpl.replace(/_/g, ' ')}</p>
+            {log.adaptationPartialNotes && <p className="text-gray-600 italic">"{log.adaptationPartialNotes}"</p>}
+            {log.adaptationNotImplReason && <p className="text-gray-600 italic">"{log.adaptationNotImplReason}"</p>}
+          </div>
+        )}
+        {log.unexpectedEvent && log.unexpectedEvent !== 'none' && (log.unexpectedDetail || (log.unplannedAdaptCauses && log.unplannedAdaptCauses.length > 0)) && (
+          <div className="text-xs space-y-0.5">
+            <p className="text-gray-400">Unexpected Event</p>
+            {log.unexpectedDetail && <p className="text-gray-700">"{log.unexpectedDetail}"</p>}
+            {log.unplannedAdaptCauses && log.unplannedAdaptCauses.length > 0 && (
+              <p className="text-gray-500">Causes: {log.unplannedAdaptCauses.join(' · ')}</p>
+            )}
+          </div>
+        )}
         {log.notes && (
           <div className="text-xs">
             <p className="text-gray-400 mb-0.5">Notes</p>
