@@ -8,7 +8,7 @@ import { Badge } from '../../components/ui/Badge'
 import { Modal } from '../../components/ui/Modal'
 import { Button } from '../../components/ui/Button'
 import { toast } from '../../store/useToastStore'
-import { users } from '../../data/mockData'
+import { users, schools, districts } from '../../data/mockData'
 import { roleColors } from '../../constants/roles'
 import type { ImplementationLog, User } from '../../types'
 import { LogDetailView } from './LogDetailView'
@@ -31,25 +31,28 @@ export function TeacherCaseload() {
   const [detailTeacher, setDetailTeacher] = useState<User | null>(null)
 
   const myTeachers = users.filter(u => u.role === 'teacher' && u.coachId === currentUser.id)
+  const schoolMap = Object.fromEntries(schools.map(s => [s.id, s]))
+  const districtMap = Object.fromEntries(districts.map(d => [d.id, d]))
 
   const teacherData = myTeachers.map(t => {
     const logs = implementationLogs.filter(l => l.teacherId === t.id)
     const checks = fidelityChecks.filter(f => f.teacherId === t.id)
     const logRate = logs.length > 0 ? Math.round((logs.filter(l => l.lessonCompletion === 'fully').length / logs.length) * 100) : 0
     const avgFidelity = checks.length > 0
-      ? checks.reduce((sum, c) => sum + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / checks.length : 0
+      ? checks.reduce((sum, c) => sum + (c.adherence + c.dosage + c.quality + c.responsiveness) / 4, 0) / checks.length : 0
     const adaptCount = adaptations.filter(a => a.teacherId === t.id).length
     const cycle = coachingCycles.find(c => c.teacherId === t.id)
     const lastMsg = cycle?.messages.slice(-1)[0]
     const status = getStatus(avgFidelity)
+    const school = schoolMap[t.schoolId]
+    const district = school ? districtMap[school.districtId] : null
     const miniChart = [
       { dim: 'Adh', score: Math.round(checks.reduce((s, c) => s + c.adherence, 0) / Math.max(checks.length, 1) * 20) },
       { dim: 'Dos', score: Math.round(checks.reduce((s, c) => s + c.dosage, 0) / Math.max(checks.length, 1) * 20) },
       { dim: 'Qual', score: Math.round(checks.reduce((s, c) => s + c.quality, 0) / Math.max(checks.length, 1) * 20) },
       { dim: 'Resp', score: Math.round(checks.reduce((s, c) => s + c.responsiveness, 0) / Math.max(checks.length, 1) * 20) },
-      { dim: 'Conf', score: Math.round(checks.reduce((s, c) => s + c.confidence, 0) / Math.max(checks.length, 1) * 20) },
     ]
-    return { teacher: t, logs, logRate, avgFidelity: `${Math.round(avgFidelity * 20)}%`, adaptCount, lastMsg, status, miniChart }
+    return { teacher: t, logs, logRate, avgFidelity: `${Math.round(avgFidelity * 20)}%`, adaptCount, lastMsg, status, miniChart, schoolName: school?.name ?? t.schoolId, districtName: district?.name ?? '—', teacherCode: t.id }
   })
 
   const pendingCount = teacherData.filter(d => d.status.label !== 'On Track').length
@@ -97,7 +100,9 @@ export function TeacherCaseload() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-800">{d.teacher.name}</p>
-                        <p className="text-xs text-gray-400">{d.teacher.schoolId}</p>
+                        <p className="text-xs text-gray-400">{d.schoolName}</p>
+                        <p className="text-xs text-gray-400">{d.districtName}</p>
+                        <span className="text-[10px] font-mono px-1 py-0.5 rounded bg-gray-100 text-gray-500">{d.teacherCode}</span>
                       </div>
                     </div>
                     <Badge color={d.status.color}>{d.status.label}</Badge>
@@ -120,7 +125,11 @@ export function TeacherCaseload() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-800">{d.teacher.name} {flaggedTeachers.includes(d.teacher.id) && <span className="text-xs text-red-500 ml-1">● Flagged</span>}</p>
-                      <p className="text-xs text-gray-400">{d.teacher.schoolId}</p>
+                      <p className="text-xs text-gray-400 truncate">{d.schoolName}</p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <p className="text-xs text-gray-400 truncate">{d.districtName}</p>
+                        <span className="text-[10px] font-mono px-1 py-0.5 rounded bg-gray-100 text-gray-500">{d.teacherCode}</span>
+                      </div>
                     </div>
                     <div className="text-center w-16"><p className="text-sm font-semibold text-gray-700">{d.logRate}%</p><p className="text-xs text-gray-400">Log Rate</p></div>
                     <div className="text-center w-16"><p className="text-sm font-semibold text-gray-700">{d.avgFidelity}</p><p className="text-xs text-gray-400">Fidelity</p></div>

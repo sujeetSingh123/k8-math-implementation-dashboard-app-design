@@ -39,7 +39,7 @@ export function CoachDashboard() {
     const logs = implementationLogs.filter(l => l.teacherId === t.id)
     const checks = fidelityChecks.filter(f => f.teacherId === t.id)
     const logRate = logs.length ? Math.round(logs.filter(l => l.lessonCompletion !== 'not_completed').length / logs.length * 100) : 0
-    const rawFidelity = checks.length ? checks.reduce((s, c) => s + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / checks.length : 0
+    const rawFidelity = checks.length ? checks.reduce((s, c) => s + (c.adherence + c.dosage + c.quality + c.responsiveness) / 4, 0) / checks.length : 0
     const avgFidelity = Math.round(rawFidelity * 20)
     const adaptedLogs = logs.filter(l => l.adaptationOccurred)
     return { id: t.id, name: t.name.split(' ')[0], fullName: t.name, logRate, avgFidelity, planned: adaptedLogs.filter(l => l.anticipatesAdaptation).length, reactive: adaptedLogs.filter(l => l.unexpectedEvent !== 'none').length }
@@ -62,11 +62,14 @@ export function CoachDashboard() {
     return row
   })
 
-  const studentPerfTrend = useMemo(() => {
-    const ids = myTeachers.map(t => t.id)
-    const byWeek: Record<number, number[]> = {}
-    studentDataRecords.filter(r => ids.includes(r.teacherId)).forEach(r => { const w = r.week ?? 0; (byWeek[w] ??= []).push(r.currentAvg) })
-    return Object.entries(byWeek).sort(([a], [b]) => +a - +b).map(([w, vals]) => ({ week: `Wk ${w}`, avgScore: +(vals.reduce((s, v) => s + v, 0) / vals.length).toFixed(1) }))
+  const studentScoreByTeacher = useMemo(() => {
+    return myTeachers.map(t => {
+      const records = studentDataRecords.filter(r => r.teacherId === t.id)
+      const avgScore = records.length
+        ? +(records.reduce((s, r) => s + r.currentAvg, 0) / records.length).toFixed(1)
+        : 0
+      return { name: t.name.split(' ')[0], avgScore, fullName: t.name }
+    })
   }, [studentDataRecords, myTeachers])
 
   return (
@@ -177,16 +180,25 @@ export function CoachDashboard() {
         ))}
       </Card>
 
-      <Card title="Student Performance Trend">
-        {!studentPerfTrend.length ? <p className="text-sm text-gray-400 text-center py-8">No student data available.</p> : (
-          <ResponsiveContainer width="100%" height={160}>
-            <LineChart data={studentPerfTrend} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+      <Card>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-800">Student Score Data by Teacher</h3>
+          <button onClick={() => navigate('/coach/student-data')} className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer">View all →</button>
+        </div>
+        {!studentScoreByTeacher.length || studentScoreByTeacher.every(t => t.avgScore === 0) ? (
+          <p className="text-sm text-gray-400 text-center py-8">No student score data available.</p>
+        ) : (
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart data={studentScoreByTeacher} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
-              <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+              <XAxis dataKey="name" tick={{ fontSize: 10 }} />
               <YAxis tick={{ fontSize: 10 }} width={30} />
-              <Tooltip formatter={(v) => typeof v === 'number' ? v.toFixed(1) : v} />
-              <Line type="monotone" dataKey="avgScore" name="Avg %" stroke={roleColor} strokeWidth={2} dot={{ r: 3, fill: roleColor }} />
-            </LineChart>
+              <Tooltip formatter={(v, _n, p) => [typeof v === 'number' ? v.toFixed(1) : v, p.payload.fullName]} />
+              <Bar dataKey="avgScore" name="Avg Score" fill={roleColor} radius={[4, 4, 0, 0]}
+                onClick={(data) => navigate(`/coach/teacher/${data.payload.id}`)} cursor="pointer">
+                {studentScoreByTeacher.map((_entry, i) => <Cell key={i} fill={TEACHER_COLORS[i % TEACHER_COLORS.length]} />)}
+              </Bar>
+            </BarChart>
           </ResponsiveContainer>
         )}
       </Card>

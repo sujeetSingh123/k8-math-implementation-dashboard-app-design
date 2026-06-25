@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { ClipboardList, CheckSquare, BookOpen, MessageSquare, GraduationCap } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -14,7 +14,7 @@ import { getTimeBuckets, inBucket } from '../../utils/timePeriod'
 const roleColor = roleColors.teacher
 
 export function TeacherDashboard() {
-  const { currentUser, implementationLogs, fidelityChecks, coachingCycles, notifications, pdSessions, trainingAttendances } = useAppStore()
+  const { currentUser, implementationLogs, fidelityChecks, coachingCycles, notifications, pdSessions, trainingAttendances, studentDataRecords } = useAppStore()
   const navigate = useNavigate()
   const [period, setPeriod] = useState<TimePeriod>('week')
 
@@ -26,7 +26,7 @@ export function TeacherDashboard() {
   const logCompletionRate = myLogs.length > 0
     ? Math.round((myLogs.filter(l => l.lessonCompletion === 'fully').length / myLogs.length) * 100) : 0
   const avgFidelity = myChecks.length > 0
-    ? `${Math.round((myChecks.reduce((sum, c) => sum + (c.adherence + c.dosage + c.quality + c.responsiveness + c.confidence) / 5, 0) / myChecks.length) * 20)}%`
+    ? `${Math.round((myChecks.reduce((sum, c) => sum + (c.adherence + c.dosage + c.quality + c.responsiveness) / 4, 0) / myChecks.length) * 20)}%`
     : '—'
   const thisMonthAdaptations = myLogs.filter(l => {
     const d = new Date(l.date); const now = new Date()
@@ -43,10 +43,18 @@ export function TeacherDashboard() {
 
   const trendData = buckets.map(b => {
     const checks = myChecks.filter(c => inBucket(c.date, b))
-    if (checks.length === 0) return { week: b.label, Adherence: null, Dosage: null, Quality: null, Responsiveness: null, Confidence: null }
+    if (checks.length === 0) return { week: b.label, Adherence: null, Dosage: null, Quality: null, Responsiveness: null }
     const avg = (key: keyof typeof checks[0]) => parseFloat((checks.reduce((s, c) => s + (c[key] as number), 0) / checks.length).toFixed(1))
-    return { week: b.label, Adherence: avg('adherence'), Dosage: avg('dosage'), Quality: avg('quality'), Responsiveness: avg('responsiveness'), Confidence: avg('confidence') }
+    return { week: b.label, Adherence: avg('adherence'), Dosage: avg('dosage'), Quality: avg('quality'), Responsiveness: avg('responsiveness') }
   })
+
+  const studentScoreTrend = useMemo(() => {
+    const myRecords = studentDataRecords.filter(r => r.teacherId === currentUser.id)
+    const byWeek: Record<number, number[]> = {}
+    myRecords.forEach(r => { const w = r.week ?? 0; (byWeek[w] ??= []).push(r.currentAvg) })
+    return Object.entries(byWeek).sort(([a], [b]) => +a - +b)
+      .map(([w, vals]) => ({ week: `Wk ${w}`, avgScore: +(vals.reduce((s, v) => s + v, 0) / vals.length).toFixed(1) }))
+  }, [studentDataRecords, currentUser.id])
 
   const adaptCauseCounts: Record<string, number> = {}
   myLogs.forEach(l => l.unplannedAdaptCauses?.forEach(r => { adaptCauseCounts[r] = (adaptCauseCounts[r] ?? 0) + 1 }))
@@ -114,7 +122,6 @@ export function TeacherDashboard() {
                 <Line type="monotone" dataKey="Dosage" stroke="#3B82F6" strokeWidth={2} dot={false} connectNulls />
                 <Line type="monotone" dataKey="Quality" stroke="#F59E0B" strokeWidth={2} dot={false} connectNulls />
                 <Line type="monotone" dataKey="Responsiveness" stroke="#8B5CF6" strokeWidth={2} dot={false} connectNulls />
-                <Line type="monotone" dataKey="Confidence" stroke="#EF4444" strokeWidth={2} dot={false} connectNulls />
               </LineChart>
             </ResponsiveContainer>
           )}
@@ -153,6 +160,25 @@ export function TeacherDashboard() {
           </div>
         </Card>
       </div>
+      <Card>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-800">Student Score Trend</h3>
+          <button onClick={() => navigate('/teacher/student-data')} className="text-xs text-emerald-600 hover:text-emerald-800 cursor-pointer">View data →</button>
+        </div>
+        {studentScoreTrend.length === 0 ? (
+          <p className="text-sm text-gray-400 text-center py-8">No student score data yet.</p>
+        ) : (
+          <ResponsiveContainer width="100%" height={180}>
+            <LineChart data={studentScoreTrend} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+              <XAxis dataKey="week" tick={{ fontSize: 10 }} />
+              <YAxis tick={{ fontSize: 10 }} width={30} />
+              <Tooltip formatter={(v) => typeof v === 'number' ? v.toFixed(1) : v} />
+              <Line type="monotone" dataKey="avgScore" name="Avg Score" stroke={roleColor} strokeWidth={2} dot={{ r: 3, fill: roleColor }} />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </Card>
       <Card>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-800">Coaching Activity</h3>
