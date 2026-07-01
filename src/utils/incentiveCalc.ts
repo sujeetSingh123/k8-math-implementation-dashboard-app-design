@@ -1,5 +1,39 @@
 import type { ImplementationLog, StudentDataRecord, FidelityCheck, User } from '../types'
 
+// ── Month utilities ───────────────────────────────────────────────────────────
+export function getMonthKey(dateStr: string): string {
+  const d = new Date(dateStr)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
+export function formatMonthLabel(key: string): string {
+  const [y, m] = key.split('-').map(Number)
+  return new Date(y, m - 1, 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+}
+
+export function currentMonthKey(): string {
+  return getMonthKey(new Date().toISOString())
+}
+
+export function getMonthRange(key: string): [Date, Date] {
+  const [y, m] = key.split('-').map(Number)
+  return [new Date(y, m - 1, 1), new Date(y, m, 0, 23, 59, 59)]
+}
+
+export function sortMonthKeys(keys: string[]): string[] {
+  return [...keys].sort((a, b) => b.localeCompare(a))
+}
+
+export function filterLogsByMonth(logs: ImplementationLog[], month: string): ImplementationLog[] {
+  const [start, end] = getMonthRange(month)
+  return logs.filter(l => { const d = new Date(l.date); return d >= start && d <= end })
+}
+
+export function filterFidelityByMonth(checks: FidelityCheck[], month: string): FidelityCheck[] {
+  const [start, end] = getMonthRange(month)
+  return checks.filter(c => { const d = new Date(c.date); return d >= start && d <= end })
+}
+
 // ── Semester utilities ────────────────────────────────────────────────────────
 export function getSemester(dateStr: string): string {
   const d = new Date(dateStr)
@@ -35,6 +69,22 @@ export function filterFidelityBySemester(checks: FidelityCheck[], semester: stri
 
 export function currentSemester(): string {
   return getSemester(new Date().toISOString())
+}
+
+export function getSemesterMonths(semester: string): string[] {
+  const [start, end] = getSemesterRange(semester)
+  const today = new Date()
+  const cutoff = end < today ? end : today
+  const cutoffKey = cutoff.getFullYear() * 12 + cutoff.getMonth()
+  const months: string[] = []
+  let y = start.getFullYear(), m = start.getMonth()
+  while (y * 12 + m <= cutoffKey) {
+    months.push(`${y}-${String(m + 1).padStart(2, '0')}`)
+    m++
+    if (m > 11) { m = 0; y++ }
+  }
+  if (!months.length) months.push(`${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}`)
+  return months
 }
 
 export function sortSemesters(semesters: string[]): string[] {

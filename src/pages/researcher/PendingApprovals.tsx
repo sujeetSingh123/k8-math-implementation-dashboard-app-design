@@ -2,16 +2,9 @@ import { useMemo } from 'react'
 import { CheckCircle, XCircle, Clock } from 'lucide-react'
 import { useAppStore } from '../../store/useAppStore'
 import { roleColors } from '../../constants/roles'
-import { getSemester, sortSemesters } from '../../utils/incentiveCalc'
-import type { IncentiveCategory } from '../../types'
+import { getMonthKey, formatMonthLabel, sortMonthKeys, getSemester } from '../../utils/incentiveCalc'
 
 const roleColor = roleColors.researcher
-
-const CAT_COLORS: Record<IncentiveCategory, string> = {
-  training: '#3B82F6',
-  performance: '#10B981',
-  logging: '#F59E0B',
-}
 
 interface Props { semester?: string }
 
@@ -26,11 +19,11 @@ export function PendingApprovals({ semester }: Props) {
   const grouped = useMemo(() => {
     const map = new Map<string, typeof pending>()
     pending.forEach(i => {
-      const s = getSemester(i.awardedAt)
-      if (!map.has(s)) map.set(s, [])
-      map.get(s)!.push(i)
+      const m = getMonthKey(i.awardedAt)
+      if (!map.has(m)) map.set(m, [])
+      map.get(m)!.push(i)
     })
-    return sortSemesters([...map.keys()]).map(s => ({ semester: s, items: map.get(s)! }))
+    return sortMonthKeys([...map.keys()]).map(m => ({ month: m, label: formatMonthLabel(m), items: map.get(m)! }))
   }, [pending])
 
   const total = useMemo(() => pending.reduce((s, i) => s + i.amount, 0), [pending])
@@ -55,16 +48,16 @@ export function PendingApprovals({ semester }: Props) {
         </p>
       </div>
 
-      {grouped.map(({ semester, items }) => (
-        <div key={semester} className="space-y-2">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide px-1">{semester}</p>
+      {grouped.map(({ label, items }) => (
+        <div key={label} className="space-y-2">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide px-1">{label}</p>
           {items.map(inc => (
             <div key={inc.id} className="bg-white border border-gray-200 rounded-xl p-4 flex items-start gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <span className="text-sm font-semibold text-gray-800">{inc.recipientName}</span>
                   <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 capitalize">{inc.recipientRole}</span>
-                  <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white capitalize" style={{ backgroundColor: CAT_COLORS[inc.category] }}>
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full border border-amber-200 text-amber-700 bg-amber-50">
                     {inc.category}
                   </span>
                   <span className="text-xs text-gray-400">{inc.awardedAt}</span>

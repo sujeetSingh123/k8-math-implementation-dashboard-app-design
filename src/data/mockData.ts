@@ -841,34 +841,17 @@ export const conversations: Conversation[] = [
 
 // ─── Budget Allocations ────────────────────────────────────────────────────────
 export const budgetAllocations: BudgetAllocation[] = [
-  { category: 'training', label: 'Training Incentives', allocated: 5000 },
-  { category: 'performance', label: 'Performance Incentives', allocated: 8000 },
-  { category: 'logging', label: 'Logging Incentives', allocated: 3000 },
+  { category: 'logging', label: 'Logging Incentives', allocated: 10000 },
 ]
 
 // ─── Incentives ───────────────────────────────────────────────────────────────
 export const incentives: Incentive[] = [
-  // Spring 2026 — approved (Apr, early May)
-  { id: 'inc-1',  recipientId: 'T001', recipientName: 'Anna Carter',    recipientRole: 'teacher', category: 'logging',      amount: 75,  reason: '12 consecutive logs completed on time',                          awardedAt: '2026-04-15', status: 'approved', approvedAt: '2026-04-18' },
-  { id: 'inc-2',  recipientId: 'T003', recipientName: 'Carla Nguyen',   recipientRole: 'teacher', category: 'performance',  amount: 200, reason: 'Avg fidelity ≥ 4.5 sustained over Q1',                          awardedAt: '2026-04-20', status: 'approved', approvedAt: '2026-04-22' },
-  { id: 'inc-3',  recipientId: 'T001', recipientName: 'Anna Carter',    recipientRole: 'teacher', category: 'training',     amount: 100, reason: 'Completed CRA Lab and follow-up coaching',                      awardedAt: '2026-04-22', status: 'approved', approvedAt: '2026-04-25' },
-  { id: 'inc-4',  recipientId: 'C001', recipientName: 'Rachel Stone',   recipientRole: 'coach',   category: 'performance',  amount: 250, reason: 'Caseload avg fidelity reached 4.2 — highest Q1 district score', awardedAt: '2026-04-28', status: 'approved', approvedAt: '2026-04-30' },
-  { id: 'inc-5',  recipientId: 'T002', recipientName: 'Brian Lee',      recipientRole: 'teacher', category: 'logging',      amount: 50,  reason: 'Logged 8 sessions in April',                                    awardedAt: '2026-05-01', status: 'approved', approvedAt: '2026-05-03' },
-  // Spring 2026 — pending researcher approval (mid–late May)
-  { id: 'inc-6',  recipientId: 'T005', recipientName: 'Elena Martinez', recipientRole: 'teacher', category: 'performance',  amount: 150, reason: 'Consistent fidelity improvement Mar–May',                       awardedAt: '2026-05-10', status: 'pending' },
-  { id: 'inc-7',  recipientId: 'T003', recipientName: 'Carla Nguyen',   recipientRole: 'teacher', category: 'training',     amount: 150, reason: 'Completed all Q2 professional development modules',             awardedAt: '2026-05-15', status: 'pending' },
-  { id: 'inc-8',  recipientId: 'C001', recipientName: 'Rachel Stone',   recipientRole: 'coach',   category: 'performance',  amount: 150, reason: '3 teachers completed CRA Lab with ≥ 90% fidelity this quarter', awardedAt: '2026-05-17', status: 'pending' },
-  { id: 'inc-9',  recipientId: 'T004', recipientName: 'David Brooks',   recipientRole: 'teacher', category: 'logging',      amount: 50,  reason: 'Improved log submission rate this period',                       awardedAt: '2026-05-18', status: 'pending' },
-  { id: 'inc-10', recipientId: 'C001', recipientName: 'Rachel Stone',   recipientRole: 'coach',   category: 'performance',  amount: 100, reason: 'Caseload avg fidelity improved 0.8 pts — district high growth',  awardedAt: '2026-05-20', status: 'pending' },
-  // Fall 2025 — all approved (Aug–Dec 2025)
-  { id: 'inc-11', recipientId: 'T001', recipientName: 'Anna Carter',    recipientRole: 'teacher', category: 'logging',      amount: 75,  reason: '10 consecutive logs completed on time',                          awardedAt: '2025-10-15', status: 'approved', approvedAt: '2025-10-20' },
-  { id: 'inc-12', recipientId: 'T002', recipientName: 'Brian Lee',      recipientRole: 'teacher', category: 'logging',      amount: 50,  reason: '8 sessions logged in September',                                 awardedAt: '2025-09-30', status: 'approved', approvedAt: '2025-10-05' },
-  { id: 'inc-13', recipientId: 'T003', recipientName: 'Carla Nguyen',   recipientRole: 'teacher', category: 'performance',  amount: 200, reason: 'Avg fidelity ≥ 4.5 sustained across Q3 2025',                   awardedAt: '2025-11-20', status: 'approved', approvedAt: '2025-11-25' },
-  { id: 'inc-14', recipientId: 'T004', recipientName: 'David Brooks',   recipientRole: 'teacher', category: 'training',     amount: 100, reason: 'Completed Math MTSS Overview training module',                   awardedAt: '2025-10-10', status: 'approved', approvedAt: '2025-10-15' },
-  { id: 'inc-15', recipientId: 'T005', recipientName: 'Elena Martinez', recipientRole: 'teacher', category: 'performance',  amount: 150, reason: 'Consistent fidelity improvement Sep–Nov 2025',                  awardedAt: '2025-11-15', status: 'approved', approvedAt: '2025-11-18' },
-  { id: 'inc-16', recipientId: 'C001', recipientName: 'Rachel Stone',   recipientRole: 'coach',   category: 'performance',  amount: 250, reason: 'Caseload avg fidelity reached 4.0 — Fall semester high',        awardedAt: '2025-11-28', status: 'approved', approvedAt: '2025-12-02' },
-  // Summer 2025 — all approved (Jun–Jul 2025)
-  { id: 'inc-17', recipientId: 'T001', recipientName: 'Anna Carter',    recipientRole: 'teacher', category: 'training',     amount: 100, reason: 'Summer onboarding training fully completed',                     awardedAt: '2025-07-20', status: 'approved', approvedAt: '2025-07-25' },
-  { id: 'inc-18', recipientId: 'T003', recipientName: 'Carla Nguyen',   recipientRole: 'teacher', category: 'training',     amount: 150, reason: 'Completed Summer PD institute — all sessions attended',          awardedAt: '2025-07-25', status: 'approved', approvedAt: '2025-07-28' },
-  { id: 'inc-19', recipientId: 'C001', recipientName: 'Rachel Stone',   recipientRole: 'coach',   category: 'performance',  amount: 150, reason: 'Orientation coaching program successfully completed',            awardedAt: '2025-06-30', status: 'approved', approvedAt: '2025-07-05' },
+  // Spring 2026 — approved
+  { id: 'inc-1',  recipientId: 'T001', recipientName: 'Anna Carter',  recipientRole: 'teacher', category: 'logging', amount: 75, reason: '12 consecutive logs completed on time',      awardedAt: '2026-04-15', status: 'approved', approvedAt: '2026-04-18' },
+  { id: 'inc-5',  recipientId: 'T002', recipientName: 'Brian Lee',    recipientRole: 'teacher', category: 'logging', amount: 50, reason: 'Logged 8 sessions in April',                 awardedAt: '2026-05-01', status: 'approved', approvedAt: '2026-05-03' },
+  // Spring 2026 — pending
+  { id: 'inc-9',  recipientId: 'T004', recipientName: 'David Brooks', recipientRole: 'teacher', category: 'logging', amount: 50, reason: 'Improved log submission rate this period',    awardedAt: '2026-05-18', status: 'pending' },
+  // Fall 2025 — approved
+  { id: 'inc-11', recipientId: 'T001', recipientName: 'Anna Carter',  recipientRole: 'teacher', category: 'logging', amount: 75, reason: '10 consecutive logs completed on time',      awardedAt: '2025-10-15', status: 'approved', approvedAt: '2025-10-20' },
+  { id: 'inc-12', recipientId: 'T002', recipientName: 'Brian Lee',    recipientRole: 'teacher', category: 'logging', amount: 50, reason: '8 sessions logged in September',              awardedAt: '2025-09-30', status: 'approved', approvedAt: '2025-10-05' },
 ]

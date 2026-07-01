@@ -302,13 +302,13 @@ export type Conversation = {
   createdAt: string
 }
 
-export type IncentiveCategory = 'training' | 'performance' | 'logging'
+export type IncentiveCategory = string
 
 export type Incentive = {
   id: string
   recipientId: string
   recipientName: string
-  recipientRole: 'teacher' | 'coach'
+  recipientRole: 'teacher' | 'coach' | 'admin' | 'paraprofessional'
   category: IncentiveCategory
   amount: number
   reason: string
