@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Award, CheckCircle, TrendingUp, Clock } from 'lucide-react'
+import { Award, CheckCircle, Clock } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
 import { Badge } from '../../components/ui/Badge'
@@ -50,10 +50,9 @@ export function MyIncentives() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <StatCard label="Total Awarded" value={`$${allTimeAwarded}`} sub="All semesters" icon={<Award size={18} />} iconColor={roleColor} />
         <StatCard label="Pending Approval" value={`$${allTimePending}`} sub="Awaiting researcher" icon={<Clock size={18} />} iconColor="#F59E0B" />
-        <StatCard label="Projected" value={`$${calc.total}`} sub={currentSemester()} icon={<TrendingUp size={18} />} iconColor={roleColor} />
       </div>
 
       <div className="flex gap-2 flex-wrap">
